@@ -4,9 +4,18 @@ calculate the replicator (-mutator) dynamics, with one or two populations, in
 discrete or continuous time
 """
 
+## Built-in
 import numpy as np
 from scipy.integrate import ode
 from scipy.integrate import odeint
+from abc import ABC, abstractmethod
+
+## Libraries
+from tqdm import trange
+
+## Skyrms
+from skyrms.asymmetric_games import Chance,NonChance
+from skyrms.info import Information
 
 
 class OnePop:
@@ -427,6 +436,283 @@ class TwoPops:
         return self.game.calculate_receiver_mixed_strat(self.receivertypes,
                                                         receiverpop)
 
+
+class Reinforcement:
+    """
+        Evolving finite sets of agents by reinforcement learning.
+    """
+    
+    def __init__(
+            self,
+            game,
+            agents
+            ):
+        """
+        The game type determines the number of agents.
+
+        Parameters
+        ----------
+        game : one of the Skyrms game objects
+            DESCRIPTION.
+        agents: array-like
+            list of Skyrms agent objects
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        self.game = game
+        self.agents = agents
+        
+        ## Initialise
+        self.reset()
+    
+    def reset(self):
+        """
+        Initialise values and agents.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        ## Current iteration step is set to zero.
+        self.iteration = 0
+        
+    def run(self,iterations):
+        """
+        Run the simulation for <iterations> steps.
+
+        Parameters
+        ----------
+        iterations : int
+            Number of times to call self.step().
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        for _ in trange(iterations):
+            self.step()
+    
+    @abstractmethod
+    def step(self):
+        pass
+
+class Matching(Reinforcement):
+    """
+        Reinforcement according to Richard Herrnstein’s matching law.
+        The probability of choosing an action is proportional to its accumulated rewards.
+    """
+    
+    def __init__(self,game,agents):
+        
+        super().__init__(
+            game    = game,
+            agents  = agents)
+    
+        
+
+class MatchingSR(Matching):
+    """
+        Matching simulation for two-player sender-receiver game.
+    """
+    
+    def __init__(self,
+                 game,
+                 sender_strategies,
+                 receiver_strategies
+                 ):
+        """
+        For now, just set up a 2x2x2 game with equiprobably strategies and symmetric payoffs.
+        
+        This set-up code will go elsewhere later.
+        
+        Returns
+        -------
+        None.
+
+        """
+        
+        self.game = game
+        
+        ## Create the agents.
+        ## Sender has equiprobable strategies.
+        self.sender = Agent(sender_strategies)
+        
+        ## Receiver also has equiprobable strategies.
+        self.receiver = Agent(receiver_strategies)
+        
+        super().__init__(
+            game    = game,
+            agents  = [self.sender,self.receiver])
+        
+    
+    def step(self):
+        """
+        Implement the matching rule and increment one step.
+        
+        In each step:
+            1. Run one round of the game.
+            2. Update the agent's strategies based on the payoffs they received.
+            3. Calculate and store any required variables e.g. information.
+            4. Update iteration.
+    
+        Returns
+        -------
+        None.
+    
+        """
+        
+        ## 1. Run one round of the game.
+        ## 1a. Choose a nature state.
+        ## TODO: the game object should be able to do this,
+        ##  with a method like choose_state()
+        state_chances = self.game.state_chances
+        state = np.random.choice(range(len(state_chances)),p=state_chances)
+        
+        ## 1b. Choose a signal.
+        signal = self.sender.choose_strategy(state)
+        
+        ## 1c. Choose an act.
+        act = self.receiver.choose_strategy(signal)
+        
+        ## 1d. get the payoff
+        ## TODO The game object should do this.
+        ## Currently it only has an "averaging" method.
+        sender_payoff = self.game.sender_payoff_matrix[state][act]
+        receiver_payoff = self.game.receiver_payoff_matrix[state][act]
+        
+        ## 2. Update the agent's strategies based on the payoffs they received.
+        self.sender.update_strategies(state,signal,sender_payoff)
+        self.receiver.update_strategies(signal,act,receiver_payoff)
+        
+        ## 3. Calculate and store any required variables e.g. information.
+        self.log_info()
+        
+        ## 4. Update iteration.
+        self.iteration += 1
+    
+    def log_info(self):
+        """
+        Calculate and store informational quantities at this point.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        ## Lazy instantiation
+        if not hasattr(self, "statistics"):self.statistics = {}
+        
+        ## Mutual information between states and signals
+        if "mut_info_states_signals" not in self.statistics:
+            
+            ## Create empty array... 
+            self.statistics["mut_info_states_signals"] = np.empty((self.iteration,))
+            
+            ## ...and fill with NaN up to current iteration.
+            self.statistics["mut_info_states_signals"][:] = np.nan
+        
+        ## Get the current mutual information
+        ## Normalise strategy profiles
+        snorm = (self.sender.strategies.T / self.sender.strategies.sum(1)).T
+        rnorm = (self.receiver.strategies.T / self.receiver.strategies.sum(1)).T
+        
+        ## Create info object and get mutual information
+        info = Information(self.game,snorm,rnorm)
+        mut_info_states_signals = info.mutual_info_states_messages()
+        
+        
+        ## Append the current mutual information
+        self.statistics["mut_info_states_signals"] =\
+        np.append(
+            self.statistics["mut_info_states_signals"],
+            mut_info_states_signals
+            )
+        
+
+class Agent:
+    """
+        Finite, discrete agent used in Reinforcement() objects.
+    """
+    
+    def __init__(self,strategies):
+        
+        ## Probability distribution over deterministic strategies.
+        self.strategies = strategies
+    
+    def choose_strategy(self,input_data):
+        """
+        Sample from self.strategies[input_data] to get a concrete response.
+        
+        When the strategies are simply a matrix,
+         with each row defining a distribution over possible responses,
+         <input_data> is an integer indexing a row of the array.
+        So we choose that row and choose randomly from it,
+         according to the conditional probabilities of the responses,
+         which are themselves listed as entries in each row.
+        
+        E.g. if this is a sender, <input_data> is the index of the current state of the world,
+         and the possible responses are the possible signals.
+        If this is a receiver, <input_data> is the index of the signal sent,
+         and the possible responses are the possible acts.
+
+        Returns
+        -------
+        response : int.
+         The index of the agent's response.
+
+        """
+        
+        ## Among which responses can we choose?
+        possible_responses = range(len(self.strategies[input_data]))
+        
+        ## Assume the strategies are not yet normalised
+        probabilities = self.strategies[input_data] / self.strategies[input_data].sum()
+        
+        ## Select the response and return it
+        return np.random.choice(
+            possible_responses,
+            p = probabilities
+            )
+    
+    def update_strategies(self,input_data,response,payoff):
+        """
+        The agent has just played <response> in response to <input_data>,
+         and received <payoff> as a result.
+        
+        They now update the probability of choosing that response for
+         that input data, proportionally to <payoff>.
+
+        Parameters
+        ----------
+        input_data : TYPE
+            DESCRIPTION.
+        response : TYPE
+            DESCRIPTION.
+        payoff : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        ## Add payoff to probability.
+        self.strategies[input_data][response] += payoff
+        
+        ## It's of course possible that the payoff is negative.
+        ## We should not allow the weight to go below zero.
+        self.strategies[input_data][response] = max(self.strategies[input_data][response],0)
+        
 
 class Times:
     """

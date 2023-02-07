@@ -12,7 +12,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 
 from skyrms import asymmetric_games as asy
-from skyrms.evolve import OnePop,TwoPops
+from skyrms.evolve import OnePop,TwoPops,MatchingSR
 from skyrms.symmetric_games import NoSignal
 
 
@@ -38,7 +38,182 @@ class Figure(ABC):
     @abstractmethod
     def show(self):
         pass
+    
+    @abstractmethod
+    def reset(self):
+        pass
 
+
+class Scatter(Figure):
+    """
+        Superclass for scatter plots
+    """
+    
+    def __init__(
+            self,
+            evo,
+            **kwargs
+            ):
+        
+        super().__init__(
+            evo=evo,
+            **kwargs)
+        
+    def reset(
+            self,
+            x,
+            y,
+            xlabel,
+            ylabel,
+            marker_size = 10,
+            marker_color = 'k'
+            ):
+        """
+        Update figure parameters
+
+        Parameters
+        ----------
+        x : array-like
+            x-axis coordinates.
+        y : array-like
+            y-axis coordinates.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        ## Update global attributes, which can then be plotted in self.show()
+        self.x = x
+        self.y = y
+        
+        ## Labels
+        self.xlabel = xlabel
+        self.ylabel = ylabel
+        
+        ## Marker design
+        self.s = marker_size
+        self.c = marker_color
+        
+    
+    def show(self):
+        
+        ## Data
+        plt.scatter(
+            x = self.x, 
+            y = self.y,
+            s = self.s,
+            c = self.c
+            )
+        
+        ## Labels
+        plt.xlabel(self.xlabel)
+        plt.ylabel(self.ylabel)
+        
+        ## Show plot
+        plt.show()
+        
+    
+    """
+        SCATTER ATTRIBUTES AND ALIASES
+    """
+    """
+        Marker size
+    """
+    @property
+    def s(self):
+        return self._s
+
+    @s.setter
+    def s(self, inp):
+        self._s = inp
+
+    @s.deleter
+    def s(self):
+        del self._s
+
+    # Alias
+    marker_size = s
+    
+    """
+        Marker color
+    """
+    @property
+    def c(self):
+        return self._c
+
+    @c.setter
+    def c(self, inp):
+        self._c = inp
+
+    @c.deleter
+    def c(self):
+        del self._c
+
+    # Alias
+    marker_color = c
+        
+    
+class Skyrms2010_3_3(Scatter):
+    """
+        Figure 3.3, page 40, of Skyrms 2010
+    """
+    
+    def __init__(self,iterations=100):
+        
+        self.initialize_simulation()
+        
+        evo = self.run_simulation(iterations)
+        
+        ## Get info attribute
+        y = evo.statistics["mut_info_states_signals"]
+        
+        super().__init__(evo)
+        
+        self.reset(
+            x = range(iterations),
+            y = y,
+            xlabel = "Iterations",
+            ylabel = "Information"
+            )
+        
+        self.show()
+    
+    def initialize_simulation(self):
+        
+        self.state_chances           = np.array([.5, .5])
+        self.sender_payoff_matrix    = np.eye(2)
+        self.receiver_payoff_matrix  = np.eye(2)
+        self.messages                = 2
+        
+    
+    def run_simulation(self,iterations):
+        
+        ## Create game
+        game = asy.Chance(
+            state_chances = self.state_chances,
+            sender_payoff_matrix = self.sender_payoff_matrix,
+            receiver_payoff_matrix = self.receiver_payoff_matrix,
+            messages = self.messages
+            )
+        
+        ## Define strategies
+        sender_strategies = np.ones((2,2))
+        receiver_strategies = np.ones((2,2))
+        
+        
+        ## Create simulation
+        evo = MatchingSR(
+            game,
+            sender_strategies,
+            receiver_strategies
+            )
+        
+        ## Run simulation for <iterations> steps
+        evo.run(iterations)
+        
+        return evo
 
 
 class Quiver(Figure):
