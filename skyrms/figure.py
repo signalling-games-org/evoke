@@ -349,7 +349,7 @@ class Skyrms2010_1_2(Quiver3D):
         
         
         ## Create the game...
-        game = NoSignalFixed(self.payoffs)
+        game = NoSignal(self.payoffs)
         
         ## ...and the simulation.
         self.evo = OnePop(game,self.playertypes)
@@ -403,16 +403,3 @@ class Skyrms2010_1_2(Quiver3D):
         
         return self.evo
         
-
-
-## TEMPORARY: Overwrite the bug in the NoSignal class
-class NoSignalFixed(NoSignal):
-    def avg_payoffs(self, player_strats):
-        """
-        Return an array with the average payoff of strat i against
-        strat j in position <i, j>
-        """
-        payoff_ij = np.vectorize(lambda i, j: self.payoff(player_strats[int(i)],
-                                                          player_strats[int(j)]))
-        shape_result = [len(player_strats)] * 2
-        return np.fromfunction(payoff_ij, shape_result)

@@ -44,8 +44,8 @@ class NoSignal:
         Return an array with the average payoff of strat i against
         strat j in position <i, j>
         """
-        payoff_ij = np.vectorize(lambda i, j: self.payoff(player_strats[i],
-                                                          player_strats[j]))
+        payoff_ij = np.vectorize(lambda i, j: self.payoff(player_strats[int(i)],
+                                                          player_strats[int(j)]))
         shape_result = [len(player_strats)] * 2
         return np.fromfunction(payoff_ij, shape_result)
 
