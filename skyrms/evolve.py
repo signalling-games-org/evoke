@@ -529,10 +529,17 @@ class MatchingSR(Matching):
                  receiver_strategies
                  ):
         """
-        For now, just set up a 2x2x2 game with equiprobably strategies and symmetric payoffs.
         
-        This set-up code will go elsewhere later.
-        
+
+        Parameters
+        ----------
+        game : TYPE
+            DESCRIPTION.
+        sender_strategies : TYPE
+            DESCRIPTION.
+        receiver_strategies : TYPE
+            DESCRIPTION.
+
         Returns
         -------
         None.
@@ -542,10 +549,10 @@ class MatchingSR(Matching):
         self.game = game
         
         ## Create the agents.
-        ## Sender has equiprobable strategies.
+        ## Sender 
         self.sender = Agent(sender_strategies)
         
-        ## Receiver also has equiprobable strategies.
+        ## Receiver 
         self.receiver = Agent(receiver_strategies)
         
         super().__init__(
@@ -559,7 +566,7 @@ class MatchingSR(Matching):
         
         In each step:
             1. Run one round of the game.
-            2. Update the agent's strategies based on the payoffs they received.
+            2. Update the agents' strategies based on the payoffs they received.
             3. Calculate and store any required variables e.g. information.
             4. Update iteration.
     
@@ -637,6 +644,141 @@ class MatchingSR(Matching):
             mut_info_states_signals
             )
         
+
+class MatchingSIR(Matching):
+    """
+        Reinforcement game for sender, intermediary, receiver.
+    """
+    
+    def __init__(self,
+                 game,
+                 sender_strategies,
+                 intermediary_strategies,
+                 receiver_strategies
+                 ):
+        """
+        
+
+        Parameters
+        ----------
+        game : TYPE
+            DESCRIPTION.
+        sender_strategies : TYPE
+            DESCRIPTION.
+        intermediary_strategies : TYPE
+            DESCRIPTION.
+        receiver_strategies : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        self.game = game
+        
+        ## Create the agents.
+        ## Sender 
+        self.sender = Agent(sender_strategies)
+        
+        ## Intermediary
+        self.intermediary = Agent(intermediary_strategies)
+        
+        ## Receiver 
+        self.receiver = Agent(receiver_strategies)
+        
+        super().__init__(
+            game    = game,
+            agents  = [self.sender,self.intermediary,self.receiver])
+        
+    
+    def step(self):
+        """
+        Implement the matching rule and increment one step.
+        
+        In each step:
+            1. Run one round of the game.
+            2. Update the agents' strategies based on the payoffs they received.
+            3. Calculate and store any required variables e.g. probability of success.
+            4. Update iteration.
+    
+        Returns
+        -------
+        None.
+        """
+        
+        ## 1. Run one round of the game.
+        ## 1a. Choose a nature state.
+        state = self.game.choose_state()
+        
+        ## 1b. Choose a signal.
+        signal_sender = self.sender.choose_strategy(state)
+        
+        ## 1b. Choose an intermediary signal.
+        signal_intermediary = self.intermediary.choose_strategy(signal_sender)
+        
+        ## 1c. Choose an act.
+        act = self.receiver.choose_strategy(signal_intermediary)
+        
+        ## 1d. get the payoff
+        sender_payoff = self.game.sender_payoff(state,act)
+        intermediary_payoff = self.game.intermediary_payoff(state,act)
+        receiver_payoff = self.game.receiver_payoff(state,act)
+        
+        ## 2. Update the agent's strategies based on the payoffs they received.
+        self.sender.update_strategies(state,signal_sender,sender_payoff)
+        self.intermediary.update_strategies(state,signal_intermediary,intermediary_payoff)
+        self.receiver.update_strategies(signal_intermediary,act,receiver_payoff)
+        
+        ## 3. Calculate and store any required variables e.g. probability of success.
+        self.record_probability_of_success()
+        
+        ## 4. Update iteration.
+        self.iteration += 1
+    
+    def record_probability_of_success(self):
+        """
+        For now, just store "probability of success."
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        ## Lazy instantiation
+        if not hasattr(self, "statistics"):self.statistics = {}
+        
+        ## Probability of success.
+        ## Requires game to be "regular" i.e. all agents have identical payoff matrices.
+        assert self.game.regular
+        
+        if "prob_success" not in self.statistics:
+            
+            ## Create empty array... 
+            self.statistics["prob_success"] = np.empty((self.iteration,))
+            
+            ## ...and fill with NaN up to current iteration.
+            self.statistics["prob_success"][:] = np.nan
+
+        ## Get the current probability of success
+        ## Normalise strategy profiles
+        
+        ## Sender strategy profile normalised
+        snorm = (self.sender.strategies.T / self.sender.strategies.sum(1)).T
+        
+        ## Intermediary strategy profile normalised
+        inorm = (self.intermediary.strategies.T / self.intermediary.strategies.sum(1)).T
+        
+        ## Receiver strategy profile normalised
+        rnorm = (self.receiver.strategies.T / self.receiver.strategies.sum(1)).T
+        
+        ## Ask the game for the average payoff, given these strategies.
+        ## Because payoffs are np.eye(2), this is equal to the probability of success.
+        
+        ## TODO    
+
 
 class Agent:
     """

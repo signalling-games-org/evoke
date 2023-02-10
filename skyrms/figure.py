@@ -252,6 +252,10 @@ class Quiver2D(Quiver):
             **kwargs)
     
     
+    def reset(self):
+        
+        pass # TODO -- here is where plot parameters can be changed.
+    
     def show(self):
         
         ## Create the figure
@@ -390,6 +394,9 @@ class Quiver3D(Quiver):
             evo = evo,
             **kwargs)
     
+    def reset(self):
+        
+        pass # TODO -- here is where plot parameters can be changed.
     
     def show(self):
         

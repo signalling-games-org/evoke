@@ -103,6 +103,175 @@ class Chance:
                                                          np.newaxis]
         return sum(mixedstratreceiver)
 
+class ChanceSIR:
+    """
+        A sender-intermediary-receiver game with Nature choosing the state.
+    """
+    
+    def __init__(self,
+            state_chances               = np.array([1/2,1/2]),
+            sender_payoff_matrix        = np.eye(2),
+            intermediary_payoff_matrix  = np.eye(2),
+            receiver_payoff_matrix      = np.eye(2), 
+            messages_sender             = 2,
+            messages_intermediary       = 2
+            ):
+        """
+        For now, just load the inputs into class attributes.
+        We can add methods to this as required.
+
+        Parameters
+        ----------
+        state_chances : TYPE, optional
+            DESCRIPTION. The default is np.array([1/2,1/2]).
+        sender_payoff_matrix : TYPE, optional
+            DESCRIPTION. The default is np.eye(2).
+        intermediary_payoff_matrix : TYPE, optional
+            DESCRIPTION. The default is np.eye(2).
+        receiver_payoff_matrix : TYPE, optional
+            DESCRIPTION. The default is np.eye(2).
+        messages_sender : TYPE, optional
+            DESCRIPTION. The default is 2.
+        messages_intermediary : TYPE, optional
+            DESCRIPTION. The default is 2.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        self.state_chances              = state_chances
+        self.sender_payoff_matrix       = sender_payoff_matrix
+        self.intermediary_payoff_matrix = intermediary_payoff_matrix
+        self.receiver_payoff_matrix     = receiver_payoff_matrix
+        self.messages_sender            = messages_sender
+        self.messages_intermediary      = messages_intermediary
+        
+        ## Call it a "regular" game if payoffs are all np.eye(2)
+        self.regular = False
+        
+        if np.eye(2).all()                      ==\
+        self.sender_payoff_matrix.all()         ==\
+        self.intermediary_payoff_matrix.all()   ==\
+        self.receiver_payoff_matrix.all():
+            self.regular = True
+        
+    
+    def choose_state(self):
+        """
+        Randomly get a state according to self.state_chances
+
+        Returns
+        -------
+        state : int
+            Index of the chosen state.
+
+        """
+        
+        return np.random.choice(range(len(self.state_chances)),p=self.state_chances)
+    
+    def payoff_sender(self,state,act):
+        """
+        Get the sender's payoff when this combination of state and act occurs.
+
+        Parameters
+        ----------
+        state : TYPE
+            DESCRIPTION.
+        act : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        payoff : TYPE
+            DESCRIPTION.
+
+        """
+        
+        return self.sender_payoff_matrix[state][act]
+    
+    def payoff_intermediary(self,state,act):
+        """
+        Get the intermediary's payoff when this combination of state and act occurs.
+
+        Parameters
+        ----------
+        state : TYPE
+            DESCRIPTION.
+        act : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        payoff : TYPE
+            DESCRIPTION.
+
+        """
+        
+        return self.intermediary_payoff_matrix[state][act]
+    
+    def payoff_receiver(self,state,act):
+        """
+        Get the receiver's payoff when this combination of state and act occurs.
+
+        Parameters
+        ----------
+        state : TYPE
+            DESCRIPTION.
+        act : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        payoff : TYPE
+            DESCRIPTION.
+
+        """
+        
+        return self.receiver_payoff_matrix[state][act]
+    
+    def avg_payoffs_regular(self, 
+                            sender_strats, 
+                            intermediary_strats,
+                            receiver_strats):
+        """
+        Return the average payoff of all players given these strategy profiles.
+        
+        Requires game to be regular.
+
+        Parameters
+        ----------
+        sender_strats : TYPE
+            DESCRIPTION.
+        intermediary_strats: array-like
+            Intermediary player's strategy profile, normalised
+        receiver_strats : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        """
+        
+        assert self.regular
+        
+        ## Nature and Sender combine to provide unconditional probabilities
+        ##  of sender signals 0 and 1.
+        prob_uncond_signal_sender = self.state_chances @ sender_strats
+        
+        ## Sender signals and intermediary combine to provide unconditional probabilities
+        ##  of intermediary signals 0 and 1.
+        prob_uncond_signal_intermediary = prob_uncond_signal_sender @ intermediary_strats
+        
+        ## Intermediary signals and receiver combine to provide unconditional probabilities
+        ##  of acts.
+        prob_uncond_acts = prob_uncond_signal_intermediary @ receiver_strats
+        
+        ## TODO
+        
 
 class NonChance:
     """
