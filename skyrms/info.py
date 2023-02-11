@@ -2,6 +2,8 @@
 Information-theoretic analyses
 """
 
+from asymmetric_games import Chance
+
 import numpy as np
 import scipy.optimize as opt
 from scipy import sparse
@@ -18,7 +20,7 @@ class Information:
         self.sender = sender
         self.receiver = receiver
         self.game = game
-        if self.game.chance_node:
+        if isinstance(game, Chance):
             self.state_chances = game.state_chances
             self.msg_cond_on_states, self.acts_cond_on_msg = (self.sender,
                                                               self.receiver)
