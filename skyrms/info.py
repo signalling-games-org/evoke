@@ -2,12 +2,11 @@
 Information-theoretic analyses
 """
 
-from asymmetric_games import Chance
-
 import numpy as np
 import scipy.optimize as opt
 from scipy import sparse
 
+from asymmetric_games import Chance
 
 class Information:
     """
