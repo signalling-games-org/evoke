@@ -3,9 +3,10 @@ Set up a symmetric evolutionary game, that can be then fed to the evolve
 module. For the time being, these are just games without a chance player
 (although there could be games with *two* chance players).
 """
-import numpy as np
 import itertools as it
 import sys
+
+import numpy as np
 np.set_printoptions(precision=4)
 
 

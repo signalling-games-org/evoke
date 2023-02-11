@@ -4,9 +4,10 @@ module.  There are two main classes here:
     - Games with a chance player
     - Games without a chance player
 """
-import numpy as np
 import itertools as it
 import sys
+
+import numpy as np
 np.set_printoptions(precision=4)
 
 
