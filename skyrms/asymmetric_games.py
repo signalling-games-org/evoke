@@ -34,7 +34,6 @@ class Chance:
                      "shape")
         if not isinstance(messages, int):
             sys.exit("The number of messages should be an integer")
-        self.chance_node = True  # flag to know where the game comes from
         self.state_chances = state_chances
         self.sender_payoff_matrix = sender_payoff_matrix
         self.receiver_payoff_matrix = receiver_payoff_matrix
