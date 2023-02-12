@@ -14,7 +14,7 @@ from abc import ABC, abstractmethod
 from tqdm import trange
 
 ## Skyrms
-from skyrms.asymmetric_games import Chance,NonChance
+from skyrms.asymmetric_games import Chance, NonChance
 from skyrms.info import Information
 
 
@@ -25,6 +25,7 @@ class OnePop:
     payoff for the-strategist player of an encounter in which they  follow
     strategy i and their opponent follows strategy j.
     """
+
     def __init__(self, game, playertypes):
         self.game = game
         self.avgpayoffs = self.game.avg_payoffs(playertypes)
@@ -72,11 +73,12 @@ class OnePop:
         senderpops, receiverpops = self.vector_to_populations(X)
         avgfitsender = self.sender_avg_payoff(senderpops, receiverpops)
         avgfitreceiver = self.receiver_avg_payoff(receiverpops, senderpops)
-        senderdot = (self.senderpayoffs *
-                     senderpops[..., None]).dot(receiverpops).dot(
-                         self.mm_sender) - senderpops * avgfitsender
-        receiverdot = ((self.receiverpayoffs * receiverpops[..., None]).dot(
-            senderpops).dot(self.mm_receiver) - receiverpops * avgfitreceiver)
+        senderdot = (self.senderpayoffs * senderpops[..., None]).dot(receiverpops).dot(
+            self.mm_sender
+        ) - senderpops * avgfitsender
+        receiverdot = (self.receiverpayoffs * receiverpops[..., None]).dot(
+            senderpops
+        ).dot(self.mm_receiver) - receiverpops * avgfitreceiver
         result = np.concatenate((senderdot, receiverdot))
         if self.precision:
             np.around(result, decimals=self.precision, out=result)
@@ -93,11 +95,13 @@ class OnePop:
         xR = self.receiverpayoffs.dot(senderpops)
         yR = self.receiverpayoffs * receiverpops[..., None]
         tile1 = (self.mm_sender - senderpops[..., None]) * yS - np.identity(
-            self.lss) * avgfitsender
+            self.lss
+        ) * avgfitsender
         tile2 = (self.mm_sender - senderpops).transpose().dot(xS)
         tile3 = (self.mm_receiver - receiverpops).transpose().dot(yR)
-        tile4 = ((self.mm_receiver - receiverpops[..., None]) *
-                 xR - np.identity(self.lrs) * avgfitreceiver)
+        tile4 = (self.mm_receiver - receiverpops[..., None]) * xR - np.identity(
+            self.lrs
+        ) * avgfitreceiver
         lefthalf = np.vstack((tile1.transpose(), tile2.transpose()))
         righthalf = np.vstack((tile3.transpose(), tile4.transpose()))
         jac = np.hstack((lefthalf, righthalf))
@@ -118,11 +122,13 @@ class OnePop:
         xR = self.receiverpayoffs.dot(senderpops)
         yR = self.receiverpayoffs * receiverpops[..., None]
         tile1 = (self.mm_sender - senderpops[..., None]) * yS - np.identity(
-            self.lss) * avgfitsender
+            self.lss
+        ) * avgfitsender
         tile2 = (self.mm_sender - senderpops).transpose().dot(xS)
         tile3 = (self.mm_receiver - receiverpops).transpose().dot(yR)
-        tile4 = ((self.mm_receiver - receiverpops[..., None]) *
-                 xR - np.identity(self.lrs) * avgfitreceiver)
+        tile4 = (self.mm_receiver - receiverpops[..., None]) * xR - np.identity(
+            self.lrs
+        ) * avgfitreceiver
         lefthalf = np.vstack((tile1.transpose(), tile2.transpose()))
         righthalf = np.vstack((tile3.transpose(), tile4.transpose()))
         jac = np.hstack((lefthalf, righthalf))
@@ -148,20 +154,24 @@ class OnePop:
         game.Times instance), using scipy.integrate.odeint
         """
         return odeint(
-            self.replicator_dX_dt_odeint, np.concatenate((sinit, rinit)),
-            times.time_vector, Dfun=self.replicator_jacobian_odeint,
-            col_deriv=True, **kwargs)
+            self.replicator_dX_dt_odeint,
+            np.concatenate((sinit, rinit)),
+            times.time_vector,
+            Dfun=self.replicator_jacobian_odeint,
+            col_deriv=True,
+            **kwargs
+        )
 
-    def replicator_ode(self, sinit, rinit, times, integrator='dopri5'):
+    def replicator_ode(self, sinit, rinit, times, integrator="dopri5"):
         """
         Calculate one run of the game, following the replicator(-mutator)
         dynamics in continuous time, in <times> (a game.Times instance) with
         starting points sinit and rinit using scipy.integrate.ode
         """
         initialpop = np.concatenate((sinit, rinit))
-        equations = ode(self.replicator_dX_dt_ode,
-                        self.replicator_jacobian_ode).set_integrator(
-                            integrator)
+        equations = ode(
+            self.replicator_dX_dt_ode, self.replicator_jacobian_ode
+        ).set_integrator(integrator)
         equations.set_initial_value(initialpop, times.initial_time)
         while equations.successful() and equations.t < times.final_time:
             newdata = equations.integrate(equations.t + times.time_inc)
@@ -203,6 +213,7 @@ class TwoPops:
     (receiver) of an encounter in which the sender follows strategy i and the
     receiver follows strategy j.
     """
+
     def __init__(self, game, sendertypes, receivertypes):
         self.game = game
         avgpayoffs = self.game.avg_payoffs(sendertypes, receivertypes)
@@ -257,12 +268,12 @@ class TwoPops:
         senderpops, receiverpops = self.vector_to_populations(X)
         avgfitsender = self.sender_avg_payoff(senderpops, receiverpops)
         avgfitreceiver = self.receiver_avg_payoff(receiverpops, senderpops)
-        senderdot = (self.senderpayoffs *
-                     senderpops[..., None]).dot(
-                         receiverpops).dot(
-                             self.mm_sender) - senderpops * avgfitsender
-        receiverdot = ((self.receiverpayoffs * receiverpops[..., None]).dot(
-            senderpops).dot(self.mm_receiver) - receiverpops * avgfitreceiver)
+        senderdot = (self.senderpayoffs * senderpops[..., None]).dot(receiverpops).dot(
+            self.mm_sender
+        ) - senderpops * avgfitsender
+        receiverdot = (self.receiverpayoffs * receiverpops[..., None]).dot(
+            senderpops
+        ).dot(self.mm_receiver) - receiverpops * avgfitreceiver
         result = np.concatenate((senderdot, receiverdot))
         if self.precision:
             np.around(result, decimals=self.precision, out=result)
@@ -280,11 +291,12 @@ class TwoPops:
         senderpops, receiverpops = self.vector_to_populations(X)
         avgfitsender = self.sender_avg_payoff(senderpops, receiverpops)
         avgfitreceiver = self.receiver_avg_payoff(receiverpops, senderpops)
-        senderdot = (self.senderpayoffs *
-                     senderpops[..., None]).dot(receiverpops).dot(
-                         self.mm_sender) - senderpops * avgfitsender
-        receiverdot = ((self.receiverpayoffs * receiverpops[..., None]).dot(
-            senderpops).dot(self.mm_receiver) - receiverpops * avgfitreceiver)
+        senderdot = (self.senderpayoffs * senderpops[..., None]).dot(receiverpops).dot(
+            self.mm_sender
+        ) - senderpops * avgfitsender
+        receiverdot = (self.receiverpayoffs * receiverpops[..., None]).dot(
+            senderpops
+        ).dot(self.mm_receiver) - receiverpops * avgfitreceiver
         result = np.concatenate((senderdot, receiverdot))
         if self.precision:
             np.around(result, decimals=self.precision, out=result)
@@ -308,11 +320,13 @@ class TwoPops:
         xR = self.receiverpayoffs.dot(senderpops)
         yR = self.receiverpayoffs * receiverpops[..., None]
         tile1 = (self.mm_sender - senderpops[..., None]) * yS - np.identity(
-            self.lss) * avgfitsender
+            self.lss
+        ) * avgfitsender
         tile2 = (self.mm_sender - senderpops).transpose().dot(xS)
         tile3 = (self.mm_receiver - receiverpops).transpose().dot(yR)
-        tile4 = ((self.mm_receiver - receiverpops[..., None]) *
-                 xR - np.identity(self.lrs) * avgfitreceiver)
+        tile4 = (self.mm_receiver - receiverpops[..., None]) * xR - np.identity(
+            self.lrs
+        ) * avgfitreceiver
         lefthalf = np.vstack((tile1.transpose(), tile2.transpose()))
         righthalf = np.vstack((tile3.transpose(), tile4.transpose()))
         jac = np.hstack((lefthalf, righthalf))
@@ -333,11 +347,13 @@ class TwoPops:
         xR = self.receiverpayoffs.dot(senderpops)
         yR = self.receiverpayoffs * receiverpops[..., None]
         tile1 = (self.mm_sender - senderpops[..., None]) * yS - np.identity(
-            self.lss) * avgfitsender
+            self.lss
+        ) * avgfitsender
         tile2 = (self.mm_sender - senderpops).transpose().dot(xS)
         tile3 = (self.mm_receiver - receiverpops).transpose().dot(yR)
-        tile4 = ((self.mm_receiver - receiverpops[..., None]) *
-                 xR - np.identity(self.lrs) * avgfitreceiver)
+        tile4 = (self.mm_receiver - receiverpops[..., None]) * xR - np.identity(
+            self.lrs
+        ) * avgfitreceiver
         lefthalf = np.vstack((tile1.transpose(), tile2.transpose()))
         righthalf = np.vstack((tile3.transpose(), tile4.transpose()))
         jac = np.hstack((lefthalf, righthalf))
@@ -355,13 +371,12 @@ class TwoPops:
         senderpops, receiverpops = self.vector_to_populations(X)
         avgfitsender = self.sender_avg_payoff(senderpops, receiverpops)
         avgfitreceiver = self.receiver_avg_payoff(receiverpops, senderpops)
-        senderdelta = (self.senderpayoffs *
-                       senderpops[..., None]).dot(
-                           receiverpops).dot(self.mm_sender) / avgfitsender
-        receiverdelta = (self.receiverpayoffs *
-                         receiverpops[..., None]).dot(
-                             senderpops).dot(
-                                 self.mm_receiver) / avgfitreceiver
+        senderdelta = (self.senderpayoffs * senderpops[..., None]).dot(
+            receiverpops
+        ).dot(self.mm_sender) / avgfitsender
+        receiverdelta = (self.receiverpayoffs * receiverpops[..., None]).dot(
+            senderpops
+        ).dot(self.mm_receiver) / avgfitreceiver
         result = np.concatenate((senderdelta, receiverdelta))
         if self.precision:
             np.around(result, decimals=self.precision, out=result)
@@ -374,20 +389,24 @@ class TwoPops:
         game.Times instance), using scipy.integrate.odeint
         """
         return odeint(
-            self.replicator_dX_dt_odeint, np.concatenate((sinit, rinit)),
-            times.time_vector, Dfun=self.replicator_jacobian_odeint,
-            col_deriv=True, **kwargs)
+            self.replicator_dX_dt_odeint,
+            np.concatenate((sinit, rinit)),
+            times.time_vector,
+            Dfun=self.replicator_jacobian_odeint,
+            col_deriv=True,
+            **kwargs
+        )
 
-    def replicator_ode(self, sinit, rinit, times, integrator='dopri5'):
+    def replicator_ode(self, sinit, rinit, times, integrator="dopri5"):
         """
         Calculate one run of the game, following the replicator(-mutator)
         dynamics in continuous time, in <times> (a game.Times instance) with
         starting points sinit and rinit using scipy.integrate.ode
         """
         initialpop = np.concatenate((sinit, rinit))
-        equations = ode(self.replicator_dX_dt_ode,
-                        self.replicator_jacobian_ode).set_integrator(
-                            integrator)
+        equations = ode(
+            self.replicator_dX_dt_ode, self.replicator_jacobian_ode
+        ).set_integrator(integrator)
         equations.set_initial_value(initialpop, times.initial_time)
         while equations.successful() and equations.t < times.final_time:
             newdata = equations.integrate(equations.t + times.time_inc)
@@ -425,28 +444,22 @@ class TwoPops:
         Take a sender population vector and output the average
         sender strat implemented by the whole population
         """
-        return self.game.calculate_sender_mixed_strat(self.sendertypes,
-                                                      senderpop)
+        return self.game.calculate_sender_mixed_strat(self.sendertypes, senderpop)
 
     def receiver_to_mixed_strat(self, receiverpop):
         """
         Take a receiver population vector and output the average
         receiver strat implemented by the whole population
         """
-        return self.game.calculate_receiver_mixed_strat(self.receivertypes,
-                                                        receiverpop)
+        return self.game.calculate_receiver_mixed_strat(self.receivertypes, receiverpop)
 
 
 class Reinforcement:
     """
-        Evolving finite sets of agents by reinforcement learning.
+    Evolving finite sets of agents by reinforcement learning.
     """
-    
-    def __init__(
-            self,
-            game,
-            agents
-            ):
+
+    def __init__(self, game, agents):
         """
         The game type determines the number of agents.
 
@@ -462,13 +475,13 @@ class Reinforcement:
         None.
 
         """
-        
+
         self.game = game
         self.agents = agents
-        
+
         ## Initialise
         self.reset()
-    
+
     def reset(self):
         """
         Initialise values and agents.
@@ -478,11 +491,11 @@ class Reinforcement:
         None.
 
         """
-        
+
         ## Current iteration step is set to zero.
         self.iteration = 0
-        
-    def run(self,iterations):
+
+    def run(self, iterations):
         """
         Run the simulation for <iterations> steps.
 
@@ -496,40 +509,34 @@ class Reinforcement:
         None.
 
         """
-        
+
         for _ in trange(iterations):
             self.step()
-    
+
     @abstractmethod
     def step(self):
         pass
 
+
 class Matching(Reinforcement):
     """
-        Reinforcement according to Richard Herrnstein’s matching law.
-        The probability of choosing an action is proportional to its accumulated rewards.
+    Reinforcement according to Richard Herrnstein’s matching law.
+    The probability of choosing an action is proportional to its accumulated rewards.
     """
-    
-    def __init__(self,game,agents):
-        
-        super().__init__(
-            game    = game,
-            agents  = agents)
-    
-        
+
+    def __init__(self, game, agents):
+
+        super().__init__(game=game, agents=agents)
+
 
 class MatchingSR(Matching):
     """
-        Matching simulation for two-player sender-receiver game.
+    Matching simulation for two-player sender-receiver game.
     """
-    
-    def __init__(self,
-                 game,
-                 sender_strategies,
-                 receiver_strategies
-                 ):
+
+    def __init__(self, game, sender_strategies, receiver_strategies):
         """
-        
+
 
         Parameters
         ----------
@@ -545,65 +552,58 @@ class MatchingSR(Matching):
         None.
 
         """
-        
+
         self.game = game
-        
+
         ## Create the agents.
-        ## Sender 
+        ## Sender
         self.sender = Agent(sender_strategies)
-        
-        ## Receiver 
+
+        ## Receiver
         self.receiver = Agent(receiver_strategies)
-        
-        super().__init__(
-            game    = game,
-            agents  = [self.sender,self.receiver])
-        
-    
+
+        super().__init__(game=game, agents=[self.sender, self.receiver])
+
     def step(self):
         """
         Implement the matching rule and increment one step.
-        
+
         In each step:
             1. Run one round of the game.
             2. Update the agents' strategies based on the payoffs they received.
             3. Calculate and store any required variables e.g. information.
             4. Update iteration.
-    
+
         Returns
         -------
         None.
-    
+
         """
-        
+
         ## 1. Run one round of the game.
         ## 1a. Choose a nature state.
-        ## TODO: the game object should be able to do this,
-        ##  with a method like choose_state()
         state = self.game.choose_state()
-        
+
         ## 1b. Choose a signal.
         signal = self.sender.choose_strategy(state)
-        
+
         ## 1c. Choose an act.
         act = self.receiver.choose_strategy(signal)
-        
+
         ## 1d. get the payoff
-        ## TODO The game object should do this.
-        ## Currently it only has an "averaging" method.
-        sender_payoff = self.game.sender_payoff_matrix[state][act]
-        receiver_payoff = self.game.receiver_payoff_matrix[state][act]
-        
+        sender_payoff = self.game.sender_payoff(state, act)
+        receiver_payoff = self.game.receiver_payoff(state, act)
+
         ## 2. Update the agent's strategies based on the payoffs they received.
-        self.sender.update_strategies(state,signal,sender_payoff)
-        self.receiver.update_strategies(signal,act,receiver_payoff)
-        
+        self.sender.update_strategies(state, signal, sender_payoff)
+        self.receiver.update_strategies(signal, act, receiver_payoff)
+
         ## 3. Calculate and store any required variables e.g. information.
         self.log_info()
-        
+
         ## 4. Update iteration.
         self.iteration += 1
-    
+
     def log_info(self):
         """
         Calculate and store informational quantities at this point.
@@ -613,50 +613,45 @@ class MatchingSR(Matching):
         None.
 
         """
-        
+
         ## Lazy instantiation
-        if not hasattr(self, "statistics"):self.statistics = {}
-        
+        if not hasattr(self, "statistics"):
+            self.statistics = {}
+
         ## Mutual information between states and signals
         if "mut_info_states_signals" not in self.statistics:
-            
-            ## Create empty array... 
+
+            ## Create empty array...
             self.statistics["mut_info_states_signals"] = np.empty((self.iteration,))
-            
+
             ## ...and fill with NaN up to current iteration.
             self.statistics["mut_info_states_signals"][:] = np.nan
-        
+
         ## Get the current mutual information
         ## Normalise strategy profiles
         snorm = (self.sender.strategies.T / self.sender.strategies.sum(1)).T
         rnorm = (self.receiver.strategies.T / self.receiver.strategies.sum(1)).T
-        
+
         ## Create info object and get mutual information
-        info = Information(self.game,snorm,rnorm)
+        info = Information(self.game, snorm, rnorm)
         mut_info_states_signals = info.mutual_info_states_messages()
-        
-        
+
         ## Append the current mutual information
-        self.statistics["mut_info_states_signals"] =\
-        np.append(
-            self.statistics["mut_info_states_signals"],
-            mut_info_states_signals
-            )
-        
+        self.statistics["mut_info_states_signals"] = np.append(
+            self.statistics["mut_info_states_signals"], mut_info_states_signals
+        )
+
 
 class MatchingSIR(Matching):
     """
-        Reinforcement game for sender, intermediary, receiver.
+    Reinforcement game for sender, intermediary, receiver.
     """
-    
-    def __init__(self,
-                 game,
-                 sender_strategies,
-                 intermediary_strategies,
-                 receiver_strategies
-                 ):
+
+    def __init__(
+        self, game, sender_strategies, intermediary_strategies, receiver_strategies
+    ):
         """
-        
+
 
         Parameters
         ----------
@@ -674,68 +669,69 @@ class MatchingSIR(Matching):
         None.
 
         """
-        
+
         self.game = game
-        
+
         ## Create the agents.
-        ## Sender 
+        ## Sender
         self.sender = Agent(sender_strategies)
-        
+
         ## Intermediary
         self.intermediary = Agent(intermediary_strategies)
-        
-        ## Receiver 
+
+        ## Receiver
         self.receiver = Agent(receiver_strategies)
-        
+
         super().__init__(
-            game    = game,
-            agents  = [self.sender,self.intermediary,self.receiver])
-        
-    
+            game=game, agents=[self.sender, self.intermediary, self.receiver]
+        )
+
     def step(self):
         """
         Implement the matching rule and increment one step.
-        
+
         In each step:
             1. Run one round of the game.
             2. Update the agents' strategies based on the payoffs they received.
             3. Calculate and store any required variables e.g. probability of success.
             4. Update iteration.
-    
+
         Returns
         -------
         None.
         """
-        
+
         ## 1. Run one round of the game.
         ## 1a. Choose a nature state.
         state = self.game.choose_state()
-        
+
         ## 1b. Choose a signal.
         signal_sender = self.sender.choose_strategy(state)
-        
+
         ## 1b. Choose an intermediary signal.
         signal_intermediary = self.intermediary.choose_strategy(signal_sender)
-        
+
         ## 1c. Choose an act.
         act = self.receiver.choose_strategy(signal_intermediary)
-        
+
         ## 1d. get the payoff
-        sender_payoff = self.game.sender_payoff(state,act)
-        intermediary_payoff = self.game.intermediary_payoff(state,act)
-        receiver_payoff = self.game.receiver_payoff(state,act)
-        
+        sender_payoff = self.game.sender_payoff(state, act)
+        intermediary_payoff = self.game.intermediary_payoff(state, act)
+        receiver_payoff = self.game.receiver_payoff(state, act)
+
         ## 2. Update the agent's strategies based on the payoffs they received.
-        self.sender.update_strategies(state,signal_sender,sender_payoff)
-        self.intermediary.update_strategies(state,signal_intermediary,intermediary_payoff)
-        self.receiver.update_strategies(signal_intermediary,act,receiver_payoff)
-        
+        self.sender.update_strategies(state, signal_sender, sender_payoff)
+        self.intermediary.update_strategies(
+            state, signal_intermediary, intermediary_payoff
+        )
+        self.receiver.update_strategies(signal_intermediary, act, receiver_payoff)
+
         ## 3. Calculate and store any required variables e.g. probability of success.
         self.record_probability_of_success()
-        
+
         ## 4. Update iteration.
         self.iteration += 1
-    
+
     def record_probability_of_success(self):
         """
         For now, just store "probability of success."
@@ -745,61 +741,62 @@ class MatchingSIR(Matching):
         None.
 
         """
-        
+
         ## Lazy instantiation
-        if not hasattr(self, "statistics"):self.statistics = {}
-        
+        if not hasattr(self, "statistics"):
+            self.statistics = {}
+
         ## Probability of success.
         ## Requires game to be "regular" i.e. all agents have identical payoff matrices.
         assert self.game.regular
-        
+
         if "prob_success" not in self.statistics:
-            
-            ## Create empty array... 
+
+            ## Create empty array...
             self.statistics["prob_success"] = np.empty((self.iteration,))
-            
+
             ## ...and fill with NaN up to current iteration.
             self.statistics["prob_success"][:] = np.nan
 
         ## Get the current probability of success
         ## Normalise strategy profiles
-        
+
         ## Sender strategy profile normalised
         snorm = (self.sender.strategies.T / self.sender.strategies.sum(1)).T
-        
+
         ## Intermediary strategy profile normalised
         inorm = (self.intermediary.strategies.T / self.intermediary.strategies.sum(1)).T
-        
+
         ## Receiver strategy profile normalised
         rnorm = (self.receiver.strategies.T / self.receiver.strategies.sum(1)).T
-        
+
         ## Ask the game for the average payoff, given these strategies.
         ## Because payoffs are np.eye(2), this is equal to the probability of success.
-        
-        ## TODO    
+
+        ## TODO
 
 
 class Agent:
     """
-        Finite, discrete agent used in Reinforcement() objects.
+    Finite, discrete agent used in Reinforcement() objects.
     """
-    
-    def __init__(self,strategies):
-        
+
+    def __init__(self, strategies):
+
         ## Probability distribution over deterministic strategies.
         self.strategies = strategies
-    
-    def choose_strategy(self,input_data):
+
+    def choose_strategy(self, input_data):
         """
         Sample from self.strategies[input_data] to get a concrete response.
-        
+
         When the strategies are simply a matrix,
          with each row defining a distribution over possible responses,
          <input_data> is an integer indexing a row of the array.
         So we choose that row and choose randomly from it,
          according to the conditional probabilities of the responses,
          which are themselves listed as entries in each row.
-        
+
         E.g. if this is a sender, <input_data> is the index of the current state of the world,
          and the possible responses are the possible signals.
         If this is a receiver, <input_data> is the index of the signal sent,
@@ -811,24 +808,21 @@ class Agent:
          The index of the agent's response.
 
         """
-        
+
         ## Among which responses can we choose?
         possible_responses = range(len(self.strategies[input_data]))
-        
+
         ## Assume the strategies are not yet normalised
         probabilities = self.strategies[input_data] / self.strategies[input_data].sum()
-        
+
         ## Select the response and return it
-        return np.random.choice(
-            possible_responses,
-            p = probabilities
-            )
-    
-    def update_strategies(self,input_data,response,payoff):
+        return np.random.choice(possible_responses, p=probabilities)
+
+    def update_strategies(self, input_data, response, payoff):
         """
         The agent has just played <response> in response to <input_data>,
          and received <payoff> as a result.
-        
+
         They now update the probability of choosing that response for
          that input data, proportionally to <payoff>.
 
@@ -846,19 +840,22 @@ class Agent:
         None.
 
         """
-        
+
         ## Add payoff to probability.
         self.strategies[input_data][response] += payoff
-        
+
         ## It's of course possible that the payoff is negative.
         ## We should not allow the weight to go below zero.
-        self.strategies[input_data][response] = max(self.strategies[input_data][response],0)
-        
+        self.strategies[input_data][response] = max(
+            self.strategies[input_data][response], 0
+        )
+
 
 class Times:
     """
     Provides a way of having a single time input to both odeint and ode
     """
+
     def __init__(self, initial_time, final_time, time_inc):
         """
         Takes the initial time for simulations <initial_time>, the final time
@@ -878,6 +875,12 @@ def mutationmatrix(mutation, dimension):
     Calculate a (square) mutation matrix with mutation rate
     given by <mutation> and dimension given by <dimension>
     """
-    return np.array([[1 - mutation if i == j else mutation/(dimension - 1)
-                      for i in np.arange(dimension)] for j in
-                     np.arange(dimension)])
+    return np.array(
+        [
+            [
+                1 - mutation if i == j else mutation / (dimension - 1)
+                for i in np.arange(dimension)
+            ]
+            for j in np.arange(dimension)
+        ]
+    )
