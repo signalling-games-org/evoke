@@ -42,6 +42,12 @@ class Chance:
         self.messages = messages
         self.acts = sender_payoff_matrix.shape[1]
 
+    def choose_state(self):
+        """
+        Return a random state, relying on the probabilities given by self.state_chances
+        """
+        return np.random.choice(range(self.states),p=self.state_chances)
+
     def sender_pure_strats(self):
         """
         Return the set of pure strategies available to the sender

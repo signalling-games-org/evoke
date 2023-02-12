@@ -580,8 +580,7 @@ class MatchingSR(Matching):
         ## 1a. Choose a nature state.
         ## TODO: the game object should be able to do this,
         ##  with a method like choose_state()
-        state_chances = self.game.state_chances
-        state = np.random.choice(range(len(state_chances)),p=state_chances)
+        state = self.game.choose_state()
         
         ## 1b. Choose a signal.
         signal = self.sender.choose_strategy(state)
