@@ -181,18 +181,16 @@ class OnePop:
                 data = [newdata]
         return data
 
-    def replicator_discrete(self, initpop, times):
+    def replicator_discrete(self, initpop, steps):
         """
         Calculate one run of the game, following the discrete
-        replicator(-mutator) dynamics, in <times> (a game.Times object) with
+        replicator(-mutator) dynamics, for <steps> steps with
         starting population vector <initpop> using the discrete time
-        replicator dynamics. Note that this solver will just calculate n points
-        in the evolution of the population, and will not try to match them to
-        the times as provided.
+        replicator dynamics.
         """
-        data = np.empty([len(times.time_vector), len(initpop)])
+        data = np.empty([steps, len(initpop)])
         data[0, :] = initpop
-        for i in range(1, len(times.time_vector)):
+        for i in range(1, steps):
             data[i, :] = self.discrete_replicator_delta_X(data[i - 1, :])
         return data
 
@@ -525,7 +523,6 @@ class Matching(Reinforcement):
     """
 
     def __init__(self, game, agents):
-
         super().__init__(game=game, agents=agents)
 
 
@@ -620,7 +617,6 @@ class MatchingSR(Matching):
 
         ## Mutual information between states and signals
         if "mut_info_states_signals" not in self.statistics:
-
             ## Create empty array...
             self.statistics["mut_info_states_signals"] = np.empty((self.iteration,))
 
@@ -751,7 +747,6 @@ class MatchingSIR(Matching):
         assert self.game.regular
 
         if "prob_success" not in self.statistics:
-
             ## Create empty array...
             self.statistics["prob_success"] = np.empty((self.iteration,))
 
@@ -782,7 +777,6 @@ class Agent:
     """
 
     def __init__(self, strategies):
-
         ## Probability distribution over deterministic strategies.
         self.strategies = strategies
 
