@@ -17,7 +17,7 @@ class NoSignal:
     """
     def __init__(self, payoff_matrix):
         """
-        Take a square numpy array with the sender payoffs
+        Take a square numpy array with player payoffs
         """
         if payoff_matrix.shape[0] != payoff_matrix.shape[1]:
             sys.exit("Payoff matrix should be square")
@@ -34,8 +34,8 @@ class NoSignal:
 
     def payoff(self, first_player, second_player):
         """
-        Calculate the average payoff for sender and receiver given concrete
-        sender and receiver strats
+        Calculate the average payoff for first and second given concrete
+        strats
         """
         payoff = first_player @ self.payoff_matrix @ second_player
         return payoff
