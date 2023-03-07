@@ -7,6 +7,7 @@ import itertools as it
 import sys
 
 import numpy as np
+
 np.set_printoptions(precision=4)
 
 
@@ -15,6 +16,7 @@ class NoSignal:
     Construct a payoff function for a game without chance player: and in which
     no one signals. Both players have the same payoff matrix
     """
+
     def __init__(self, payoff_matrix):
         """
         Take a square numpy array with player payoffs
@@ -45,10 +47,11 @@ class NoSignal:
         Return an array with the average payoff of strat i against
         strat j in position <i, j>
         """
-        payoff_ij = np.vectorize(lambda i, j: self.payoff(player_strats[int(i)],
-                                                          player_strats[int(j)]))
+        payoff_ij = np.vectorize(
+            lambda i, j: self.payoff(player_strats[i], player_strats[j])
+        )
         shape_result = [len(player_strats)] * 2
-        return np.fromfunction(payoff_ij, shape_result)
+        return np.fromfunction(payoff_ij, shape_result, dtype=int)
 
     def calculate_mixed_strat(self, types, pop):
         return types @ pop
@@ -60,16 +63,18 @@ class BothSignal:
     both players signal before acting: players one and two choose a message
     among m possible ones; then they both choose acts among o possible ones.
     """
+
     def __init__(self, payoff_matrix, msgs):
         """
         Take a square numpy array with the payoffs, and the number of available
-        messages 
+        messages
         """
         if payoff_matrix.shape[0] != payoff_matrix.shape[1]:
             sys.exit("Payoff matrix should be square")
         if not isinstance(msgs, int):
-            sys.exit("The number of messages for the player receiver should "
-                     "be an integer")
+            sys.exit(
+                "The number of messages for the player receiver should " "be an integer"
+            )
         self.chance_node = False  # flag to know where the game comes from
         self.both_signal = True  # ... and another flag (this needs fixing)
         self.payoff_matrix = payoff_matrix
@@ -83,22 +88,27 @@ class BothSignal:
         row, r,  gives the state to be assumed in the presence of sender
         message r, and receiver message given by the column
         """
+
         def build_strat(msg, row):
             zeros = np.zeros((self.msgs, self.msgs, self.states))
             zeros[msg] = row
             return zeros
+
         states = np.identity(self.states)
         rows = np.array([row for row in it.product(states, repeat=self.msgs)])
-        return np.array([build_strat(message, row) for message, row in
-                         it.product(range(self.msgs), rows)])
+        return np.array(
+            [
+                build_strat(message, row)
+                for message, row in it.product(range(self.msgs), rows)
+            ]
+        )
 
     def payoff(self, first_player, second_player):
         """
         Calculate the average payoff for the first player given concrete first
         and second player strats
         """
-        two_states = np.tensordot(first_player, second_player, axes=([0, 1],
-                                                                     [1, 0]))
+        two_states = np.tensordot(first_player, second_player, axes=([0, 1], [1, 0]))
         payoff = np.sum(two_states * self.payoff_matrix)
         return payoff
 
@@ -107,8 +117,9 @@ class BothSignal:
         Return an array with the average payoff of strat i against strat j in
         position <i, j>
         """
-        payoff_ij = np.vectorize(lambda i, j: self.payoff(player_strats[i],
-                                                          player_strats[j]))
+        payoff_ij = np.vectorize(
+            lambda i, j: self.payoff(player_strats[i], player_strats[j])
+        )
         shape_result = [len(player_strats)] * 2
         return np.fromfunction(payoff_ij, shape_result)
 
