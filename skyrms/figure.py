@@ -13,7 +13,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 
 from skyrms import asymmetric_games as asy
-from skyrms.evolve import OnePop, TwoPops, MatchingSR
+from skyrms import evolve as ev
 from skyrms.symmetric_games import NoSignal
 
 
@@ -51,7 +51,7 @@ class Scatter(Figure):
     def __init__(self, evo, **kwargs):
         super().__init__(evo=evo, **kwargs)
 
-    def reset(self, x, y, xlabel, ylabel, marker_size=10, marker_color="k"):
+    def reset(self, x, y, xlabel, ylabel, marker_size=10, marker_color="k", ylim = None, xscale=None, yscale=None):
         """
         Update figure parameters
 
@@ -79,6 +79,13 @@ class Scatter(Figure):
         ## Marker design
         self.s = marker_size
         self.c = marker_color
+        
+        ## Limits of y-axis
+        self.ylim = ylim
+        
+        ## Axes Scaling
+        self.xscale = xscale
+        self.yscale = yscale
 
     def show(self):
         ## Data
@@ -87,6 +94,13 @@ class Scatter(Figure):
         ## Labels
         plt.xlabel(self.xlabel)
         plt.ylabel(self.ylabel)
+        
+        ## Limit of y-axis
+        if self.ylim is not None: plt.ylim(self.ylim)
+        
+        ## Axes Scale
+        if self.xscale is not None: plt.xscale(self.xscale)
+        if self.yscale is not None: plt.yscale(self.yscale)
 
         ## Show plot
         plt.show()
@@ -172,7 +186,81 @@ class Skyrms2010_3_3(Scatter):
         receiver_strategies = np.ones((2, 2))
 
         ## Create simulation
-        evo = MatchingSR(game, sender_strategies, receiver_strategies)
+        evo = ev.MatchingSR(game, sender_strategies, receiver_strategies)
+
+        ## Run simulation for <iterations> steps
+        evo.run(iterations)
+
+        return evo
+
+
+class Skyrms2010_3_4(Scatter):
+    """
+    Figure 3.4, page 46, of Skyrms 2010.
+    """
+
+    def __init__(self, iterations=int(1e2)):
+        """
+        Change iterations to int(1e6) to run the same number of iterations 
+         as in the original figure. Warning: this takes a while.
+         You should still get convergence often at 1e5.
+
+        Parameters
+        ----------
+        iterations : TYPE, optional
+            DESCRIPTION. The default is 100.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        self.initialize_simulation()
+
+        evo = self.run_simulation(iterations)
+
+        ## Get info attribute
+        y = evo.statistics["prob_success"]
+
+        super().__init__(evo)
+        
+        ## TODO: The data points only include the start point and each power of 10.
+        self.reset(x=range(iterations), 
+                   y=y, 
+                   xlabel="Iterations", 
+                   ylabel="Average Probability of Success",
+                   ylim = [0,1],
+                   xscale = 'log')
+
+        self.show()
+
+    def initialize_simulation(self):
+        self.state_chances              = np.array([0.5, 0.5])
+        self.sender_payoff_matrix       = np.eye(2)
+        self.intermediary_payoff_matrix = np.eye(2)
+        self.receiver_payoff_matrix     = np.eye(2)
+        self.messages_sender            = 2
+        self.messages_intermediary      = 2
+
+    def run_simulation(self, iterations):
+        ## Create game
+        game = asy.ChanceSIR(
+            state_chances               = self.state_chances,
+            sender_payoff_matrix        = self.sender_payoff_matrix,
+            intermediary_payoff_matrix  = self.intermediary_payoff_matrix,
+            receiver_payoff_matrix      = self.receiver_payoff_matrix,
+            messages_sender             = self.messages_sender,
+            messages_intermediary       = self.messages_intermediary
+        )
+
+        ## Define initial strategies
+        sender_strategies       = np.ones((2, 2))
+        intermediary_strategies = np.ones((2, 2))
+        receiver_strategies     = np.ones((2, 2))
+
+        ## Create simulation
+        evo = ev.MatchingSIR(game, sender_strategies, intermediary_strategies, receiver_strategies)
 
         ## Run simulation for <iterations> steps
         evo.run(iterations)
@@ -281,7 +369,7 @@ class Skyrms2010_1_1(Quiver2D):
         receiver_strats = lewis22.receiver_pure_strats()[1:-1]
 
         ## Create the two-population simulation object
-        self.evo = TwoPops(lewis22, sender_strats, receiver_strats)
+        self.evo = ev.TwoPops(lewis22, sender_strats, receiver_strats)
 
         ## We want our frequencies to be neatly spaced in a 15x15 grid
         ##  (in order to replicate Skyrms's figure)
@@ -476,7 +564,7 @@ class Skyrms2010_1_2(Quiver3D):
         game = NoSignal(self.payoffs)
 
         ## ...and the simulation.
-        self.evo = OnePop(game, self.playertypes)
+        self.evo = ev.OnePop(game, self.playertypes)
 
         ## Create arrows at roughly the places Skyrms depicts them.
         pop_vectors = np.array(

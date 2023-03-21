@@ -14,7 +14,7 @@ from abc import ABC, abstractmethod
 from tqdm import trange
 
 ## Skyrms
-from skyrms.asymmetric_games import Chance, NonChance
+from skyrms.asymmetric_games import Chance, NonChance, ChanceSIR
 from skyrms.info import Information
 
 
@@ -715,16 +715,16 @@ class MatchingSIR(Matching):
         act = self.receiver.choose_strategy(signal_intermediary)
 
         ## 1d. get the payoff
-        sender_payoff = self.game.sender_payoff(state, act)
-        intermediary_payoff = self.game.intermediary_payoff(state, act)
-        receiver_payoff = self.game.receiver_payoff(state, act)
+        payoff_sender = self.game.payoff_sender(state, act)
+        payoff_intermediary = self.game.payoff_intermediary(state, act)
+        payoff_receiver = self.game.payoff_receiver(state, act)
 
         ## 2. Update the agent's strategies based on the payoffs they received.
-        self.sender.update_strategies(state, signal_sender, sender_payoff)
+        self.sender.update_strategies(state, signal_sender, payoff_sender)
         self.intermediary.update_strategies(
-            state, signal_intermediary, intermediary_payoff
+            state, signal_intermediary, payoff_intermediary
         )
-        self.receiver.update_strategies(signal_intermediary, act, receiver_payoff)
+        self.receiver.update_strategies(signal_intermediary, act, payoff_receiver)
 
         ## 3. Calculate and store any required variables e.g. probability of success.
         self.record_probability_of_success()
@@ -762,18 +762,25 @@ class MatchingSIR(Matching):
         ## Normalise strategy profiles
 
         ## Sender strategy profile normalised
+        ## snorm is an array; each row is a list of conditional probabilities.
         snorm = (self.sender.strategies.T / self.sender.strategies.sum(1)).T
 
         ## Intermediary strategy profile normalised
+        ## inorm is an array; each row is a list of conditional probabilities.
         inorm = (self.intermediary.strategies.T / self.intermediary.strategies.sum(1)).T
 
         ## Receiver strategy profile normalised
+        ## rnorm is an array; each row is a list of conditional probabilities.
         rnorm = (self.receiver.strategies.T / self.receiver.strategies.sum(1)).T
 
         ## Ask the game for the average payoff, given these strategies.
         ## Because payoffs are np.eye(2), this is equal to the probability of success.
-
-        ## TODO
+        payoff = self.game.avg_payoffs_regular(snorm,inorm,rnorm)
+        
+        ## Append the current payoff
+        self.statistics["prob_success"] = np.append(
+            self.statistics["prob_success"], payoff
+        )
 
 
 class Agent:

@@ -257,7 +257,7 @@ class ChanceSIR:
 
         return self.receiver_payoff_matrix[state][act]
 
-    def avg_payoffs_regular(self, sender_strats, intermediary_strats, receiver_strats):
+    def avg_payoffs_regular(self, snorm, inorm, rnorm):
         """
         Return the average payoff of all players given these strategy profiles.
 
@@ -265,37 +265,47 @@ class ChanceSIR:
 
         Parameters
         ----------
-        sender_strats : TYPE
-            DESCRIPTION.
-        intermediary_strats: array-like
-            Intermediary player's strategy profile, normalised
-        receiver_strats : TYPE
-            DESCRIPTION.
+        snorm : array-like
+            Sender's strategy profile, normalised.
+        inorm: array-like
+            Intermediary player's strategy profile, normalised.
+        rnorm : array-like
+            Receiver's strategy profile, normalised.
 
         Returns
         -------
-        TYPE
-            DESCRIPTION.
+        payoff: float
+            The average payoff given these strategies.
+            The payoff is the same for every player.
 
         """
 
         assert self.regular
 
-        ## Nature and Sender combine to provide unconditional probabilities
-        ##  of sender signals 0 and 1.
-        prob_uncond_signal_sender = self.state_chances @ sender_strats
-
-        ## Sender signals and intermediary combine to provide unconditional probabilities
-        ##  of intermediary signals 0 and 1.
-        prob_uncond_signal_intermediary = (
-            prob_uncond_signal_sender @ intermediary_strats
-        )
-
-        ## Intermediary signals and receiver combine to provide unconditional probabilities
-        ##  of acts.
-        prob_uncond_acts = prob_uncond_signal_intermediary @ receiver_strats
-
-        ## TODO
+        ## Multiply the chain of strategy probabilities,
+        ##  and then multiply the result by the (shared) payoff matrix.
+        
+        ## Step 1: We have the conditional probabilities of s-signals given states,
+        ##          and the conditional probabilities of i-signals given s-signals,
+        ##          and we want the conditional probabilities of i-signals given states.
+        inorm_given_states = np.matmul(snorm,inorm)
+        
+        ## Step 2: We have the conditional probabilities of i-signals given states,
+        ##          and the conditional probabilities of r-acts given i-signals,
+        ##          and we want the conditional probabilities of r-acts given states.
+        racts_given_states = np.matmul(inorm_given_states,rnorm)
+        
+        ## Step 3: We have the conditional probabilities of r-acts given states,
+        ##          and the unconditional probabilities of states,
+        ##          and we want the joint probabilities of states and r-acts.
+        joint_states_and_acts = np.multiply(self.state_chances,racts_given_states)
+        
+        ## Step 4: We have the joint probabilities and the payoffs,
+        ##          and we want the overall expected payoff.
+        ## Remember all the payoff matrices are the same, so we can use any of them.
+        payoff = np.multiply(joint_states_and_acts,self.sender_payoff_matrix).sum()
+        
+        return payoff
 
 
 class NonChance:
