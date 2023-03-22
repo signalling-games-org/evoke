@@ -19,7 +19,7 @@ class Information:
         self.sender = sender
         self.receiver = receiver
         self.game = game
-        if isinstance(game, Chance):
+        if hasattr(game, "state_chances"):
             self.state_chances = game.state_chances
             self.msg_cond_on_states, self.acts_cond_on_msg = (self.sender,
                                                               self.receiver)
