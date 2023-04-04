@@ -37,6 +37,9 @@ class OnePop:
         # We can set a limit of precision in the calculation of diffeqs, to
         # avoid artifacts. By default, we do not
         self.precision = None
+        
+        ## Assortment defaults to zero
+        self.e = 0
 
     def random_player(self):
         """
@@ -50,6 +53,61 @@ class OnePop:
         is <player>
         """
         return player.dot(self.avgpayoffs.dot(player))
+    
+    def avg_payoff_vector(self, player):
+        """
+        Get expected payoffs of every type when population vector is <player>.
+        
+        Depends on assortment.
+        
+        p(s_i meets s_i) = p(s_i) + self.e * (1-p(s_i))
+        p(s_i meets s_j) = p(s_j) - self.e * p(s_j)
+
+        Parameters
+        ----------
+        player : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        ## Use the simple version if there is no assortment.
+        if self.e == 0: return player @ self.avgpayoffs
+        
+        avg_payoffs = []
+        
+        ## Otherwise, loop and specify the assortment-weighted probabilities.
+        ## This can probably be vectorised.
+        i = 0
+        for p_i in player:
+            
+            meeting_probabilities = []
+            
+            j = 0
+            for p_j in player:
+                
+                if i == j:
+                    ## p_i is the proportion of individuals of type i.
+                    meeting_probabilities.append(p_i + self.e * (1-p_i))
+                
+                else:
+                    ## p_j are all the others
+                    meeting_probabilities.append(p_j - self.e*p_j)
+                
+                j+= 1
+            
+            meeting_probabilities = np.array(meeting_probabilities)
+            
+            payoff_i = (meeting_probabilities @ self.avgpayoffs)[i]
+            
+            avg_payoffs.append(payoff_i)
+            
+            i += 1
+        
+        return avg_payoffs
 
     def replicator_dX_dt_odeint(self, X, t):
         """
@@ -202,6 +260,23 @@ class OnePop:
         the whole population
         """
         return self.game.calculate_mixed_strat(self.playertypes, pop)
+    
+    def assortment(self,e):
+        """
+        Set assortment level
+
+        Parameters
+        ----------
+        e : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        self.e = e
 
 
 class TwoPops:

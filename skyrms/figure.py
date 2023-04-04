@@ -51,7 +51,7 @@ class Scatter(Figure):
     def __init__(self, evo, **kwargs):
         super().__init__(evo=evo, **kwargs)
 
-    def reset(self, x, y, xlabel, ylabel, marker_size=10, marker_color="k", ylim = None, xscale=None, yscale=None):
+    def reset(self, x, y, xlabel, ylabel, marker_size=10, marker_color="k", xlim = None, ylim = None, xscale=None, yscale=None):
         """
         Update figure parameters
 
@@ -80,22 +80,27 @@ class Scatter(Figure):
         self.s = marker_size
         self.c = marker_color
         
-        ## Limits of y-axis
+        ## Limits of axes
+        self.xlim = xlim
         self.ylim = ylim
         
         ## Axes Scaling
         self.xscale = xscale
         self.yscale = yscale
 
-    def show(self):
+    def show(self,line=False):
+        
         ## Data
         plt.scatter(x=self.x, y=self.y, s=self.s, c=self.c)
+        
+        if line: plt.plot(self.x,self.y, color=self.c)
 
         ## Labels
         plt.xlabel(self.xlabel)
         plt.ylabel(self.ylabel)
         
-        ## Limit of y-axis
+        ## Limits of axes
+        if self.xlim is not None: plt.xlim(self.xlim)
         if self.ylim is not None: plt.ylim(self.ylim)
         
         ## Axes Scale
@@ -267,6 +272,166 @@ class Skyrms2010_3_4(Scatter):
 
         return evo
 
+
+class Skyrms2010_5_2(Scatter):
+    """
+        Figure 5.2, page 72, of Skyrms 2010.
+    """
+    
+    def __init__(self, pr_state_2_list = np.linspace(0.5,1,10)):
+        """
+        
+
+        Parameters
+        ----------
+        iterations : TYPE, optional
+            DESCRIPTION. The default is int(1e2).
+        x_axis : TYPE, optional
+            DESCRIPTION. The default is np.linspace(0.5,1,10).
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        
+        self.initialize_simulations(pr_state_2_list)
+
+        evo, y_axis = self.run_simulations()
+        
+        ## The superclass doesn't (yet) expect multiple simulations.
+        ## Just pass in the most recent one.
+        super().__init__(evo)
+        
+        ## Set data for the graph.
+        self.reset(x=pr_state_2_list, 
+                   y=y_axis, 
+                   xlabel="Pr State 2", 
+                   ylabel="Value of Assortment to Destabilize Pooling e",
+                   xlim = [min(pr_state_2_list),max(pr_state_2_list)],
+                   ylim = [0,1]
+                   )
+
+        self.show()
+    
+    def show(self):
+        """
+        Show the line by default.
+
+        """
+        
+        super().show(True)
+        
+    def initialize_simulations(self,pr_state_2_list):
+        self.pr_state_2_list        = pr_state_2_list
+        self.sender_payoff_matrix   = np.eye(2)
+        self.receiver_payoff_matrix = np.eye(2)
+        self.messages               = 2
+    
+    
+    def run_simulations(self):
+        """
+        From Skyrms (2010:71):
+            "Here we consider a one-population model, in which
+                nature assigns roles of sender or receiver on flip of a fair coin. We
+                focus on four strategies, written as a vector whose components are:
+                signal sent in state 1, signal sent in state 2, act done after signal 1, act
+                done after signal 2.
+            
+            s1 = <1, 2, 1, 2>
+            s2 = <2, 1, 2, 1>
+            s3 = <1, 1, 2, 2>
+            s4 = <2, 2, 2, 2>"
+        
+        Together these define the playertypes payoffs.
+
+        Parameters
+        ----------
+        iterations : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        evo : TYPE
+            DESCRIPTION.
+        y_axis : TYPE
+            DESCRIPTION.
+
+        """
+        
+        y_axis = []
+        
+        for pr_state_2 in self.pr_state_2_list:
+            
+            # state_chances = np.array([1-pr_state_2,pr_state_2])
+        
+            # ## Create game
+            # game = asy.Chance(
+            #     state_chances               = state_chances,
+            #     sender_payoff_matrix        = self.sender_payoff_matrix,
+            #     receiver_payoff_matrix      = self.receiver_payoff_matrix,
+            #     messages                    = self.messages
+            # )
+            
+            ## Define payoffs based on pr_state_2.
+            ## Here payoffs is an nxn matrix, with n the number of players (here 4).
+            ## Entry (i,j) gives the payoff of player i upon meeting player j.
+            payoffs = np.array([
+                [1,0,(0.5*pr_state_2+0.5*(1-pr_state_2)),(0.5*pr_state_2+0.5*pr_state_2)],
+                [0,1,(0.5*pr_state_2+0.5*pr_state_2),(0.5*pr_state_2+0.5*(1-pr_state_2))],
+                [(0.5*(1-pr_state_2)+0.5*pr_state_2),0.5*pr_state_2+0.5*pr_state_2,pr_state_2,pr_state_2],
+                [(0.5*pr_state_2+0.5*pr_state_2),(0.5*(1-pr_state_2)+0.5*pr_state_2),pr_state_2,pr_state_2]
+                ])
+            
+            ## We pretend it's a straight encounter game, because we already calculated the payoffs.
+            game = NoSignal(payoffs)
+            
+            ## Playertypes are 50/50 types 3 and 4
+            playertypes = np.array(
+                [
+                    [1, 0, 0, 0],  # "I'm playing the first strategy!"
+                    [0, 1, 0, 0],  # "I'm playing the second strategy!"
+                    [0, 0, 1, 0],  # "I'm playing the third strategy!"
+                    [0, 0, 0, 1],  # "I'm playing the fourth strategy!"
+                ]
+            )
+    
+            ## Create simulation
+            evo = ev.OnePop(game, playertypes)
+    
+            ## Pooling equilibria are destabilized when the expected payoffs of type 1 and/or type 2
+            ##  become equal to that of types 3 and 4.
+            ## And presumably you get that just by multiplying the strategy profile by the payoff vector
+            ##  for each player.
+            ## Well, that works when there is no assortment.
+            ## When there is assortment, you have to use Wright's special rules to get the probabilities
+            ##  of meeting each type (See Skyrms 2010 page 71).
+            
+            ## Loop at assortment levels until you find the one at which 
+            ##  the expected payoffs of 1 and 2 are >= the expected payoffs of 3 and 4.
+            assortment_level = 0
+            for e in np.arange(0,1,0.001):
+                
+                assortment_level = e
+                
+                evo.assortment(e)
+                
+                payoff_vector = evo.avg_payoff_vector(np.array([0,0,0.5,0.5]))
+                
+                ## Check whether types 1 or 2 beat types 3 or 4
+                if payoff_vector[0] >= payoff_vector[2] or payoff_vector[0] >= payoff_vector[3]\
+                or payoff_vector[1] >= payoff_vector[2] or payoff_vector[1] >= payoff_vector[3]:
+                    break
+                
+                
+            y_axis.append(assortment_level)
+        
+            ## Get info attribute
+            # y_axis.append(evo.statistics["assortment_required"])
+
+        return evo, y_axis
+        
 
 class Quiver(Figure):
     """
