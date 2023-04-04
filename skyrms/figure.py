@@ -88,9 +88,12 @@ class Scatter(Figure):
         self.xscale = xscale
         self.yscale = yscale
 
-    def show(self):
+    def show(self,line=False):
+        
         ## Data
         plt.scatter(x=self.x, y=self.y, s=self.s, c=self.c)
+        
+        if line: plt.plot(self.x,self.y, color=self.c)
 
         ## Labels
         plt.xlabel(self.xlabel)
@@ -275,7 +278,7 @@ class Skyrms2010_5_2(Scatter):
         Figure 5.2, page 72, of Skyrms 2010.
     """
     
-    def __init__(self, iterations=int(1e2),pr_state_2_list = np.linspace(0.5,1,10)):
+    def __init__(self, pr_state_2_list = np.linspace(0.5,1,10)):
         """
         
 
@@ -295,7 +298,7 @@ class Skyrms2010_5_2(Scatter):
         
         self.initialize_simulations(pr_state_2_list)
 
-        evo, y_axis = self.run_simulations(iterations)
+        evo, y_axis = self.run_simulations()
         
         ## The superclass doesn't (yet) expect multiple simulations.
         ## Just pass in the most recent one.
@@ -311,7 +314,14 @@ class Skyrms2010_5_2(Scatter):
                    )
 
         self.show()
+    
+    def show(self):
+        """
+        Show the line by default.
+
+        """
         
+        super().show(True)
         
     def initialize_simulations(self,pr_state_2_list):
         self.pr_state_2_list        = pr_state_2_list
@@ -320,7 +330,7 @@ class Skyrms2010_5_2(Scatter):
         self.messages               = 2
     
     
-    def run_simulations(self,iterations):
+    def run_simulations(self):
         """
         From Skyrms (2010:71):
             "Here we consider a one-population model, in which
@@ -390,11 +400,32 @@ class Skyrms2010_5_2(Scatter):
             ## Create simulation
             evo = ev.OnePop(game, playertypes)
     
-            ## Run simulation for <iterations> steps
-            ## TODO 1: figure out when equilibrium is pooling.
-            ## TODO 2: add assortment.
-            ## TODO 3: figure out how much assortment is required to destabilize pooling equilibria.
-            y_axis.append(evo.avg_payoff(np.array([0,0,0.5,0.5]))) # for now, just create a simple graph of payoffs
+            ## Pooling equilibria are destabilized when the expected payoffs of type 1 and/or type 2
+            ##  become equal to that of types 3 and 4.
+            ## And presumably you get that just by multiplying the strategy profile by the payoff vector
+            ##  for each player.
+            ## Well, that works when there is no assortment.
+            ## When there is assortment, you have to use Wright's special rules to get the probabilities
+            ##  of meeting each type (See Skyrms 2010 page 71).
+            
+            ## Loop at assortment levels until you find the one at which 
+            ##  the expected payoffs of 1 and 2 are >= the expected payoffs of 3 and 4.
+            assortment_level = 0
+            for e in np.arange(0,1,0.001):
+                
+                assortment_level = e
+                
+                evo.assortment(e)
+                
+                payoff_vector = evo.avg_payoff_vector(np.array([0,0,0.5,0.5]))
+                
+                ## Check whether types 1 or 2 beat types 3 or 4
+                if payoff_vector[0] >= payoff_vector[2] or payoff_vector[0] >= payoff_vector[3]\
+                or payoff_vector[1] >= payoff_vector[2] or payoff_vector[1] >= payoff_vector[3]:
+                    break
+                
+                
+            y_axis.append(assortment_level)
         
             ## Get info attribute
             # y_axis.append(evo.statistics["assortment_required"])
