@@ -693,7 +693,7 @@ class MatchingSR(Matching):
         if not hasattr(self, "statistics"):
             self.statistics = {}
 
-        ## Mutual information between states and signals
+        ## 1. Mutual information between states and signals
         if "mut_info_states_signals" not in self.statistics:
 
             ## Create empty array...
@@ -714,6 +714,27 @@ class MatchingSR(Matching):
         ## Append the current mutual information
         self.statistics["mut_info_states_signals"] = np.append(
             self.statistics["mut_info_states_signals"], mut_info_states_signals
+        )
+        
+        ## 2. Average probability of success
+        if "avg_prob_success" not in self.statistics:
+
+            ## Create empty array...
+            self.statistics["avg_prob_success"] = np.empty((self.iteration,))
+
+            ## ...and fill with NaN up to current iteration.
+            self.statistics["avg_prob_success"][:] = np.nan
+        
+        ## Get the current average probability of success
+        # TODO check this!
+        avg_prob_success = np.average(self.game.payoff(
+            sender_strat = snorm,
+            receiver_strat = rnorm
+            ))
+
+        ## Append the current mutual information
+        self.statistics["avg_prob_success"] = np.append(
+            self.statistics["avg_prob_success"], avg_prob_success
         )
 
 

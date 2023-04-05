@@ -433,6 +433,57 @@ class Skyrms2010_5_2(Scatter):
         return evo, y_axis
         
 
+class Skyrms2010_8_1(Scatter):
+    """
+    Figure 8.1, page 95, of Skyrms 2010
+    """
+
+    def __init__(self, iterations=int(1e3)):
+        self.initialize_simulation()
+
+        evo = self.run_simulation(iterations)
+
+        ## Get info attribute
+        y = evo.statistics["avg_prob_success"]
+
+        super().__init__(evo)
+
+        self.reset(x=range(iterations), y=y, xlabel="Iterations", ylabel="Average Probability of Success", ylim=[0,1], marker_size=5)
+
+        self.show()
+    
+    def show(self):
+        super().show(True) # draw the line by default
+
+    def initialize_simulation(self):
+        self.state_chances = np.array([0.5, 0.5])
+        self.sender_payoff_matrix = np.eye(2)
+        self.receiver_payoff_matrix = np.eye(2)
+        self.messages = 2
+
+    def run_simulation(self, iterations):
+        ## Create game
+        game = asy.Chance(
+            state_chances=self.state_chances,
+            sender_payoff_matrix=self.sender_payoff_matrix,
+            receiver_payoff_matrix=self.receiver_payoff_matrix,
+            messages=self.messages,
+        )
+
+        ## Define strategies
+        ## These are the initial weights for Roth-Erev reinforcement.
+        sender_strategies = np.ones((2, 2))
+        receiver_strategies = np.ones((2, 2))
+
+        ## Create simulation
+        evo = ev.MatchingSR(game, sender_strategies, receiver_strategies)
+
+        ## Run simulation for <iterations> steps
+        evo.run(iterations)
+
+        return evo
+
+
 class Quiver(Figure):
     """
     Superclass for Quiver plots
