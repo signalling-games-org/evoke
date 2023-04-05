@@ -15,7 +15,7 @@ from tqdm import trange
 
 ## Skyrms
 from skyrms.asymmetric_games import Chance, NonChance, ChanceSIR
-from skyrms.info import Information
+from skyrms.info import Information, entropy
 
 
 class OnePop:
@@ -570,7 +570,7 @@ class Reinforcement:
         ## Current iteration step is set to zero.
         self.iteration = 0
 
-    def run(self, iterations):
+    def run(self, iterations, hide_progress = True, calculate_stats="step"):
         """
         Run the simulation for <iterations> steps.
 
@@ -578,18 +578,31 @@ class Reinforcement:
         ----------
         iterations : int
             Number of times to call self.step().
-
+        hide_progress : bool
+            Whether to display tqdm progress bar
+        calculate_stats : str
+            When to calculate stats
+            "step": every step
+            "end": only at the last step
+        
         Returns
         -------
         None.
 
         """
 
-        for _ in trange(iterations):
-            self.step()
-
+        for _ in trange(iterations,disable=hide_progress):
+            if calculate_stats=="step": self.step(calculate_stats=True)
+            if calculate_stats=="end": self.step(calculate_stats=False)
+        
+        if calculate_stats=="end": self.calculate_stats()
+    
     @abstractmethod
     def step(self):
+        pass
+    
+    @abstractmethod
+    def calculate_stats(self):
         pass
 
 
@@ -639,7 +652,7 @@ class MatchingSR(Matching):
 
         super().__init__(game=game, agents=[self.sender, self.receiver])
 
-    def step(self):
+    def step(self,calculate_stats=True):
         """
         Implement the matching rule and increment one step.
 
@@ -674,12 +687,12 @@ class MatchingSR(Matching):
         self.receiver.update_strategies(signal, act, receiver_payoff)
 
         ## 3. Calculate and store any required variables e.g. information.
-        self.log_info()
+        if calculate_stats: self.calculate_stats()
 
         ## 4. Update iteration.
         self.iteration += 1
 
-    def log_info(self):
+    def calculate_stats(self):
         """
         Calculate and store informational quantities at this point.
 
@@ -732,11 +745,45 @@ class MatchingSR(Matching):
             receiver_strat = rnorm
             ))
 
-        ## Append the current mutual information
+        ## Append the current probability of success
         self.statistics["avg_prob_success"] = np.append(
             self.statistics["avg_prob_success"], avg_prob_success
         )
+        
+    def is_pooling(self):
+        """
+        Is the system currently at a pooling equilibrium?
+        
+        TODO: figure out the likely way Skyrms identifies pooling, and mimic that.
 
+        Returns
+        -------
+        None.
+
+        """
+        
+        ## Try 1
+        # if self.statistics["avg_prob_success"][-1] < 0.9: return True
+        
+        # return False
+        
+        
+        ## Try 2
+        ## A bit quick and dirty.
+        ## Check whether the entropy of the sender strategy first line
+        ##  is lower than a certain tolerance.
+        snorm = (self.sender.strategies.T / self.sender.strategies.sum(1)).T
+        rnorm = (self.receiver.strategies.T / self.receiver.strategies.sum(1)).T
+        
+        if entropy(snorm[0]) < 0.1 and entropy(rnorm[0]) < 0.1: return False
+        
+        return True
+        
+        ## Try 3
+        # if self.statistics["mut_info_states_signals"][-1] < mut_info_max: return True
+        
+        # return False
+        
 
 class MatchingSIR(Matching):
     """

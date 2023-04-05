@@ -11,6 +11,8 @@ from matplotlib import pyplot as plt
 ## 3D plotting
 from mpl_toolkits.mplot3d import Axes3D
 
+from tqdm import tqdm, trange
+
 
 from skyrms import asymmetric_games as asy
 from skyrms import evolve as ev
@@ -480,6 +482,105 @@ class Skyrms2010_8_1(Scatter):
 
         ## Run simulation for <iterations> steps
         evo.run(iterations)
+
+        return evo
+
+
+class Skyrms2010_8_2(Scatter):
+    """
+    Figure 8.2, page 97, of Skyrms 2010
+    """
+
+    def __init__(self, trials=100, iterations=int(1e3)):
+        """
+        NB It looks as though Skyrms's graph was generated with the equivalent of 
+            the following parameters:
+                trials = 1000
+                iterations = int(1e5)
+            But this will take A VERY LONG TIME TO RUN as things are now.
+            
+            Even with iterations at int(1e4), it's looking like 12 mins per weight,
+             so about an hour overall.
+            
+            This, combined with the difficulty of figuring out exactly how Skyrms is
+             identifying pooling equilibria, leads to us overestimating
+             the probability of pooling.
+
+        Parameters
+        ----------
+        trials : TYPE, optional
+            DESCRIPTION. The default is 100.
+        iterations : TYPE, optional
+            DESCRIPTION. The default is int(1e3).
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        self.initialize_simulation()
+        
+        evo = self.run_simulation(trials,iterations)
+
+        ## Superclass needs an evo object. Just pass it whatever we got from run_simulations().
+        super().__init__(evo)
+
+        self.reset(x=self.initial_weights, y=self.probability_of_pooling, xlabel="Initial Weights", ylabel="Probability of Pooling", ylim=[0,1], marker_size=5, xscale="log")
+
+        self.show()
+    
+    def show(self):
+        super().show(True) # draw the line by default
+
+    def initialize_simulation(self):
+        self.state_chances = np.array([0.9, 0.1])
+        self.sender_payoff_matrix = np.eye(2)
+        self.receiver_payoff_matrix = np.eye(2)
+        self.messages = 2
+        
+        self.initial_weights = np.array([0.0001,0.001,0.01,0.1,1,10])
+
+    def run_simulation(self, trials, iterations):
+        
+        ## Create game
+        game = asy.Chance(
+            state_chances=self.state_chances,
+            sender_payoff_matrix=self.sender_payoff_matrix,
+            receiver_payoff_matrix=self.receiver_payoff_matrix,
+            messages=self.messages,
+        )
+        
+        self.probability_of_pooling = []
+        
+        for initial_weight in self.initial_weights:
+        
+            
+            ## This could really take a long time, so print a report and tqdm progress bar.
+            print(f"Initial weight {initial_weight}. Simulating {trials} games with {iterations} iterations each...")
+            
+            count_pooling = 0
+            
+            for trial in trange(trials):
+                
+                ## Define strategies
+                ## These are the initial weights for Roth-Erev reinforcement.
+                sender_strategies = np.ones((2, 2)) * initial_weight
+                receiver_strategies = np.ones((2, 2)) * initial_weight
+            
+                ## Create simulation
+                evo = ev.MatchingSR(game, sender_strategies, receiver_strategies)
+        
+                ## Run simulation for <iterations> steps
+                ## Tell it to only calculate at end
+                evo.run(iterations,calculate_stats="end")
+                
+                ## TODO: create this attribute!
+                if evo.is_pooling(): count_pooling += 1
+            
+            ## For each initial weight, get the proportion of evo games (out of 1000)
+            ##        that led to partial pooling.
+            self.probability_of_pooling.append(count_pooling/trials)
 
         return evo
 
