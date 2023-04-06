@@ -785,6 +785,7 @@ class MatchingSR(Matching):
         # return False
         
 
+
 class MatchingSIR(Matching):
     """
     Reinforcement game for sender, intermediary, receiver.
@@ -926,6 +927,172 @@ class MatchingSIR(Matching):
         )
 
 
+class BushMostellerSR(Reinforcement):
+    """
+    Bush_mosteller reinforcement simulation for two-player sender-receiver game.
+    """
+
+    def __init__(self, game, sender_strategies, receiver_strategies, learning_parameter):
+        """
+
+
+        Parameters
+        ----------
+        game : TYPE
+            DESCRIPTION.
+        sender_strategies : TYPE
+            DESCRIPTION.
+        receiver_strategies : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        None.
+
+        """
+
+        self.game = game
+
+        ## Create the agents.
+        ## Sender
+        self.sender = Agent(sender_strategies)
+
+        ## Receiver
+        self.receiver = Agent(receiver_strategies)
+        
+        ## Learning parameter
+        self.learning_parameter = learning_parameter
+
+        super().__init__(game=game, agents=[self.sender, self.receiver])
+
+    def step(self,calculate_stats=True):
+        """
+        Implement the matching rule and increment one step.
+
+        In each step:
+            1. Run one round of the game.
+            2. Update the agents' strategies based on the payoffs they received.
+            3. Calculate and store any required variables e.g. information.
+            4. Update iteration.
+
+        Returns
+        -------
+        None.
+
+        """
+
+        ## 1. Run one round of the game.
+        ## 1a. Choose a nature state.
+        state = self.game.choose_state()
+
+        ## 1b. Choose a signal.
+        signal = self.sender.choose_strategy(state)
+
+        ## 1c. Choose an act.
+        act = self.receiver.choose_strategy(signal)
+
+        ## 1d. get the payoff
+        sender_payoff = self.game.sender_payoff(state, act)
+        receiver_payoff = self.game.receiver_payoff(state, act)
+
+        ## 2. Update the agent's strategies based on the payoffs they received.
+        self.sender.update_strategies_bush_mosteller(state, signal, sender_payoff, self.learning_parameter)
+        self.receiver.update_strategies_bush_mosteller(signal, act, receiver_payoff, self.learning_parameter)
+
+        ## 3. Calculate and store any required variables e.g. information.
+        if calculate_stats: self.calculate_stats()
+
+        ## 4. Update iteration.
+        self.iteration += 1
+
+    def calculate_stats(self):
+        """
+        Calculate and store informational quantities at this point.
+
+        Returns
+        -------
+        None.
+
+        """
+
+        ## Lazy instantiation
+        if not hasattr(self, "statistics"):
+            self.statistics = {}
+
+        ## 1. Mutual information between states and signals
+        if "mut_info_states_signals" not in self.statistics:
+
+            ## Create empty array...
+            self.statistics["mut_info_states_signals"] = np.empty((self.iteration,))
+
+            ## ...and fill with NaN up to current iteration.
+            self.statistics["mut_info_states_signals"][:] = np.nan
+
+        ## Get the current mutual information
+        ## Normalise strategy profiles
+        snorm = (self.sender.strategies.T / self.sender.strategies.sum(1)).T
+        rnorm = (self.receiver.strategies.T / self.receiver.strategies.sum(1)).T
+
+        ## Create info object and get mutual information
+        info = Information(self.game, snorm, rnorm)
+        mut_info_states_signals = info.mutual_info_states_messages()
+
+        ## Append the current mutual information
+        self.statistics["mut_info_states_signals"] = np.append(
+            self.statistics["mut_info_states_signals"], mut_info_states_signals
+        )
+        
+        ## 2. Average probability of success
+        if "avg_prob_success" not in self.statistics:
+
+            ## Create empty array...
+            self.statistics["avg_prob_success"] = np.empty((self.iteration,))
+
+            ## ...and fill with NaN up to current iteration.
+            self.statistics["avg_prob_success"][:] = np.nan
+        
+        ## Get the current average probability of success
+        # TODO check this!
+        avg_prob_success = np.average(self.game.payoff(
+            sender_strat = snorm,
+            receiver_strat = rnorm
+            ))
+
+        ## Append the current probability of success
+        self.statistics["avg_prob_success"] = np.append(
+            self.statistics["avg_prob_success"], avg_prob_success
+        )
+        
+    def is_pooling(self):
+        """
+        Is the system currently at a pooling equilibrium?
+        
+        TODO: figure out the likely way Skyrms identifies pooling, and mimic that.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        ## Try 1
+        # if self.statistics["avg_prob_success"][-1] < 0.9: return True
+        
+        # return False
+        
+        
+        ## Try 2
+        ## A bit quick and dirty.
+        ## Check whether the entropy of the sender strategy first line
+        ##  is lower than a certain tolerance.
+        snorm = (self.sender.strategies.T / self.sender.strategies.sum(1)).T
+        rnorm = (self.receiver.strategies.T / self.receiver.strategies.sum(1)).T
+        
+        if entropy(snorm[0]) < 0.1 and entropy(rnorm[0]) < 0.1: return False
+        
+        return True
+
+
 class Agent:
     """
     Finite, discrete agent used in Reinforcement() objects.
@@ -999,6 +1166,50 @@ class Agent:
         self.strategies[input_data][response] = max(
             self.strategies[input_data][response], 0
         )
+    
+    def update_strategies_bush_mosteller(self,input_data,response,payoff,learning_parameter):
+        """
+        
+        From Skyrms 2010 page 86:
+            
+        "If an act is chosen and a reward is gotten
+         the probability is incremented by adding some fraction of the
+         distance between the original probability and probability one.8
+         Alternative action probabilities are decremented so that everything
+         adds to one. The fraction used is the product of the reward and
+         some learning parameter."
+
+        Parameters
+        ----------
+        input_data : TYPE
+            DESCRIPTION.
+        response : TYPE
+            DESCRIPTION.
+        payoff : TYPE
+            DESCRIPTION.
+        learning_parameter : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        ## The row is self.strategies[input_data].
+        ## The entry self.strategies[input_data][response] is incremented by
+        ##  (1 - self.strategies[input_data][response]) * learning_parameter.
+        ## All other entries are decremented (presumably relative to their current values).
+        
+        ## Create a "delta" array that says how everything changes.
+        ## Imagine first we are decrementing everything.
+        ar_delta = self.strategies[input_data] * learning_parameter * -1
+        
+        ## Now replace the winner's delta with its positive reinforcement rate.
+        ar_delta[response] = (1-self.strategies[input_data][response]) * learning_parameter
+        
+        ## Now update the strategies
+        self.strategies[input_data] += ar_delta
 
 
 class Times:
