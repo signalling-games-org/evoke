@@ -6,7 +6,7 @@ import numpy as np
 import scipy.optimize as opt
 from scipy import sparse
 
-from asymmetric_games import Chance
+from lib.asymmetric_games import Chance
 
 class Information:
     """
@@ -19,7 +19,7 @@ class Information:
         self.sender = sender
         self.receiver = receiver
         self.game = game
-        if isinstance(game, Chance):
+        if hasattr(game, "state_chances"):
             self.state_chances = game.state_chances
             self.msg_cond_on_states, self.acts_cond_on_msg = (self.sender,
                                                               self.receiver)
@@ -73,7 +73,7 @@ class RDT:
         """
         Parameters
         ----------
-        game: a skyrms.asymmetric_games.Chance object
+        game: a lib.asymmetric_games.Chance object
 
         dist_tensor: a collection of distortion matrices (same dimensions as payoff
         matrices), stacked along axis 2
@@ -577,7 +577,7 @@ class Shea:
         """
         Parameters
         ----------
-        game: a skyrms.asymmetric_games.Chance object
+        game: a lib.asymmetric_games.Chance object
         """
         self.game = game
         self.baseline_sender, self.baseline_receiver = self.baseline_payoffs()

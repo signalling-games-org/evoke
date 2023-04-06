@@ -91,6 +91,138 @@ class Chance:
                                                          np.newaxis]
         return sum(mixedstratreceiver)
 
+class ChanceSIR:
+    """
+        Sender-intermediary-receiver game with a "chance node"
+        (i.e. nature chooses the state the sender sees.)
+    """
+    
+    def __init__(self,
+                 state_chances, 
+                 sender_payoff_matrix, 
+                 intermediary_payoff_matrix,
+                 receiver_payoff_matrix, 
+                 messages):
+        """
+        
+
+        Parameters
+        ----------
+        state_chances : TYPE
+            DESCRIPTION.
+        sender_payoff_matrix : TYPE
+            DESCRIPTION.
+        intermediary_payoff_matrix : TYPE
+            DESCRIPTION.
+        receiver_payoff_matrix : TYPE
+            DESCRIPTION.
+        messages : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        ## Sanity check
+        if any(state_chances.shape[0] != row for row in
+               [sender_payoff_matrix.shape[0],
+                intermediary_payoff_matrix.shape[0],
+                receiver_payoff_matrix.shape[0]]):
+            sys.exit("The number of rows in sender and receiver payoffs should"
+                     "be the same as the number of states")
+        
+        ## Sanity check
+        if sender_payoff_matrix.shape != intermediary_payoff_matrix.shape\
+            or intermediary_payoff_matrix.shape != receiver_payoff_matrix.shape:
+            sys.exit("Sender and receiver payoff arrays should have the same"
+                     "shape")
+        ## Sanity check
+        if not isinstance(messages, int):
+            sys.exit("The number of messages should be an integer")
+            
+        ## Set-up
+        ## Basics
+        self.chance_node = True  # flag to know where the game comes from
+        self.state_chances = state_chances
+        
+        ## Payoff matrices
+        self.sender_payoff_matrix = sender_payoff_matrix
+        self.intermediary_payoff_matrix = intermediary_payoff_matrix
+        self.receiver_payoff_matrix = receiver_payoff_matrix
+        
+        ## Integers
+        self.states = state_chances.shape[0]
+        self.messages = messages
+        self.acts = sender_payoff_matrix.shape[1]
+    
+    def average_payoff(self,snorm,inorm,rnorm):
+        """
+        Assumes all players have identical payoffs.
+        
+        NB This has been moved to asymmetric_games.ChanceSIR.avg_payoffs_regular().
+
+        Parameters
+        ----------
+        snorm : array-like
+            Sender current strategies, normalised.
+        inorm : array-like
+            Intermediary current strategies, normalised.
+        rnorm : array-like
+            Receiver current strategies, normalised.
+            
+        Returns
+        -------
+        payoff : float
+            Average payoff given these strategies.
+            
+
+        """
+        
+        ## For there to be a single average payoff for all players, 
+        ##  all payoff matrices must be identical.
+        assert self.regular
+        
+        ## Multiply the chain of strategy probabilities,
+        ##  and then multiply the result by the (shared) payoff matrix.
+        
+        ## Step 1: We have the conditional probabilities of s-signals given states,
+        ##          and the conditional probabilities of i-signals given s-signals,
+        ##          and we want the conditional probabilities of i-signals given states.
+        inorm_given_states = np.matmul(snorm,inorm)
+        
+        ## Step 2: We have the conditional probabilities of i-signals given states,
+        ##          and the conditional probabilities of r-acts given i-signals,
+        ##          and we want the conditional probabilities of r-acts given states.
+        racts_given_states = np.matmul(inorm_given_states,rnorm)
+        
+        ## Step 3: We have the conditional probabilities of r-acts given states,
+        ##          and the unconditional probabilities of states,
+        ##          and we want the joint probabilities of states and r-acts.
+        joint_states_and_acts = np.multiply(self.state_chances,racts_given_states)
+        
+        ## Step 4: We have the joint probabilities and the payoffs,
+        ##          and we want the overall expected payoff.
+        ## Remember all the payoff matrices are the same, so we can use any of them.
+        payoff = np.multiply(joint_states_and_acts,self.sender_payoff_matrix).sum()
+        
+        return payoff
+    
+    @property
+    def regular(self):
+        
+        ## Lazy instantiation
+        if hasattr(self,"_regular"): return self._regular
+        
+        ## The game is regular if all payoff matrices are identical.
+        if (self.sender_payoff_matrix == self.intermediary_payoff_matrix).all()\
+         and (self.intermediary_payoff_matrix == self.receiver_payoff_matrix).all():
+             self._regular = True
+        else:
+            self._regular = False
+        
+        return self._regular
 
 class NonChance:
     """

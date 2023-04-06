@@ -6,7 +6,7 @@ import numpy as np
 from scipy.stats import kendalltau
 from scipy.special import comb
 
-from skyrms import exceptions
+from lib import exceptions
 
 
 class CommonInterest_1_pop:
