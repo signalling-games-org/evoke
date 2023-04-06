@@ -785,6 +785,121 @@ class MatchingSR(Matching):
         # return False
         
 
+class MatchingSRInvention(Matching):
+    """
+    Matching simulation for two-player sender-receiver game, 
+     with the possibility of new signals at every step.
+    """
+
+    def __init__(self, game, sender_strategies, receiver_strategies):
+        """
+
+
+        Parameters
+        ----------
+        game : TYPE
+            DESCRIPTION.
+        sender_strategies : TYPE
+            DESCRIPTION.
+        receiver_strategies : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        None.
+
+        """
+
+        self.game = game
+
+        ## Create the agents.
+        ## Sender
+        self.sender = Agent(sender_strategies)
+
+        ## Receiver
+        self.receiver = Agent(receiver_strategies)
+
+        super().__init__(game=game, agents=[self.sender, self.receiver])
+
+    def step(self,calculate_stats=True):
+        """
+        Implement the matching rule and increment one step.
+
+        In each step:
+            1. Run one round of the game.
+            2. Update the agents' strategies based on the payoffs they received.
+            3. Calculate and store any required variables e.g. information.
+            4. Update iteration.
+
+        Returns
+        -------
+        None.
+
+        """
+
+        ## 1. Run one round of the game.
+        ## 1a. Choose a nature state.
+        state = self.game.choose_state()
+
+        ## 1b. Choose a signal.
+        signal = self.sender.choose_strategy(state)
+
+        ## 1c. Choose an act.
+        act = self.receiver.choose_strategy(signal)
+
+        ## 1d. get the payoff
+        sender_payoff = self.game.sender_payoff(state, act)
+        receiver_payoff = self.game.receiver_payoff(state, act)
+
+        ## 2a. Update the agent's strategies based on the payoffs they received.
+        self.sender.update_strategies(state, signal, sender_payoff)
+        self.receiver.update_strategies(signal, act, receiver_payoff)
+        
+        
+        ## 2b. If the signal was novel and there was success,
+        ##      need to add the new signal to both agents' repertoires.
+        if signal == len(self.receiver.strategies)-1 and receiver_payoff == 1:
+            
+            ## It was a new signal
+            self.sender.add_signal_sender()
+            self.receiver.add_signal_receiver()
+
+        ## 3. Calculate and store any required variables e.g. information.
+        if calculate_stats: self.calculate_stats()
+
+        ## 4. Update iteration.
+        self.iteration += 1
+
+    def calculate_stats(self):
+        """
+        Calculate and store informational quantities at this point.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        ## Lazy instantiation
+        if not hasattr(self, "statistics"):
+            self.statistics = {}
+        
+        ## 1. Number of signals
+
+        ## 1. Mutual information between states and signals
+        if "number_of_signals" not in self.statistics:
+
+            ## Create empty array...
+            self.statistics["number_of_signals"] = np.empty((self.iteration,))
+
+            ## ...and fill with NaN up to current iteration.
+            self.statistics["number_of_signals"][:] = np.nan
+            
+        ## Append the current number of signals
+        self.statistics["number_of_signals"] = np.append(
+            self.statistics["number_of_signals"], len(self.receiver.strategies)
+        )
+
 
 class MatchingSIR(Matching):
     """
@@ -1210,6 +1325,34 @@ class Agent:
         
         ## Now update the strategies
         self.strategies[input_data] += ar_delta
+        
+    def add_signal_sender(self):
+        """
+        TODO: consolidate with add_signal_receiver(), and tell the agent who it is
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        new_signal_array = np.ones((len(self.strategies),1))
+        
+        self.strategies = np.append(self.strategies,new_signal_array,axis=1)
+        
+    def add_signal_receiver(self):
+        """
+        TODO: consolidate with add_signal_sender(), and tell the agent who it is
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        new_signal_array = np.ones((1,len(self.strategies[0])))
+        
+        self.strategies = np.append(self.strategies,new_signal_array,axis=0)
 
 
 class Times:
