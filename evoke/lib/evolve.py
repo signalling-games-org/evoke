@@ -13,9 +13,9 @@ from abc import ABC, abstractmethod
 ## Libraries
 from tqdm import trange
 
-## Skyrms
-from skyrms.asymmetric_games import Chance, NonChance, ChanceSIR
-from skyrms.info import Information, entropy
+## evoke
+from lib.asymmetric_games import Chance, NonChance, ChanceSIR
+from lib.info import Information, entropy
 
 
 class OnePop:
@@ -540,10 +540,10 @@ class Reinforcement:
 
         Parameters
         ----------
-        game : one of the Skyrms game objects
+        game : one of the evoke game objects
             DESCRIPTION.
         agents: array-like
-            list of Skyrms agent objects
+            list of evoke agent objects
 
         Returns
         -------

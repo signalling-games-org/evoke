@@ -14,9 +14,9 @@ from mpl_toolkits.mplot3d import Axes3D
 from tqdm import tqdm, trange
 
 
-from skyrms import asymmetric_games as asy
-from skyrms import evolve as ev
-from skyrms.symmetric_games import NoSignal
+from lib import asymmetric_games as asy
+from lib import evolve as ev
+from lib.symmetric_games import NoSignal
 
 
 class Figure(ABC):

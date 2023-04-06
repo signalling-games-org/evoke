@@ -2,13 +2,13 @@
 from setuptools import setup
 
 setup(
-    name='skyrms',
+    name='evoke',
     version='0.1',
     install_requires=['numpy', 'scipy'],
     description='Dynamic analysis of signaling games',
-    author='Manolo Martínez',
+    author='Stephen Mann, Manolo Martínez',
     author_email='mail@manolomartinez.net',
-    url='https://github.com/manolomartinez/signal',
-    packages=['skyrms'],
+    url='https://github.com/signalling-games-org/evoke',
+    packages=['evoke'],
     license='GPLv3'
 )

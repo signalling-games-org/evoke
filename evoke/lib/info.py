@@ -6,7 +6,7 @@ import numpy as np
 import scipy.optimize as opt
 from scipy import sparse
 
-from skyrms.asymmetric_games import Chance
+from lib.asymmetric_games import Chance
 
 class Information:
     """
@@ -73,7 +73,7 @@ class RDT:
         """
         Parameters
         ----------
-        game: a skyrms.asymmetric_games.Chance object
+        game: a lib.asymmetric_games.Chance object
 
         dist_tensor: a collection of distortion matrices (same dimensions as payoff
         matrices), stacked along axis 2
@@ -577,7 +577,7 @@ class Shea:
         """
         Parameters
         ----------
-        game: a skyrms.asymmetric_games.Chance object
+        game: a lib.asymmetric_games.Chance object
         """
         self.game = game
         self.baseline_sender, self.baseline_receiver = self.baseline_payoffs()
