@@ -585,6 +585,125 @@ class Skyrms2010_8_2(Scatter):
         return evo
 
 
+class Skyrms2010_8_3(Scatter):
+    """
+        Figure 8.3, page 98, of Skyrms 2010
+    """
+    
+    def __init__(self,trials=100,iterations=300,learning_params=[0.01,0.03,0.05,0.07,0.1,0.15,0.2]):
+        """
+        Not sure how many trials Skyrms is reporting -- probably at least 1000.
+        He explicitly states 300 iterations on p.98.
+
+        Parameters
+        ----------
+        iterations : TYPE, optional
+            DESCRIPTION. The default is 300.
+        learning_params : TYPE, optional
+            DESCRIPTION. The default is [0.01,0.03,0.05,0.07,0.1,0.15,0.2].
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        self.initialize_simulation(learning_params)
+        
+        evo = self.run_simulation(trials,iterations)
+        
+        ## Set graph data and display parameters
+        self.reset(x=np.array(self.learning_params).astype(str), y=self.prob_of_signalling, xlabel="Learning Parameter", ylabel="Signalling", ylim=[0,1], marker_size=5)
+        
+        ## Superclass wants an evo object. Just pass it whatever we got from run_simulations().
+        super().__init__(evo)
+        
+        self.show(True)
+
+    def initialize_simulation(self,learning_params):
+        """
+        
+
+        Parameters
+        ----------
+        learning_params : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        ## Fixed parameters
+        self.state_chances = np.array([0.9, 0.1])
+        self.sender_payoff_matrix = np.eye(2)
+        self.receiver_payoff_matrix = np.eye(2)
+        self.messages = 2
+        
+        ## User-supplied parameters
+        self.learning_params = learning_params
+    
+    def run_simulation(self,trials,iterations):
+        """
+        
+
+        Parameters
+        ----------
+        trials : TYPE
+            DESCRIPTION.
+        iterations : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        evo : inherits from evolve.Evolve
+            DESCRIPTION.
+
+        """
+        
+        self.prob_of_signalling = []
+        
+        ## Create game
+        game = asy.Chance(
+            state_chances=self.state_chances,
+            sender_payoff_matrix=self.sender_payoff_matrix,
+            receiver_payoff_matrix=self.receiver_payoff_matrix,
+            messages=self.messages,
+        )
+        
+        for learning_param in self.learning_params:
+            
+            ## This could really take a long time, so print a report and tqdm progress bar.
+            print(f"Learning parameter: {learning_param}. Simulating {trials} games with {iterations} iterations each...")
+            
+            count_signalling = 0
+            
+            for trial in trange(trials):
+                
+                ## Define strategies
+                ## These are the initial weights for Bush-Mosteller reinforcement.
+                sender_strategies = np.ones((2, 2)) * 0.5 # Strategies are now conditional prob distributions on each row
+                receiver_strategies = np.ones((2, 2)) * 0.5 # Strategies are now conditional prob distributions on each row
+            
+                ## Create simulation
+                evo = ev.BushMostellerSR(game, sender_strategies, receiver_strategies, learning_param)
+        
+                ## Run simulation for <iterations> steps
+                ## Tell it to only calculate at end
+                evo.run(iterations,calculate_stats="end")
+                
+                ## TODO: this attribute is overcounting pooling and undercounting signalling.
+                if not evo.is_pooling(): count_signalling += 1
+            
+            ## For each initial weight, get the proportion of evo games (out of 1000)
+            ##        that led to partial pooling.
+            self.prob_of_signalling.append(count_signalling/trials)
+        
+        
+        return evo
+
+
 class Quiver(Figure):
     """
     Superclass for Quiver plots
