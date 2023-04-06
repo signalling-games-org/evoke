@@ -1046,3 +1046,168 @@ class Skyrms2010_1_2(Quiver3D):
         self.X, self.Y, self.Z, self.U, self.V, self.W = zip(*soa)
 
         return self.evo
+
+class Bar(Figure):
+    """
+        Bar chart abstract superclass.
+    """
+    
+    def __init__(self, evo, **kwargs):
+        super().__init__(evo=evo, **kwargs)
+
+    def reset(self, x, y, xlabel, ylabel, bar_color="w", xlim = None, ylim = None, yscale = None):
+        """
+        Update figure parameters
+
+        Parameters
+        ----------
+        x : array-like
+            x-axis coordinates.
+        y : array-like
+            y-axis coordinates.
+
+        Returns
+        -------
+        None.
+
+        """
+
+        ## Update global attributes, which can then be plotted in self.show()
+        self.x = x
+        self.y = y
+
+        ## Labels
+        self.xlabel = xlabel
+        self.ylabel = ylabel
+
+        ## Marker design
+        self.c = bar_color
+        
+        ## Limits of axes
+        self.xlim = xlim
+        self.ylim = ylim
+        
+        ## Axes Scaling
+        self.yscale = yscale
+
+    def show(self,line=False):
+        
+        ## Data
+        plt.bar(x=self.x, height=self.y, color=self.c, edgecolor="k")
+
+        ## Labels
+        plt.xlabel(self.xlabel)
+        plt.ylabel(self.ylabel)
+        
+        ## Limits of axes
+        if self.xlim is not None: plt.xlim(self.xlim)
+        if self.ylim is not None: plt.ylim(self.ylim)
+        
+        ## Axes Scale
+        if self.yscale is not None: plt.yscale(self.yscale)
+
+        ## Show plot
+        plt.show()
+
+    """
+        BAR ATTRIBUTES AND ALIASES
+    """
+
+    """
+        Bar color
+    """
+
+    @property
+    def c(self):
+        return self._c
+
+    @c.setter
+    def c(self, inp):
+        self._c = inp
+
+    @c.deleter
+    def c(self):
+        del self._c
+
+    # Alias
+    bar_color = c
+    
+class Skyrms2010_10_5(Bar):
+    """
+    Figure 10.5, page 130, of Skyrms 2010
+    """
+
+    def __init__(self, trials=1000, iterations=int(1e4)):
+        """
+        NB Skyrms uses iterations=int(1e5) but this will take a very long time.
+
+        Parameters
+        ----------
+        trials : TYPE, optional
+            DESCRIPTION. The default is 1000 
+        
+        iterations : int
+            default is int(1e4).
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        self.initialize_simulation()
+
+        evo = self.run_simulation(trials,iterations)
+
+        ## Get info attribute
+        y = self.signal_frequencies
+
+        super().__init__(evo)
+
+        self.reset(x=np.array(y.keys()).astype(str), y=y.values(), xlabel="Number of signals", ylabel="Frequency", ylim=[0,max(y.values())+0.1*max(y.values())])
+
+        self.show()
+    
+    def show(self):
+        super().show(True) # draw the line by default
+
+    def initialize_simulation(self):
+        self.state_chances = np.array([1/3, 1/3, 1/3])
+        self.sender_payoff_matrix = np.eye(3)
+        self.receiver_payoff_matrix = np.eye(3)
+        self.messages = 3
+
+    def run_simulation(self, trials, iterations):
+        
+        self.signal_frequencies = {}
+        
+        ## Create game
+        game = asy.Chance(
+            state_chances=self.state_chances,
+            sender_payoff_matrix=self.sender_payoff_matrix,
+            receiver_payoff_matrix=self.receiver_payoff_matrix,
+            messages=self.messages,
+        )
+        
+        for trial in trange(trials):
+                
+            ## Define strategies
+            sender_strategies = np.ones((3, 3))
+            receiver_strategies = np.ones((3, 3))
+        
+            ## Create simulation
+            evo = ev.MatchingSRInvention(game, sender_strategies, receiver_strategies)
+    
+            ## Run simulation for <iterations> steps
+            ## Tell it to only calculate at end
+            evo.run(iterations,calculate_stats="end")
+            
+            n_signals_str = str(evo.statistics["number_of_signals"][-1])
+            
+            ## Add the number of signals to the log
+            if n_signals_str in self.signal_frequencies:
+                self.signal_frequencies[n_signals_str] += 1
+            else:
+                self.signal_frequencies[n_signals_str] = 1
+
+        return evo
