@@ -14,7 +14,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from tqdm import tqdm, trange
 
 
-import asymmetric_games as asy
+from evoke.lib import asymmetric_games as asy
 from evoke.lib import evolve as ev
 from evoke.lib.symmetric_games import NoSignal
 
@@ -1139,7 +1139,7 @@ class Skyrms2010_10_5(Bar):
 
     def __init__(self, trials=1000, iterations=int(1e4)):
         """
-        NB Skyrms uses iterations=int(1e5) but this will take a very long time.
+        NB Skyrms uses trials=1000 and iterations=int(1e5) but this will take a very long time.
 
         Parameters
         ----------
@@ -1159,12 +1159,16 @@ class Skyrms2010_10_5(Bar):
 
         evo = self.run_simulation(trials,iterations)
 
-        ## Get info attribute
-        y = self.signal_frequencies
+        ## Get graph info
+        x_axis = [str(k) for k in sorted(self.signal_frequencies.keys())]
+        y_axis = self.signal_frequencies.values()
+        
+        ## Y-axis limits
+        ylim = [0,max(y_axis)+0.1*max(y_axis)]
 
         super().__init__(evo)
 
-        self.reset(x=np.array(y.keys()).astype(str), y=y.values(), xlabel="Number of signals", ylabel="Frequency", ylim=[0,max(y.values())+0.1*max(y.values())])
+        self.reset(x=x_axis, y=y_axis, xlabel="Number of signals", ylabel="Frequency", ylim=ylim)
 
         self.show()
     
@@ -1175,7 +1179,7 @@ class Skyrms2010_10_5(Bar):
         self.state_chances = np.array([1/3, 1/3, 1/3])
         self.sender_payoff_matrix = np.eye(3)
         self.receiver_payoff_matrix = np.eye(3)
-        self.messages = 3
+        self.messages = 1 # Skyrms says zero, but the first message is a "phantom".
 
     def run_simulation(self, trials, iterations):
         
@@ -1202,7 +1206,7 @@ class Skyrms2010_10_5(Bar):
             ## Tell it to only calculate at end
             evo.run(iterations,calculate_stats="end")
             
-            n_signals_str = str(evo.statistics["number_of_signals"][-1])
+            n_signals_str = int(evo.statistics["number_of_signals"][-1])
             
             ## Add the number of signals to the log
             if n_signals_str in self.signal_frequencies:
