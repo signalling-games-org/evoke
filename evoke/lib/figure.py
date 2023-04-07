@@ -1090,7 +1090,7 @@ class Bar(Figure):
         ## Axes Scaling
         self.yscale = yscale
 
-    def show(self,line=False):
+    def show(self):
         
         ## Data
         plt.bar(x=self.x, height=self.y, color=self.c, edgecolor="k")
@@ -1160,8 +1160,9 @@ class Skyrms2010_10_5(Bar):
         evo = self.run_simulation(trials,iterations)
 
         ## Get graph info
-        x_axis = [str(k) for k in sorted(self.signal_frequencies.keys())]
-        y_axis = self.signal_frequencies.values()
+        results_as_array = np.array(sorted(self.signal_frequencies.items()))
+        x_axis = results_as_array.T[0]
+        y_axis = results_as_array.T[1]
         
         ## Y-axis limits
         ylim = [0,max(y_axis)+0.1*max(y_axis)]
@@ -1171,9 +1172,6 @@ class Skyrms2010_10_5(Bar):
         self.reset(x=x_axis, y=y_axis, xlabel="Number of signals", ylabel="Frequency", ylim=ylim)
 
         self.show()
-    
-    def show(self):
-        super().show(True) # draw the line by default
 
     def initialize_simulation(self):
         self.state_chances = np.array([1/3, 1/3, 1/3])
@@ -1183,7 +1181,8 @@ class Skyrms2010_10_5(Bar):
 
     def run_simulation(self, trials, iterations):
         
-        self.signal_frequencies = {}
+        ## Initialise data dict: keys will be x-axis, values will be y-axis.
+        self.signal_frequencies = {s:0 for s in range(1,30)}
         
         ## Create game
         game = asy.Chance(
@@ -1196,8 +1195,9 @@ class Skyrms2010_10_5(Bar):
         for trial in trange(trials):
                 
             ## Define strategies
-            sender_strategies = np.ones((3, 3))
-            receiver_strategies = np.ones((3, 3))
+            ## Players start with only 1 "phantom" signal available.
+            sender_strategies = np.ones((3, 1))
+            receiver_strategies = np.ones((1, 3))
         
             ## Create simulation
             evo = ev.MatchingSRInvention(game, sender_strategies, receiver_strategies)
@@ -1206,12 +1206,12 @@ class Skyrms2010_10_5(Bar):
             ## Tell it to only calculate at end
             evo.run(iterations,calculate_stats="end")
             
-            n_signals_str = int(evo.statistics["number_of_signals"][-1])
+            n_signals_int = int(evo.statistics["number_of_signals"][-1])
             
             ## Add the number of signals to the log
-            if n_signals_str in self.signal_frequencies:
-                self.signal_frequencies[n_signals_str] += 1
+            if n_signals_int in self.signal_frequencies:
+                self.signal_frequencies[n_signals_int] += 1
             else:
-                self.signal_frequencies[n_signals_str] = 1
+                self.signal_frequencies[n_signals_int] = 1
 
         return evo
