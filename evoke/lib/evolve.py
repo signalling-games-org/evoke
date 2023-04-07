@@ -897,7 +897,7 @@ class MatchingSRInvention(Matching):
             
         ## Append the current number of signals
         self.statistics["number_of_signals"] = np.append(
-            self.statistics["number_of_signals"], len(self.receiver.strategies)
+            self.statistics["number_of_signals"], len(self.receiver.strategies) - 1
         )
 
 
