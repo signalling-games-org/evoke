@@ -11,12 +11,16 @@ from matplotlib import pyplot as plt
 ## 3D plotting
 from mpl_toolkits.mplot3d import Axes3D
 
+## ternary plots
+from ternary import figure  # from https://github.com/marcharper/python-ternary
+
 from tqdm import tqdm, trange
 
 
-from evoke.lib import asymmetric_games as asy
-from evoke.lib import evolve as ev
-from evoke.lib.symmetric_games import NoSignal
+from . import asymmetric_games as asy
+from . import symmetric_games as sym
+from . import evolve as ev
+from .symmetric_games import NoSignal
 
 
 class Figure(ABC):
@@ -53,7 +57,19 @@ class Scatter(Figure):
     def __init__(self, evo, **kwargs):
         super().__init__(evo=evo, **kwargs)
 
-    def reset(self, x, y, xlabel, ylabel, marker_size=10, marker_color="k", xlim = None, ylim = None, xscale=None, yscale=None):
+    def reset(
+        self,
+        x,
+        y,
+        xlabel,
+        ylabel,
+        marker_size=10,
+        marker_color="k",
+        xlim=None,
+        ylim=None,
+        xscale=None,
+        yscale=None,
+    ):
         """
         Update figure parameters
 
@@ -81,33 +97,37 @@ class Scatter(Figure):
         ## Marker design
         self.s = marker_size
         self.c = marker_color
-        
+
         ## Limits of axes
         self.xlim = xlim
         self.ylim = ylim
-        
+
         ## Axes Scaling
         self.xscale = xscale
         self.yscale = yscale
 
-    def show(self,line=False):
-        
+    def show(self, line=False):
         ## Data
         plt.scatter(x=self.x, y=self.y, s=self.s, c=self.c)
-        
-        if line: plt.plot(self.x,self.y, color=self.c)
+
+        if line:
+            plt.plot(self.x, self.y, color=self.c)
 
         ## Labels
         plt.xlabel(self.xlabel)
         plt.ylabel(self.ylabel)
-        
+
         ## Limits of axes
-        if self.xlim is not None: plt.xlim(self.xlim)
-        if self.ylim is not None: plt.ylim(self.ylim)
-        
+        if self.xlim is not None:
+            plt.xlim(self.xlim)
+        if self.ylim is not None:
+            plt.ylim(self.ylim)
+
         ## Axes Scale
-        if self.xscale is not None: plt.xscale(self.xscale)
-        if self.yscale is not None: plt.yscale(self.yscale)
+        if self.xscale is not None:
+            plt.xscale(self.xscale)
+        if self.yscale is not None:
+            plt.yscale(self.yscale)
 
         ## Show plot
         plt.show()
@@ -208,7 +228,7 @@ class Skyrms2010_3_4(Scatter):
 
     def __init__(self, iterations=int(1e2)):
         """
-        Change iterations to int(1e6) to run the same number of iterations 
+        Change iterations to int(1e6) to run the same number of iterations
          as in the original figure. Warning: this takes a while.
          You should still get convergence often at 1e5.
 
@@ -222,7 +242,7 @@ class Skyrms2010_3_4(Scatter):
         None.
 
         """
-        
+
         self.initialize_simulation()
 
         evo = self.run_simulation(iterations)
@@ -231,43 +251,47 @@ class Skyrms2010_3_4(Scatter):
         y = evo.statistics["prob_success"]
 
         super().__init__(evo)
-        
+
         ## TODO: The data points only include the start point and each power of 10.
-        self.reset(x=range(iterations), 
-                   y=y, 
-                   xlabel="Iterations", 
-                   ylabel="Average Probability of Success",
-                   ylim = [0,1],
-                   xscale = 'log')
+        self.reset(
+            x=range(iterations),
+            y=y,
+            xlabel="Iterations",
+            ylabel="Average Probability of Success",
+            ylim=[0, 1],
+            xscale="log",
+        )
 
         self.show()
 
     def initialize_simulation(self):
-        self.state_chances              = np.array([0.5, 0.5])
-        self.sender_payoff_matrix       = np.eye(2)
+        self.state_chances = np.array([0.5, 0.5])
+        self.sender_payoff_matrix = np.eye(2)
         self.intermediary_payoff_matrix = np.eye(2)
-        self.receiver_payoff_matrix     = np.eye(2)
-        self.messages_sender            = 2
-        self.messages_intermediary      = 2
+        self.receiver_payoff_matrix = np.eye(2)
+        self.messages_sender = 2
+        self.messages_intermediary = 2
 
     def run_simulation(self, iterations):
         ## Create game
         game = asy.ChanceSIR(
-            state_chances               = self.state_chances,
-            sender_payoff_matrix        = self.sender_payoff_matrix,
-            intermediary_payoff_matrix  = self.intermediary_payoff_matrix,
-            receiver_payoff_matrix      = self.receiver_payoff_matrix,
-            messages_sender             = self.messages_sender,
-            messages_intermediary       = self.messages_intermediary
+            state_chances=self.state_chances,
+            sender_payoff_matrix=self.sender_payoff_matrix,
+            intermediary_payoff_matrix=self.intermediary_payoff_matrix,
+            receiver_payoff_matrix=self.receiver_payoff_matrix,
+            messages_sender=self.messages_sender,
+            messages_intermediary=self.messages_intermediary,
         )
 
         ## Define initial strategies
-        sender_strategies       = np.ones((2, 2))
+        sender_strategies = np.ones((2, 2))
         intermediary_strategies = np.ones((2, 2))
-        receiver_strategies     = np.ones((2, 2))
+        receiver_strategies = np.ones((2, 2))
 
         ## Create simulation
-        evo = ev.MatchingSIR(game, sender_strategies, intermediary_strategies, receiver_strategies)
+        evo = ev.MatchingSIR(
+            game, sender_strategies, intermediary_strategies, receiver_strategies
+        )
 
         ## Run simulation for <iterations> steps
         evo.run(iterations)
@@ -277,12 +301,12 @@ class Skyrms2010_3_4(Scatter):
 
 class Skyrms2010_5_2(Scatter):
     """
-        Figure 5.2, page 72, of Skyrms 2010.
+    Figure 5.2, page 72, of Skyrms 2010.
     """
-    
-    def __init__(self, pr_state_2_list = np.linspace(0.5,1,10)):
+
+    def __init__(self, pr_state_2_list=np.linspace(0.5, 1, 10)):
         """
-        
+
 
         Parameters
         ----------
@@ -296,42 +320,41 @@ class Skyrms2010_5_2(Scatter):
         None.
 
         """
-        
-        
+
         self.initialize_simulations(pr_state_2_list)
 
         evo, y_axis = self.run_simulations()
-        
+
         ## The superclass doesn't (yet) expect multiple simulations.
         ## Just pass in the most recent one.
         super().__init__(evo)
-        
+
         ## Set data for the graph.
-        self.reset(x=pr_state_2_list, 
-                   y=y_axis, 
-                   xlabel="Pr State 2", 
-                   ylabel="Value of Assortment to Destabilize Pooling e",
-                   xlim = [min(pr_state_2_list),max(pr_state_2_list)],
-                   ylim = [0,1]
-                   )
+        self.reset(
+            x=pr_state_2_list,
+            y=y_axis,
+            xlabel="Pr State 2",
+            ylabel="Value of Assortment to Destabilize Pooling e",
+            xlim=[min(pr_state_2_list), max(pr_state_2_list)],
+            ylim=[0, 1],
+        )
 
         self.show()
-    
+
     def show(self):
         """
         Show the line by default.
 
         """
-        
+
         super().show(True)
-        
-    def initialize_simulations(self,pr_state_2_list):
-        self.pr_state_2_list        = pr_state_2_list
-        self.sender_payoff_matrix   = np.eye(2)
+
+    def initialize_simulations(self, pr_state_2_list):
+        self.pr_state_2_list = pr_state_2_list
+        self.sender_payoff_matrix = np.eye(2)
         self.receiver_payoff_matrix = np.eye(2)
-        self.messages               = 2
-    
-    
+        self.messages = 2
+
     def run_simulations(self):
         """
         From Skyrms (2010:71):
@@ -340,12 +363,12 @@ class Skyrms2010_5_2(Scatter):
                 focus on four strategies, written as a vector whose components are:
                 signal sent in state 1, signal sent in state 2, act done after signal 1, act
                 done after signal 2.
-            
+
             s1 = <1, 2, 1, 2>
             s2 = <2, 1, 2, 1>
             s3 = <1, 1, 2, 2>
             s4 = <2, 2, 2, 2>"
-        
+
         Together these define the playertypes payoffs.
 
         Parameters
@@ -361,13 +384,12 @@ class Skyrms2010_5_2(Scatter):
             DESCRIPTION.
 
         """
-        
+
         y_axis = []
-        
+
         for pr_state_2 in self.pr_state_2_list:
-            
             # state_chances = np.array([1-pr_state_2,pr_state_2])
-        
+
             # ## Create game
             # game = asy.Chance(
             #     state_chances               = state_chances,
@@ -375,20 +397,42 @@ class Skyrms2010_5_2(Scatter):
             #     receiver_payoff_matrix      = self.receiver_payoff_matrix,
             #     messages                    = self.messages
             # )
-            
+
             ## Define payoffs based on pr_state_2.
             ## Here payoffs is an nxn matrix, with n the number of players (here 4).
             ## Entry (i,j) gives the payoff of player i upon meeting player j.
-            payoffs = np.array([
-                [1,0,(0.5*pr_state_2+0.5*(1-pr_state_2)),(0.5*pr_state_2+0.5*pr_state_2)],
-                [0,1,(0.5*pr_state_2+0.5*pr_state_2),(0.5*pr_state_2+0.5*(1-pr_state_2))],
-                [(0.5*(1-pr_state_2)+0.5*pr_state_2),0.5*pr_state_2+0.5*pr_state_2,pr_state_2,pr_state_2],
-                [(0.5*pr_state_2+0.5*pr_state_2),(0.5*(1-pr_state_2)+0.5*pr_state_2),pr_state_2,pr_state_2]
-                ])
-            
+            payoffs = np.array(
+                [
+                    [
+                        1,
+                        0,
+                        (0.5 * pr_state_2 + 0.5 * (1 - pr_state_2)),
+                        (0.5 * pr_state_2 + 0.5 * pr_state_2),
+                    ],
+                    [
+                        0,
+                        1,
+                        (0.5 * pr_state_2 + 0.5 * pr_state_2),
+                        (0.5 * pr_state_2 + 0.5 * (1 - pr_state_2)),
+                    ],
+                    [
+                        (0.5 * (1 - pr_state_2) + 0.5 * pr_state_2),
+                        0.5 * pr_state_2 + 0.5 * pr_state_2,
+                        pr_state_2,
+                        pr_state_2,
+                    ],
+                    [
+                        (0.5 * pr_state_2 + 0.5 * pr_state_2),
+                        (0.5 * (1 - pr_state_2) + 0.5 * pr_state_2),
+                        pr_state_2,
+                        pr_state_2,
+                    ],
+                ]
+            )
+
             ## We pretend it's a straight encounter game, because we already calculated the payoffs.
             game = NoSignal(payoffs)
-            
+
             ## Playertypes are 50/50 types 3 and 4
             playertypes = np.array(
                 [
@@ -398,10 +442,10 @@ class Skyrms2010_5_2(Scatter):
                     [0, 0, 0, 1],  # "I'm playing the fourth strategy!"
                 ]
             )
-    
+
             ## Create simulation
             evo = ev.OnePop(game, playertypes)
-    
+
             ## Pooling equilibria are destabilized when the expected payoffs of type 1 and/or type 2
             ##  become equal to that of types 3 and 4.
             ## And presumably you get that just by multiplying the strategy profile by the payoff vector
@@ -409,31 +453,33 @@ class Skyrms2010_5_2(Scatter):
             ## Well, that works when there is no assortment.
             ## When there is assortment, you have to use Wright's special rules to get the probabilities
             ##  of meeting each type (See Skyrms 2010 page 71).
-            
-            ## Loop at assortment levels until you find the one at which 
+
+            ## Loop at assortment levels until you find the one at which
             ##  the expected payoffs of 1 and 2 are >= the expected payoffs of 3 and 4.
             assortment_level = 0
-            for e in np.arange(0,1,0.001):
-                
+            for e in np.arange(0, 1, 0.001):
                 assortment_level = e
-                
+
                 evo.assortment(e)
-                
-                payoff_vector = evo.avg_payoff_vector(np.array([0,0,0.5,0.5]))
-                
+
+                payoff_vector = evo.avg_payoff_vector(np.array([0, 0, 0.5, 0.5]))
+
                 ## Check whether types 1 or 2 beat types 3 or 4
-                if payoff_vector[0] >= payoff_vector[2] or payoff_vector[0] >= payoff_vector[3]\
-                or payoff_vector[1] >= payoff_vector[2] or payoff_vector[1] >= payoff_vector[3]:
+                if (
+                    payoff_vector[0] >= payoff_vector[2]
+                    or payoff_vector[0] >= payoff_vector[3]
+                    or payoff_vector[1] >= payoff_vector[2]
+                    or payoff_vector[1] >= payoff_vector[3]
+                ):
                     break
-                
-                
+
             y_axis.append(assortment_level)
-        
+
             ## Get info attribute
             # y_axis.append(evo.statistics["assortment_required"])
 
         return evo, y_axis
-        
+
 
 class Skyrms2010_8_1(Scatter):
     """
@@ -450,12 +496,19 @@ class Skyrms2010_8_1(Scatter):
 
         super().__init__(evo)
 
-        self.reset(x=range(iterations), y=y, xlabel="Iterations", ylabel="Average Probability of Success", ylim=[0,1], marker_size=5)
+        self.reset(
+            x=range(iterations),
+            y=y,
+            xlabel="Iterations",
+            ylabel="Average Probability of Success",
+            ylim=[0, 1],
+            marker_size=5,
+        )
 
         self.show()
-    
+
     def show(self):
-        super().show(True) # draw the line by default
+        super().show(True)  # draw the line by default
 
     def initialize_simulation(self):
         self.state_chances = np.array([0.5, 0.5])
@@ -493,15 +546,15 @@ class Skyrms2010_8_2(Scatter):
 
     def __init__(self, trials=100, iterations=int(1e3)):
         """
-        NB It looks as though Skyrms's graph was generated with the equivalent of 
+        NB It looks as though Skyrms's graph was generated with the equivalent of
             the following parameters:
                 trials = 1000
                 iterations = int(1e5)
             But this will take A VERY LONG TIME TO RUN as things are now.
-            
+
             Even with iterations at int(1e4), it's looking like 12 mins per weight,
              so about an hour overall.
-            
+
             This, combined with the difficulty of figuring out exactly how Skyrms is
              identifying pooling equilibria, leads to us overestimating
              the probability of pooling.
@@ -518,31 +571,38 @@ class Skyrms2010_8_2(Scatter):
         None.
 
         """
-        
+
         self.initialize_simulation()
-        
-        evo = self.run_simulation(trials,iterations)
+
+        evo = self.run_simulation(trials, iterations)
 
         ## Superclass needs an evo object. Just pass it whatever we got from run_simulations().
         super().__init__(evo)
 
-        self.reset(x=self.initial_weights, y=self.probability_of_pooling, xlabel="Initial Weights", ylabel="Probability of Pooling", ylim=[0,1], marker_size=5, xscale="log")
+        self.reset(
+            x=self.initial_weights,
+            y=self.probability_of_pooling,
+            xlabel="Initial Weights",
+            ylabel="Probability of Pooling",
+            ylim=[0, 1],
+            marker_size=5,
+            xscale="log",
+        )
 
         self.show()
-    
+
     def show(self):
-        super().show(True) # draw the line by default
+        super().show(True)  # draw the line by default
 
     def initialize_simulation(self):
         self.state_chances = np.array([0.9, 0.1])
         self.sender_payoff_matrix = np.eye(2)
         self.receiver_payoff_matrix = np.eye(2)
         self.messages = 2
-        
-        self.initial_weights = np.array([0.0001,0.001,0.01,0.1,1,10])
+
+        self.initial_weights = np.array([0.0001, 0.001, 0.01, 0.1, 1, 10])
 
     def run_simulation(self, trials, iterations):
-        
         ## Create game
         game = asy.Chance(
             state_chances=self.state_chances,
@@ -550,37 +610,37 @@ class Skyrms2010_8_2(Scatter):
             receiver_payoff_matrix=self.receiver_payoff_matrix,
             messages=self.messages,
         )
-        
+
         self.probability_of_pooling = []
-        
+
         for initial_weight in self.initial_weights:
-        
-            
             ## This could really take a long time, so print a report and tqdm progress bar.
-            print(f"Initial weight {initial_weight}. Simulating {trials} games with {iterations} iterations each...")
-            
+            print(
+                f"Initial weight {initial_weight}. Simulating {trials} games with {iterations} iterations each..."
+            )
+
             count_pooling = 0
-            
+
             for trial in trange(trials):
-                
                 ## Define strategies
                 ## These are the initial weights for Roth-Erev reinforcement.
                 sender_strategies = np.ones((2, 2)) * initial_weight
                 receiver_strategies = np.ones((2, 2)) * initial_weight
-            
+
                 ## Create simulation
                 evo = ev.MatchingSR(game, sender_strategies, receiver_strategies)
-        
+
                 ## Run simulation for <iterations> steps
                 ## Tell it to only calculate at end
-                evo.run(iterations,calculate_stats="end")
-                
+                evo.run(iterations, calculate_stats="end")
+
                 ## TODO: create this attribute!
-                if evo.is_pooling(): count_pooling += 1
-            
+                if evo.is_pooling():
+                    count_pooling += 1
+
             ## For each initial weight, get the proportion of evo games (out of 1000)
             ##        that led to partial pooling.
-            self.probability_of_pooling.append(count_pooling/trials)
+            self.probability_of_pooling.append(count_pooling / trials)
 
         return evo
 
@@ -727,7 +787,7 @@ class Quiver3D(Quiver):
         length=0.5,
         arrow_length_ratio=0.5,
         pivot="middle",
-        **kwargs
+        **kwargs,
     ):
         self.color = color
         self.normalize = normalize
@@ -927,3 +987,106 @@ class Skyrms2010_1_2(Quiver3D):
         self.X, self.Y, self.Z, self.U, self.V, self.W = zip(*soa)
 
         return self.evo
+
+
+class Ternary(Figure):
+    """
+    Superclass for ternary (2-simplex) plots
+    """
+
+    def __init__(self, evo, **kwargs):
+        super().__init__(evo=evo, **kwargs)
+
+    def reset(self, right_corner_label, top_corner_label, left_corner_label, fontsize):
+
+        """
+        Update figure parameters
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
+        """
+        ## Update global attributes, which can then be plotted in self.show()
+
+        self.fontsize = fontsize
+        self.right_corner_label = right_corner_label
+        self.top_corner_label = top_corner_label
+        self.left_corner_label = left_corner_label
+
+    def show(self):
+        # self.xyzs is a list of arrays of dimensions nx3, such that each row is a
+        # 3-dimensional stochastic vector.  That is to say, for now, a collection
+        # of orbits
+
+        # TODO: There should be a params list to go with each member of xyzs,
+        # for colors, markers, etc.
+
+        _, tax = figure()
+
+        ## Data
+        for xyz in self.xyzs:
+            tax.plot(xyz, color="black")
+
+        ## Titles, etc
+        tax.right_corner_label(self.right_corner_label, fontsize=self.fontsize)
+        tax.top_corner_label(self.top_corner_label, fontsize=self.fontsize)
+        tax.left_corner_label(self.left_corner_label, fontsize=self.fontsize)
+
+        ## No ticks or axes
+        tax.get_axes().axis("off")
+        tax.boundary(linewidth=0.5)
+        tax.clear_matplotlib_ticks()
+
+        ## Show plot
+        tax.show()
+
+
+class Skyrms2010_4_1(Ternary):
+    """
+    Figure 4.1, page 59, of Skyrms 2010
+    """
+
+    def __init__(self):
+        """
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        """
+
+        self.initialize_simulation()
+
+        evo = self.run_orbits()
+
+        ## Superclass needs an evo object. Just pass it whatever we got from run_simulations().
+        super().__init__(evo)
+
+        self.reset("y", "z", "x", 10)
+
+        self.show()
+
+    def show(self):
+        super().show()  # draw the line by default
+
+    def initialize_simulation(self) -> None:
+        self.initplayer1 = np.array([0.8, 0.1, 0.1])
+        self.initplayer2 = np.array([0.6, 0.2, 0.2])
+        self.initplayer3 = np.array([0.4, 0.3, 0.3])
+        self.rps_payoff_matrix = np.array([[1, 2, 0], [0, 1, 2], [2, 0, 1]])
+
+    def run_orbits(self):
+        ## Create game
+        game = sym.NoSignal(self.rps_payoff_matrix)
+        evo = ev.OnePop(game, game.pure_strats())
+        self.xyzs = [
+            evo.replicator_odeint(initplayer, np.linspace(0, 100, num=1000))
+            for initplayer in [self.initplayer1, self.initplayer2, self.initplayer3]
+        ]
+        return evo
