@@ -5,17 +5,17 @@ discrete or continuous time
 """
 
 ## Built-in
+from abc import ABC, abstractmethod
 import numpy as np
 from scipy.integrate import ode
 from scipy.integrate import odeint
-from abc import ABC, abstractmethod
 
 ## Libraries
 from tqdm import trange
 
 ## evoke
-from evoke.lib.asymmetric_games import Chance, NonChance, ChanceSIR
-from evoke.lib.info import Information, entropy
+from .asymmetric_games import Chance, NonChance, ChanceSIR
+from .info import Information, entropy
 
 
 class OnePop:
@@ -113,86 +113,20 @@ class OnePop:
         """
         Calculate the rhs of the system of odes for scipy.integrate.odeint
         """
-        avgfitplayer = self.avg_payoff(X)
-        result = self.avgpayoffs.dot(X) - X * avgfitplayer
-        if self.precision:
-            np.around(result, decimals=self.precision, out=result)
-        return result
-
-    def replicator_dX_dt_ode(self, t, X):
-        """
-        Calculate the rhs of the system of odes for scipy.integrate.ode
-        """
-        # X's first half is the sender vector
-        # its second half the receiver vector
-        # Xsplit = np.array_split(X, 2)
-        # senderpops = Xsplit[0]
-        # receiverpops = Xsplit[1]
-        senderpops, receiverpops = self.vector_to_populations(X)
-        avgfitsender = self.sender_avg_payoff(senderpops, receiverpops)
-        avgfitreceiver = self.receiver_avg_payoff(receiverpops, senderpops)
-        senderdot = (self.senderpayoffs * senderpops[..., None]).dot(receiverpops).dot(
-            self.mm_sender
-        ) - senderpops * avgfitsender
-        receiverdot = (self.receiverpayoffs * receiverpops[..., None]).dot(
-            senderpops
-        ).dot(self.mm_receiver) - receiverpops * avgfitreceiver
-        result = np.concatenate((senderdot, receiverdot))
+        avgpayoff = self.avg_payoff(X)
+        result = X * (self.avgpayoffs @ X - avgpayoff)
         if self.precision:
             np.around(result, decimals=self.precision, out=result)
         return result
 
     def replicator_jacobian_odeint(self, X, t=0):
         """
-        Calculate the Jacobian of the system for scipy.integrate.odeint
+        Calculate the Jacobian of the system of odes for scipy.integrate.odeint
         """
-        avgfitness = self.player_avg_payoff(X)
-        yS = self.senderpayoffs.dot(receiverpops)  # [y1P11 +...+ ynP1n, ...,
-        # y1Pn1 + ... ynPnn] This one works
-        xS = self.senderpayoffs * senderpops[..., None]
-        xR = self.receiverpayoffs.dot(senderpops)
-        yR = self.receiverpayoffs * receiverpops[..., None]
-        tile1 = (self.mm_sender - senderpops[..., None]) * yS - np.identity(
-            self.lss
-        ) * avgfitsender
-        tile2 = (self.mm_sender - senderpops).transpose().dot(xS)
-        tile3 = (self.mm_receiver - receiverpops).transpose().dot(yR)
-        tile4 = (self.mm_receiver - receiverpops[..., None]) * xR - np.identity(
-            self.lrs
-        ) * avgfitreceiver
-        lefthalf = np.vstack((tile1.transpose(), tile2.transpose()))
-        righthalf = np.vstack((tile3.transpose(), tile4.transpose()))
-        jac = np.hstack((lefthalf, righthalf))
-        if self.precision:
-            np.around(jac, decimals=self.precision, out=jac)
-        return jac
-
-    def replicator_jacobian_ode(self, t, X):
-        """
-        Calculate the Jacobian of the system for scipy.integrate.ode
-        """
-        senderpops, receiverpops = self.vector_to_populations(X)
-        avgfitsender = self.sender_avg_payoff(senderpops, receiverpops)
-        avgfitreceiver = self.receiver_avg_payoff(receiverpops, senderpops)
-        yS = self.senderpayoffs.dot(receiverpops)  # [y1P11 +...+ ynP1n, ...,
-        # y1Pn1 + ... ynPnn] This one works
-        xS = self.senderpayoffs * senderpops[..., None]
-        xR = self.receiverpayoffs.dot(senderpops)
-        yR = self.receiverpayoffs * receiverpops[..., None]
-        tile1 = (self.mm_sender - senderpops[..., None]) * yS - np.identity(
-            self.lss
-        ) * avgfitsender
-        tile2 = (self.mm_sender - senderpops).transpose().dot(xS)
-        tile3 = (self.mm_receiver - receiverpops).transpose().dot(yR)
-        tile4 = (self.mm_receiver - receiverpops[..., None]) * xR - np.identity(
-            self.lrs
-        ) * avgfitreceiver
-        lefthalf = np.vstack((tile1.transpose(), tile2.transpose()))
-        righthalf = np.vstack((tile3.transpose(), tile4.transpose()))
-        jac = np.hstack((lefthalf, righthalf))
-        if self.precision:
-            np.around(jac, decimals=self.precision, out=jac)
-        return jac.transpose()
+        avgpayoff = self.avg_payoff(X)
+        diagonal = np.eye(self.lps) * X
+        jacobian = self.avgpayoffs * diagonal + self.avgpayoffs @ X - avgpayoff
+        return jacobian
 
     def discrete_replicator_delta_X(self, X):
         """
@@ -205,7 +139,7 @@ class OnePop:
             np.around(delta, decimals=self.precision, out=delta)
         return delta
 
-    def replicator_odeint(self, sinit, rinit, times, **kwargs):
+    def replicator_odeint(self, init, time_vector, **kwargs):
         """
         Calculate one run of the game following the replicator(-mutator)
         dynamics, with starting points sinit and rinit, in times <times> (a
@@ -213,44 +147,23 @@ class OnePop:
         """
         return odeint(
             self.replicator_dX_dt_odeint,
-            np.concatenate((sinit, rinit)),
-            times.time_vector,
+            init,
+            time_vector,
             Dfun=self.replicator_jacobian_odeint,
             col_deriv=True,
             **kwargs
         )
 
-    def replicator_ode(self, sinit, rinit, times, integrator="dopri5"):
-        """
-        Calculate one run of the game, following the replicator(-mutator)
-        dynamics in continuous time, in <times> (a game.Times instance) with
-        starting points sinit and rinit using scipy.integrate.ode
-        """
-        initialpop = np.concatenate((sinit, rinit))
-        equations = ode(
-            self.replicator_dX_dt_ode, self.replicator_jacobian_ode
-        ).set_integrator(integrator)
-        equations.set_initial_value(initialpop, times.initial_time)
-        while equations.successful() and equations.t < times.final_time:
-            newdata = equations.integrate(equations.t + times.time_inc)
-            try:
-                data = np.append(data, [newdata], axis=0)
-            except NameError:
-                data = [newdata]
-        return data
-
-    def replicator_discrete(self, initpop, times):
+    def replicator_discrete(self, initpop, steps):
         """
         Calculate one run of the game, following the discrete
-        replicator(-mutator) dynamics, in <times> (a game.Times object) with
+        replicator(-mutator) dynamics, for <steps> steps with
         starting population vector <initpop> using the discrete time
-        replicator dynamics. Note that this solver will just calculate n points
-        in the evolution of the population, and will not try to match them to
-        the times as provided.
+        replicator dynamics.
         """
-        data = np.empty([len(times.time_vector), len(initpop)])
+        data = np.empty([steps, len(initpop)])
         data[0, :] = initpop
-        for i in range(1, len(times.time_vector)):
+        for i in range(1, steps):
             data[i, :] = self.discrete_replicator_delta_X(data[i - 1, :])
         return data
 
@@ -613,7 +526,6 @@ class Matching(Reinforcement):
     """
 
     def __init__(self, game, agents):
-
         super().__init__(game=game, agents=agents)
 
 
@@ -708,7 +620,6 @@ class MatchingSR(Matching):
 
         ## 1. Mutual information between states and signals
         if "mut_info_states_signals" not in self.statistics:
-
             ## Create empty array...
             self.statistics["mut_info_states_signals"] = np.empty((self.iteration,))
 
@@ -1010,7 +921,6 @@ class MatchingSIR(Matching):
         assert self.game.regular
 
         if "prob_success" not in self.statistics:
-
             ## Create empty array...
             self.statistics["prob_success"] = np.empty((self.iteration,))
 
@@ -1214,7 +1124,6 @@ class Agent:
     """
 
     def __init__(self, strategies):
-
         ## Probability distribution over deterministic strategies.
         self.strategies = strategies
 
