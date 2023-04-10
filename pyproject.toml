@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "evoke"
+version = "0.1.0"
+description = "Signalling games in python"
+authors = [
+		"Stephen Mann <stephenfmann@gmail.com>", 
+		"Manolo Martínez <manolo@austrohungaro.com>"
+]
+readme = "README.md"
+license = "GPL-3.0-or-later"
+
+[tool.poetry.dependencies]
+python = ">3.8,<3.12"
+numpy = ">1.20"
+scipy = "^1.10.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
