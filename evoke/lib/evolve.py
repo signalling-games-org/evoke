@@ -37,7 +37,7 @@ class OnePop:
         # We can set a limit of precision in the calculation of diffeqs, to
         # avoid artifacts. By default, we do not
         self.precision = None
-        
+
         ## Assortment defaults to zero
         self.e = 0
 
@@ -53,13 +53,13 @@ class OnePop:
         is <player>
         """
         return player.dot(self.avgpayoffs.dot(player))
-    
+
     def avg_payoff_vector(self, player):
         """
         Get expected payoffs of every type when population vector is <player>.
-        
+
         Depends on assortment.
-        
+
         p(s_i meets s_i) = p(s_i) + self.e * (1-p(s_i))
         p(s_i meets s_j) = p(s_j) - self.e * p(s_j)
 
@@ -73,40 +73,39 @@ class OnePop:
         None.
 
         """
-        
+
         ## Use the simple version if there is no assortment.
-        if self.e == 0: return player @ self.avgpayoffs
-        
+        if self.e == 0:
+            return player @ self.avgpayoffs
+
         avg_payoffs = []
-        
+
         ## Otherwise, loop and specify the assortment-weighted probabilities.
         ## This can probably be vectorised.
         i = 0
         for p_i in player:
-            
             meeting_probabilities = []
-            
+
             j = 0
             for p_j in player:
-                
                 if i == j:
                     ## p_i is the proportion of individuals of type i.
-                    meeting_probabilities.append(p_i + self.e * (1-p_i))
-                
+                    meeting_probabilities.append(p_i + self.e * (1 - p_i))
+
                 else:
                     ## p_j are all the others
-                    meeting_probabilities.append(p_j - self.e*p_j)
-                
-                j+= 1
-            
+                    meeting_probabilities.append(p_j - self.e * p_j)
+
+                j += 1
+
             meeting_probabilities = np.array(meeting_probabilities)
-            
+
             payoff_i = (meeting_probabilities @ self.avgpayoffs)[i]
-            
+
             avg_payoffs.append(payoff_i)
-            
+
             i += 1
-        
+
         return avg_payoffs
 
     def replicator_dX_dt_odeint(self, X, t):
@@ -173,8 +172,8 @@ class OnePop:
         the whole population
         """
         return self.game.calculate_mixed_strat(self.playertypes, pop)
-    
-    def assortment(self,e):
+
+    def assortment(self, e):
         """
         Set assortment level
 
@@ -188,7 +187,7 @@ class OnePop:
         None.
 
         """
-        
+
         self.e = e
 
 
@@ -483,7 +482,7 @@ class Reinforcement:
         ## Current iteration step is set to zero.
         self.iteration = 0
 
-    def run(self, iterations, hide_progress = True, calculate_stats="step"):
+    def run(self, iterations, hide_progress=True, calculate_stats="step"):
         """
         Run the simulation for <iterations> steps.
 
@@ -497,23 +496,26 @@ class Reinforcement:
             When to calculate stats
             "step": every step
             "end": only at the last step
-        
+
         Returns
         -------
         None.
 
         """
 
-        for _ in trange(iterations,disable=hide_progress):
-            if calculate_stats=="step": self.step(calculate_stats=True)
-            if calculate_stats=="end": self.step(calculate_stats=False)
-        
-        if calculate_stats=="end": self.calculate_stats()
-    
+        for _ in trange(iterations, disable=hide_progress):
+            if calculate_stats == "step":
+                self.step(calculate_stats=True)
+            if calculate_stats == "end":
+                self.step(calculate_stats=False)
+
+        if calculate_stats == "end":
+            self.calculate_stats()
+
     @abstractmethod
     def step(self):
         pass
-    
+
     @abstractmethod
     def calculate_stats(self):
         pass
@@ -564,7 +566,7 @@ class MatchingSR(Matching):
 
         super().__init__(game=game, agents=[self.sender, self.receiver])
 
-    def step(self,calculate_stats=True):
+    def step(self, calculate_stats=True):
         """
         Implement the matching rule and increment one step.
 
@@ -599,7 +601,8 @@ class MatchingSR(Matching):
         self.receiver.update_strategies(signal, act, receiver_payoff)
 
         ## 3. Calculate and store any required variables e.g. information.
-        if calculate_stats: self.calculate_stats()
+        if calculate_stats:
+            self.calculate_stats()
 
         ## 4. Update iteration.
         self.iteration += 1
@@ -639,32 +642,30 @@ class MatchingSR(Matching):
         self.statistics["mut_info_states_signals"] = np.append(
             self.statistics["mut_info_states_signals"], mut_info_states_signals
         )
-        
+
         ## 2. Average probability of success
         if "avg_prob_success" not in self.statistics:
-
             ## Create empty array...
             self.statistics["avg_prob_success"] = np.empty((self.iteration,))
 
             ## ...and fill with NaN up to current iteration.
             self.statistics["avg_prob_success"][:] = np.nan
-        
+
         ## Get the current average probability of success
         # TODO check this!
-        avg_prob_success = np.average(self.game.payoff(
-            sender_strat = snorm,
-            receiver_strat = rnorm
-            ))
+        avg_prob_success = np.average(
+            self.game.payoff(sender_strat=snorm, receiver_strat=rnorm)
+        )
 
         ## Append the current probability of success
         self.statistics["avg_prob_success"] = np.append(
             self.statistics["avg_prob_success"], avg_prob_success
         )
-        
+
     def is_pooling(self):
         """
         Is the system currently at a pooling equilibrium?
-        
+
         TODO: figure out the likely way Skyrms identifies pooling, and mimic that.
 
         Returns
@@ -672,33 +673,33 @@ class MatchingSR(Matching):
         None.
 
         """
-        
+
         ## Try 1
         # if self.statistics["avg_prob_success"][-1] < 0.9: return True
-        
+
         # return False
-        
-        
+
         ## Try 2
         ## A bit quick and dirty.
         ## Check whether the entropy of the sender strategy first line
         ##  is lower than a certain tolerance.
         snorm = (self.sender.strategies.T / self.sender.strategies.sum(1)).T
         rnorm = (self.receiver.strategies.T / self.receiver.strategies.sum(1)).T
-        
-        if entropy(snorm[0]) < 0.1 and entropy(rnorm[0]) < 0.1: return False
-        
+
+        if entropy(snorm[0]) < 0.1 and entropy(rnorm[0]) < 0.1:
+            return False
+
         return True
-        
+
         ## Try 3
         # if self.statistics["mut_info_states_signals"][-1] < mut_info_max: return True
-        
+
         # return False
-        
+
 
 class MatchingSRInvention(Matching):
     """
-    Matching simulation for two-player sender-receiver game, 
+    Matching simulation for two-player sender-receiver game,
      with the possibility of new signals at every step.
     """
 
@@ -732,7 +733,7 @@ class MatchingSRInvention(Matching):
 
         super().__init__(game=game, agents=[self.sender, self.receiver])
 
-    def step(self,calculate_stats=True):
+    def step(self, calculate_stats=True):
         """
         Implement the matching rule and increment one step.
 
@@ -765,18 +766,17 @@ class MatchingSRInvention(Matching):
         ## 2a. Update the agent's strategies based on the payoffs they received.
         self.sender.update_strategies(state, signal, sender_payoff)
         self.receiver.update_strategies(signal, act, receiver_payoff)
-        
-        
+
         ## 2b. If the signal was novel and there was success,
         ##      need to add the new signal to both agents' repertoires.
-        if signal == len(self.receiver.strategies)-1 and receiver_payoff == 1:
-            
+        if signal == len(self.receiver.strategies) - 1 and receiver_payoff == 1:
             ## It was a new signal
             self.sender.add_signal_sender()
             self.receiver.add_signal_receiver()
 
         ## 3. Calculate and store any required variables e.g. information.
-        if calculate_stats: self.calculate_stats()
+        if calculate_stats:
+            self.calculate_stats()
 
         ## 4. Update iteration.
         self.iteration += 1
@@ -790,22 +790,21 @@ class MatchingSRInvention(Matching):
         None.
 
         """
-        
+
         ## Lazy instantiation
         if not hasattr(self, "statistics"):
             self.statistics = {}
-        
+
         ## 1. Number of signals
 
         ## 1. Mutual information between states and signals
         if "number_of_signals" not in self.statistics:
-
             ## Create empty array...
             self.statistics["number_of_signals"] = np.empty((self.iteration,))
 
             ## ...and fill with NaN up to current iteration.
             self.statistics["number_of_signals"][:] = np.nan
-            
+
         ## Append the current number of signals
         self.statistics["number_of_signals"] = np.append(
             self.statistics["number_of_signals"], len(self.receiver.strategies) - 1
@@ -856,7 +855,7 @@ class MatchingSIR(Matching):
             game=game, agents=[self.sender, self.intermediary, self.receiver]
         )
 
-    def step(self):
+    def step(self, calculate_stats=True):
         """
         Implement the matching rule and increment one step.
 
@@ -897,7 +896,8 @@ class MatchingSIR(Matching):
         self.receiver.update_strategies(signal_intermediary, act, payoff_receiver)
 
         ## 3. Calculate and store any required variables e.g. probability of success.
-        self.record_probability_of_success()
+        if calculate_stats:
+            self.record_probability_of_success()
 
         ## 4. Update iteration.
         self.iteration += 1
@@ -944,8 +944,8 @@ class MatchingSIR(Matching):
 
         ## Ask the game for the average payoff, given these strategies.
         ## Because payoffs are np.eye(2), this is equal to the probability of success.
-        payoff = self.game.avg_payoffs_regular(snorm,inorm,rnorm)
-        
+        payoff = self.game.avg_payoffs_regular(snorm, inorm, rnorm)
+
         ## Append the current payoff
         self.statistics["prob_success"] = np.append(
             self.statistics["prob_success"], payoff
@@ -957,7 +957,9 @@ class BushMostellerSR(Reinforcement):
     Bush_mosteller reinforcement simulation for two-player sender-receiver game.
     """
 
-    def __init__(self, game, sender_strategies, receiver_strategies, learning_parameter):
+    def __init__(
+        self, game, sender_strategies, receiver_strategies, learning_parameter
+    ):
         """
 
 
@@ -984,13 +986,13 @@ class BushMostellerSR(Reinforcement):
 
         ## Receiver
         self.receiver = Agent(receiver_strategies)
-        
+
         ## Learning parameter
         self.learning_parameter = learning_parameter
 
         super().__init__(game=game, agents=[self.sender, self.receiver])
 
-    def step(self,calculate_stats=True):
+    def step(self, calculate_stats=True):
         """
         Implement the matching rule and increment one step.
 
@@ -1021,11 +1023,16 @@ class BushMostellerSR(Reinforcement):
         receiver_payoff = self.game.receiver_payoff(state, act)
 
         ## 2. Update the agent's strategies based on the payoffs they received.
-        self.sender.update_strategies_bush_mosteller(state, signal, sender_payoff, self.learning_parameter)
-        self.receiver.update_strategies_bush_mosteller(signal, act, receiver_payoff, self.learning_parameter)
+        self.sender.update_strategies_bush_mosteller(
+            state, signal, sender_payoff, self.learning_parameter
+        )
+        self.receiver.update_strategies_bush_mosteller(
+            signal, act, receiver_payoff, self.learning_parameter
+        )
 
         ## 3. Calculate and store any required variables e.g. information.
-        if calculate_stats: self.calculate_stats()
+        if calculate_stats:
+            self.calculate_stats()
 
         ## 4. Update iteration.
         self.iteration += 1
@@ -1046,7 +1053,6 @@ class BushMostellerSR(Reinforcement):
 
         ## 1. Mutual information between states and signals
         if "mut_info_states_signals" not in self.statistics:
-
             ## Create empty array...
             self.statistics["mut_info_states_signals"] = np.empty((self.iteration,))
 
@@ -1066,32 +1072,30 @@ class BushMostellerSR(Reinforcement):
         self.statistics["mut_info_states_signals"] = np.append(
             self.statistics["mut_info_states_signals"], mut_info_states_signals
         )
-        
+
         ## 2. Average probability of success
         if "avg_prob_success" not in self.statistics:
-
             ## Create empty array...
             self.statistics["avg_prob_success"] = np.empty((self.iteration,))
 
             ## ...and fill with NaN up to current iteration.
             self.statistics["avg_prob_success"][:] = np.nan
-        
+
         ## Get the current average probability of success
         # TODO check this!
-        avg_prob_success = np.average(self.game.payoff(
-            sender_strat = snorm,
-            receiver_strat = rnorm
-            ))
+        avg_prob_success = np.average(
+            self.game.payoff(sender_strat=snorm, receiver_strat=rnorm)
+        )
 
         ## Append the current probability of success
         self.statistics["avg_prob_success"] = np.append(
             self.statistics["avg_prob_success"], avg_prob_success
         )
-        
+
     def is_pooling(self):
         """
         Is the system currently at a pooling equilibrium?
-        
+
         TODO: figure out the likely way Skyrms identifies pooling, and mimic that.
 
         Returns
@@ -1099,22 +1103,22 @@ class BushMostellerSR(Reinforcement):
         None.
 
         """
-        
+
         ## Try 1
         # if self.statistics["avg_prob_success"][-1] < 0.9: return True
-        
+
         # return False
-        
-        
+
         ## Try 2
         ## A bit quick and dirty.
         ## Check whether the entropy of the sender strategy first line
         ##  is lower than a certain tolerance.
         snorm = (self.sender.strategies.T / self.sender.strategies.sum(1)).T
         rnorm = (self.receiver.strategies.T / self.receiver.strategies.sum(1)).T
-        
-        if entropy(snorm[0]) < 0.1 and entropy(rnorm[0]) < 0.1: return False
-        
+
+        if entropy(snorm[0]) < 0.1 and entropy(rnorm[0]) < 0.1:
+            return False
+
         return True
 
 
@@ -1190,12 +1194,14 @@ class Agent:
         self.strategies[input_data][response] = max(
             self.strategies[input_data][response], 0
         )
-    
-    def update_strategies_bush_mosteller(self,input_data,response,payoff,learning_parameter):
+
+    def update_strategies_bush_mosteller(
+        self, input_data, response, payoff, learning_parameter
+    ):
         """
-        
+
         From Skyrms 2010 page 86:
-            
+
         "If an act is chosen and a reward is gotten
          the probability is incremented by adding some fraction of the
          distance between the original probability and probability one.8
@@ -1219,22 +1225,24 @@ class Agent:
         None.
 
         """
-        
+
         ## The row is self.strategies[input_data].
         ## The entry self.strategies[input_data][response] is incremented by
         ##  (1 - self.strategies[input_data][response]) * learning_parameter.
         ## All other entries are decremented (presumably relative to their current values).
-        
+
         ## Create a "delta" array that says how everything changes.
         ## Imagine first we are decrementing everything.
         ar_delta = self.strategies[input_data] * learning_parameter * -1
-        
+
         ## Now replace the winner's delta with its positive reinforcement rate.
-        ar_delta[response] = (1-self.strategies[input_data][response]) * learning_parameter
-        
+        ar_delta[response] = (
+            1 - self.strategies[input_data][response]
+        ) * learning_parameter
+
         ## Now update the strategies
         self.strategies[input_data] += ar_delta
-        
+
     def add_signal_sender(self):
         """
         TODO: consolidate with add_signal_receiver(), and tell the agent who it is
@@ -1244,11 +1252,11 @@ class Agent:
         None.
 
         """
-        
-        new_signal_array = np.ones((len(self.strategies),1))
-        
-        self.strategies = np.append(self.strategies,new_signal_array,axis=1)
-        
+
+        new_signal_array = np.ones((len(self.strategies), 1))
+
+        self.strategies = np.append(self.strategies, new_signal_array, axis=1)
+
     def add_signal_receiver(self):
         """
         TODO: consolidate with add_signal_sender(), and tell the agent who it is
@@ -1258,10 +1266,10 @@ class Agent:
         None.
 
         """
-        
-        new_signal_array = np.ones((1,len(self.strategies[0])))
-        
-        self.strategies = np.append(self.strategies,new_signal_array,axis=0)
+
+        new_signal_array = np.ones((1, len(self.strategies[0])))
+
+        self.strategies = np.append(self.strategies, new_signal_array, axis=0)
 
 
 class Times:

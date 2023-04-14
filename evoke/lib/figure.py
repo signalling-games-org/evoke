@@ -647,10 +647,15 @@ class Skyrms2010_8_2(Scatter):
 
 class Skyrms2010_8_3(Scatter):
     """
-        Figure 8.3, page 98, of Skyrms 2010
+    Figure 8.3, page 98, of Skyrms 2010
     """
-    
-    def __init__(self,trials=100,iterations=300,learning_params=[0.01,0.03,0.05,0.07,0.1,0.15,0.2]):
+
+    def __init__(
+        self,
+        trials=100,
+        iterations=300,
+        learning_params=[0.01, 0.03, 0.05, 0.07, 0.1, 0.15, 0.2],
+    ):
         """
         Not sure how many trials Skyrms is reporting -- probably at least 1000.
         He explicitly states 300 iterations on p.98.
@@ -667,22 +672,29 @@ class Skyrms2010_8_3(Scatter):
         None.
 
         """
-        
+
         self.initialize_simulation(learning_params)
-        
-        evo = self.run_simulation(trials,iterations)
-        
+
+        evo = self.run_simulation(trials, iterations)
+
         ## Set graph data and display parameters
-        self.reset(x=np.array(self.learning_params).astype(str), y=self.prob_of_signalling, xlabel="Learning Parameter", ylabel="Signalling", ylim=[0,1], marker_size=5)
-        
+        self.reset(
+            x=np.array(self.learning_params).astype(str),
+            y=self.prob_of_signalling,
+            xlabel="Learning Parameter",
+            ylabel="Signalling",
+            ylim=[0, 1],
+            marker_size=5,
+        )
+
         ## Superclass wants an evo object. Just pass it whatever we got from run_simulations().
         super().__init__(evo)
-        
+
         self.show(True)
 
-    def initialize_simulation(self,learning_params):
+    def initialize_simulation(self, learning_params):
         """
-        
+
 
         Parameters
         ----------
@@ -694,19 +706,19 @@ class Skyrms2010_8_3(Scatter):
         None.
 
         """
-        
+
         ## Fixed parameters
         self.state_chances = np.array([0.9, 0.1])
         self.sender_payoff_matrix = np.eye(2)
         self.receiver_payoff_matrix = np.eye(2)
         self.messages = 2
-        
+
         ## User-supplied parameters
         self.learning_params = learning_params
-    
-    def run_simulation(self,trials,iterations):
+
+    def run_simulation(self, trials, iterations):
         """
-        
+
 
         Parameters
         ----------
@@ -721,9 +733,9 @@ class Skyrms2010_8_3(Scatter):
             DESCRIPTION.
 
         """
-        
+
         self.prob_of_signalling = []
-        
+
         ## Create game
         game = asy.Chance(
             state_chances=self.state_chances,
@@ -731,36 +743,42 @@ class Skyrms2010_8_3(Scatter):
             receiver_payoff_matrix=self.receiver_payoff_matrix,
             messages=self.messages,
         )
-        
+
         for learning_param in self.learning_params:
-            
             ## This could really take a long time, so print a report and tqdm progress bar.
-            print(f"Learning parameter: {learning_param}. Simulating {trials} games with {iterations} iterations each...")
-            
+            print(
+                f"Learning parameter: {learning_param}. Simulating {trials} games with {iterations} iterations each..."
+            )
+
             count_signalling = 0
-            
+
             for trial in trange(trials):
-                
                 ## Define strategies
                 ## These are the initial weights for Bush-Mosteller reinforcement.
-                sender_strategies = np.ones((2, 2)) * 0.5 # Strategies are now conditional prob distributions on each row
-                receiver_strategies = np.ones((2, 2)) * 0.5 # Strategies are now conditional prob distributions on each row
-            
+                sender_strategies = (
+                    np.ones((2, 2)) * 0.5
+                )  # Strategies are now conditional prob distributions on each row
+                receiver_strategies = (
+                    np.ones((2, 2)) * 0.5
+                )  # Strategies are now conditional prob distributions on each row
+
                 ## Create simulation
-                evo = ev.BushMostellerSR(game, sender_strategies, receiver_strategies, learning_param)
-        
+                evo = ev.BushMostellerSR(
+                    game, sender_strategies, receiver_strategies, learning_param
+                )
+
                 ## Run simulation for <iterations> steps
                 ## Tell it to only calculate at end
-                evo.run(iterations,calculate_stats="end")
-                
+                evo.run(iterations, calculate_stats="end")
+
                 ## TODO: this attribute is overcounting pooling and undercounting signalling.
-                if not evo.is_pooling(): count_signalling += 1
-            
+                if not evo.is_pooling():
+                    count_signalling += 1
+
             ## For each initial weight, get the proportion of evo games (out of 1000)
             ##        that led to partial pooling.
-            self.prob_of_signalling.append(count_signalling/trials)
-        
-        
+            self.prob_of_signalling.append(count_signalling / trials)
+
         return evo
 
 
@@ -1107,16 +1125,18 @@ class Skyrms2010_1_2(Quiver3D):
 
         return self.evo
 
+
 class Bar(Figure):
     """
-        Bar chart abstract superclass.
+    Bar chart abstract superclass.
     """
-    
+
     def __init__(self, evo, **kwargs):
         super().__init__(evo=evo, **kwargs)
 
-    def reset(self, x, y, xlabel, ylabel, bar_color="w", xlim = None, ylim = None, yscale = None):
-
+    def reset(
+        self, x, y, xlabel, ylabel, bar_color="w", xlim=None, ylim=None, yscale=None
+    ):
         """
         Update figure parameters
 
@@ -1143,29 +1163,31 @@ class Bar(Figure):
 
         ## Marker design
         self.c = bar_color
-        
+
         ## Limits of axes
         self.xlim = xlim
         self.ylim = ylim
-        
+
         ## Axes Scaling
         self.yscale = yscale
 
     def show(self):
-        
         ## Data
         plt.bar(x=self.x, height=self.y, color=self.c, edgecolor="k")
 
         ## Labels
         plt.xlabel(self.xlabel)
         plt.ylabel(self.ylabel)
-        
+
         ## Limits of axes
-        if self.xlim is not None: plt.xlim(self.xlim)
-        if self.ylim is not None: plt.ylim(self.ylim)
-        
+        if self.xlim is not None:
+            plt.xlim(self.xlim)
+        if self.ylim is not None:
+            plt.ylim(self.ylim)
+
         ## Axes Scale
-        if self.yscale is not None: plt.yscale(self.yscale)
+        if self.yscale is not None:
+            plt.yscale(self.yscale)
 
         ## Show plot
         plt.show()
@@ -1192,7 +1214,8 @@ class Bar(Figure):
 
     # Alias
     bar_color = c
-    
+
+
 class Skyrms2010_10_5(Bar):
     """
     Figure 10.5, page 130, of Skyrms 2010
@@ -1205,8 +1228,8 @@ class Skyrms2010_10_5(Bar):
         Parameters
         ----------
         trials : TYPE, optional
-            DESCRIPTION. The default is 1000 
-        
+            DESCRIPTION. The default is 1000
+
         iterations : int
             default is int(1e4).
 
@@ -1215,36 +1238,41 @@ class Skyrms2010_10_5(Bar):
         None.
 
         """
-        
+
         self.initialize_simulation()
 
-        evo = self.run_simulation(trials,iterations)
+        evo = self.run_simulation(trials, iterations)
 
         ## Get graph info
         results_as_array = np.array(sorted(self.signal_frequencies.items()))
         x_axis = results_as_array.T[0]
         y_axis = results_as_array.T[1]
-        
+
         ## Y-axis limits
-        ylim = [0,max(y_axis)+0.1*max(y_axis)]
+        ylim = [0, max(y_axis) + 0.1 * max(y_axis)]
 
         super().__init__(evo)
 
-        self.reset(x=x_axis, y=y_axis, xlabel="Number of signals", ylabel="Frequency", ylim=ylim)
+        self.reset(
+            x=x_axis,
+            y=y_axis,
+            xlabel="Number of signals",
+            ylabel="Frequency",
+            ylim=ylim,
+        )
 
         self.show()
 
     def initialize_simulation(self):
-        self.state_chances = np.array([1/3, 1/3, 1/3])
+        self.state_chances = np.array([1 / 3, 1 / 3, 1 / 3])
         self.sender_payoff_matrix = np.eye(3)
         self.receiver_payoff_matrix = np.eye(3)
-        self.messages = 1 # Skyrms says zero, but the first message is a "phantom".
+        self.messages = 1  # Skyrms says zero, but the first message is a "phantom".
 
     def run_simulation(self, trials, iterations):
-        
         ## Initialise data dict: keys will be x-axis, values will be y-axis.
-        self.signal_frequencies = {s:0 for s in range(1,30)}
-        
+        self.signal_frequencies = {s: 0 for s in range(1, 30)}
+
         ## Create game
         game = asy.Chance(
             state_chances=self.state_chances,
@@ -1252,23 +1280,22 @@ class Skyrms2010_10_5(Bar):
             receiver_payoff_matrix=self.receiver_payoff_matrix,
             messages=self.messages,
         )
-        
+
         for trial in trange(trials):
-                
             ## Define strategies
             ## Players start with only 1 "phantom" signal available.
             sender_strategies = np.ones((3, 1))
             receiver_strategies = np.ones((1, 3))
-        
+
             ## Create simulation
             evo = ev.MatchingSRInvention(game, sender_strategies, receiver_strategies)
-    
+
             ## Run simulation for <iterations> steps
             ## Tell it to only calculate at end
-            evo.run(iterations,calculate_stats="end")
-            
+            evo.run(iterations, calculate_stats="end")
+
             n_signals_int = int(evo.statistics["number_of_signals"][-1])
-            
+
             ## Add the number of signals to the log
             if n_signals_int in self.signal_frequencies:
                 self.signal_frequencies[n_signals_int] += 1
@@ -1287,7 +1314,6 @@ class Ternary(Figure):
         super().__init__(evo=evo, **kwargs)
 
     def reset(self, right_corner_label, top_corner_label, left_corner_label, fontsize):
-
         ## Update global attributes, which can then be plotted in self.show()
 
         self.fontsize = fontsize

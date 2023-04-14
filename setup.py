@@ -2,13 +2,13 @@
 from setuptools import setup
 
 setup(
-    name='evoke',
-    version='0.1',
-    install_requires=['numpy', 'scipy'],
-    description='Dynamic analysis of signaling games',
-    author='Stephen Mann, Manolo Martínez',
-    author_email='mail@manolomartinez.net',
-    url='https://github.com/signalling-games-org/evoke',
-    packages=['evoke'],
-    license='GPLv3'
+    name="evoke",
+    version="0.1",
+    install_requires=["numpy", "scipy"],
+    description="Dynamic analysis of signaling games",
+    author="Stephen Mann, Manolo Martínez",
+    author_email="mail@manolomartinez.net",
+    url="https://github.com/signalling-games-org/evoke",
+    packages=["evoke"],
+    license="GPLv3",
 )

@@ -14,6 +14,7 @@ class CommonInterest_1_pop:
     Calculate quantities useful for the study of the degree of common interest
     between senders and receivers
     """
+
     def __init__(self, game):
         self.player = game.payoff_matrix
         try:
@@ -64,6 +65,7 @@ class CommonInterest_2_pops:
     Calculate quantities useful for the study of the degree of common interest
     between senders and receivers
     """
+
     def __init__(self, game):
         self.sender = game.sender_payoff_matrix
         self.receiver = game.receiver_payoff_matrix
@@ -115,11 +117,10 @@ def intra_tau(unconds, array):
     Calculate the average (weighted by <unconds> of the pairwise Kendall's tau
     distance between rows (states) of <array>
     """
-    taus = np.array([kendalltau(row1, row2)[0] for row1, row2 in
-                     it.combinations(array, 2)])
+    taus = np.array(
+        [kendalltau(row1, row2)[0] for row1, row2 in it.combinations(array, 2)]
+    )
     return unconds.dot(taus)
-
-
 
 
 def intra_tau(unconds, array):
@@ -127,10 +128,10 @@ def intra_tau(unconds, array):
     Calculate the average (weighted by <unconds> of the pairwise Kendall's tau
     distance between rows (states) of <array>
     """
-    taus = np.array([kendalltau(row1, row2)[0] for row1, row2 in
-                     it.combinations(array, 2)])
+    taus = np.array(
+        [kendalltau(row1, row2)[0] for row1, row2 in it.combinations(array, 2)]
+    )
     return unconds.dot(taus)
-
 
 
 class CommonInterest_2_pops:
@@ -138,6 +139,7 @@ class CommonInterest_2_pops:
     Calculate quantities useful for the study of the degree of common interest
     between senders and receivers
     """
+
     def __init__(self, game):
         self.sender = game.sender_payoff_matrix
         self.receiver = game.receiver_payoff_matrix
@@ -198,10 +200,12 @@ def tau(vector1, vector2):
     """
     vector1 = vector1.flatten()  # in case they are not vectors
     vector2 = vector2.flatten()
-    comparisons1 = np.array([np.sign(elem1 - elem2) for (elem1, elem2) in
-                             it.combinations(vector1, 2)])
-    comparisons2 = np.array([np.sign(elem1 - elem2) for (elem1, elem2) in
-                             it.combinations(vector2, 2)])
+    comparisons1 = np.array(
+        [np.sign(elem1 - elem2) for (elem1, elem2) in it.combinations(vector1, 2)]
+    )
+    comparisons2 = np.array(
+        [np.sign(elem1 - elem2) for (elem1, elem2) in it.combinations(vector2, 2)]
+    )
     return np.sum(np.abs(comparisons1 - comparisons2) > 1)
 
 
@@ -210,8 +214,9 @@ def intra_tau(unconds, array):
     Calculate the average (weighted by <unconds> of the pairwise Kendall's tau
     distance between rows (states) of <array>
     """
-    taus = np.array([kendalltau(row1, row2)[0] for row1, row2 in
-                     it.combinations(array, 2)])
+    taus = np.array(
+        [kendalltau(row1, row2)[0] for row1, row2 in it.combinations(array, 2)]
+    )
     return unconds.dot(taus)
 
 
@@ -228,28 +233,27 @@ def tau_per_rows(unconds, array1, array2):
     Calculate the average (weighted by <unconds> of the Kendall's tau distance
     between the corresponding rows (states) of <array1> and <array2>
     """
-    taus = np.array([kendalltau(row1, row2)[0] for row1, row2 in zip(array1,
-                                                                     array2)])
+    taus = np.array([kendalltau(row1, row2)[0] for row1, row2 in zip(array1, array2)])
     return unconds.dot(taus)
-
 
 
 class Nash:
     """
     Calculate Nash equilibria
     """
+
     def __init__(self, game):
         self.game = game
 
     def receivers_vs_sender(self, sender):
         receivers = np.identity(self.game.lrs)
-        return [self.game.receiver_avg_payoff(receiver, sender) for receiver in
-                receivers]
+        return [
+            self.game.receiver_avg_payoff(receiver, sender) for receiver in receivers
+        ]
 
     def senders_vs_receiver(self, receiver):
         senders = np.identity(self.game.lss)
-        return [self.game.sender_avg_payoff(sender, receiver) for sender in
-                senders]
+        return [self.game.sender_avg_payoff(sender, receiver) for sender in senders]
 
     def is_Nash(self, sender, receiver):
         """
@@ -257,15 +261,18 @@ class Nash:
         """
         payoffsender = self.game.sender_avg_payoff(sender, receiver)
         payoffreceiver = self.game.receiver_avg_payoff(receiver, sender)
-        senderisbest = abs(payoffsender -
-                           max(self.senders_vs_receiver(receiver))) < 1e-2
-        receiverisbest = abs(payoffreceiver -
-                             max(self.receivers_vs_sender(sender))) < 1e-2
+        senderisbest = (
+            abs(payoffsender - max(self.senders_vs_receiver(receiver))) < 1e-2
+        )
+        receiverisbest = (
+            abs(payoffreceiver - max(self.receivers_vs_sender(sender))) < 1e-2
+        )
         return senderisbest and receiverisbest
 
 
 # What follow are some helper functions to ascertain whether a population has
 # reached a state in which no more interesting changes should be expected
+
 
 def stability(array):
     """
@@ -274,13 +281,13 @@ def stability(array):
     trans_array = array.T
     stable = np.apply_along_axis(stable_vector, 1, trans_array)
     if np.all(stable):
-        return 'stable'
+        return "stable"
     nonstable = trans_array[np.logical_not(stable)]
     periodic = np.apply_along_axis(periodic_vector, 1, nonstable)
     if np.all(periodic):
-        return 'periodic'
+        return "periodic"
     else:
-        return 'nonstable'
+        return "nonstable"
 
 
 def stable_vector(vector):

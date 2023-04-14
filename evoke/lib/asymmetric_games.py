@@ -284,27 +284,27 @@ class ChanceSIR:
 
         ## Multiply the chain of strategy probabilities,
         ##  and then multiply the result by the (shared) payoff matrix.
-        
+
         ## Step 1: We have the conditional probabilities of s-signals given states,
         ##          and the conditional probabilities of i-signals given s-signals,
         ##          and we want the conditional probabilities of i-signals given states.
-        inorm_given_states = np.matmul(snorm,inorm)
-        
+        inorm_given_states = np.matmul(snorm, inorm)
+
         ## Step 2: We have the conditional probabilities of i-signals given states,
         ##          and the conditional probabilities of r-acts given i-signals,
         ##          and we want the conditional probabilities of r-acts given states.
-        racts_given_states = np.matmul(inorm_given_states,rnorm)
-        
+        racts_given_states = np.matmul(inorm_given_states, rnorm)
+
         ## Step 3: We have the conditional probabilities of r-acts given states,
         ##          and the unconditional probabilities of states,
         ##          and we want the joint probabilities of states and r-acts.
-        joint_states_and_acts = np.multiply(self.state_chances,racts_given_states)
-        
+        joint_states_and_acts = np.multiply(self.state_chances, racts_given_states)
+
         ## Step 4: We have the joint probabilities and the payoffs,
         ##          and we want the overall expected payoff.
         ## Remember all the payoff matrices are the same, so we can use any of them.
-        payoff = np.multiply(joint_states_and_acts,self.sender_payoff_matrix).sum()
-        
+        payoff = np.multiply(joint_states_and_acts, self.sender_payoff_matrix).sum()
+
         return payoff
 
 
