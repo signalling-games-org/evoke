@@ -14,8 +14,8 @@ from scipy.integrate import odeint
 from tqdm import trange
 
 ## evoke
-from .asymmetric_games import Chance, NonChance, ChanceSIR
-from .info import Information, entropy
+from evoke.lib.asymmetric_games import Chance, NonChance, ChanceSIR
+from evoke.lib.info import Information, entropy
 
 
 class OnePop:

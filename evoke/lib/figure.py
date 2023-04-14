@@ -17,10 +17,10 @@ from ternary import figure  # from https://github.com/marcharper/python-ternary
 from tqdm import tqdm, trange
 
 
-from . import asymmetric_games as asy
-from . import symmetric_games as sym
-from . import evolve as ev
-from .symmetric_games import NoSignal
+from evoke.lib import asymmetric_games as asy
+from evoke.lib import symmetric_games as sym
+from evoke.lib import evolve as ev
+from evoke.lib.symmetric_games import NoSignal
 
 
 class Figure(ABC):
