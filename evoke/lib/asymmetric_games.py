@@ -8,6 +8,7 @@ import itertools as it
 import sys
 
 import numpy as np
+import pygambit
 
 from evoke.lib import info
 
@@ -127,6 +128,104 @@ class Chance:
     def calculate_receiver_mixed_strat(self, receivertypes, receiverpop):
         mixedstratreceiver = receivertypes * receiverpop[:, np.newaxis, np.newaxis]
         return sum(mixedstratreceiver)
+    
+    def create_gambit_game(self):
+        """
+        Create a gambit object based on this game.
+        
+        [SFM: For guidance creating this method I followed the tutorial at
+        https://nbviewer.org/github/gambitproject/gambit/blob/master/contrib/samples/sendrecv.ipynb
+        and adapted as appropriate.]
+        
+        Returns
+        -------
+        game_gambit: Game() object from pygambit package.
+
+        """
+        
+        ## Initialize.
+        ## Game.new_tree() creates a new, trivial extensive game, 
+        ##  with no players, and only a root node.
+        g = pygambit.Game.new_tree()
+        
+        ## Game title
+        g.title = f"Chance Sender-Receiver game {self.states}x{self.messages}x{self.acts}"
+        
+        ## Players: Sender and Receiver
+        ## There is already a built-in chance player at game_gambit.players.chance
+        sender = g.players.add("Sender")
+        receiver = g.players.add("Receiver")
+        
+        ## Add Nature's initial move
+        move_nature = g.root.append_move(g.players.chance, self.states)
+        
+        ## STRATEGIES
+        ## Label Nature's possible actions, and add the sender's response.
+        for i in range(self.states):
+            
+            ## Label the state from its index.
+            state_label = move_nature.actions[i].label = str(i)
+        
+            ## For each state, the sender has {self.messages} actions.
+            ## From the tutorial: "We add these actions at different information sets 
+            ##  as the sender has perfect information about the state of the world".
+            move_sender = g.root.children[i].append_move(sender, self.messages)
+            
+            ## Label the sender's choice node at this point
+            move_sender.label = f's{state_label}'
+            
+            ## Label each signal with its index, and add the receiver's response.
+            for j in range(self.messages):
+                
+                ## Label the signal from its index.
+                signal_label = move_sender.actions[j].label = str(j)
+                
+                ## For each signal, the receiver has {self.acts} actions.
+                move_receiver = g.root.children[i].children[j].append_move(receiver,self.acts)
+                
+                ## Label the receiver's choice node at this point.
+                ## All it knows about is the signal.
+                move_receiver.label = f'r{signal_label}'
+                
+                ## Label each act with its index.
+                for k in range(self.acts):
+                    move_receiver.actions[k].label = str(k)
+            
+        ## OUTCOMES
+        ## The size of the payoff matrices, which should be states x acts,
+        ##  determines the number of outcomes.
+        for row_index in range(len(self.sender_payoff_matrix)):
+            
+            for col_index in range(len(self.sender_payoff_matrix[row_index])):
+                
+                ## Create the outcome.
+                outcome = g.outcomes.add(f"payoff_{row_index}_{col_index}")
+                
+                ## Sender's payoff at this outcome.
+                ## Gambit only accepts integer payoffs!!!
+                if int(self.sender_payoff_matrix[row_index][col_index]) != self.sender_payoff_matrix[row_index][col_index]:
+                    print(f"Warning: converting payoff {self.sender_payoff_matrix[row_index][col_index]} to integer")
+                    
+                outcome[0] = int(self.sender_payoff_matrix[row_index][col_index])
+                
+                ## Receiver's payoff at this outcome
+                ## Gambit only accepts integer payoffs!!!
+                if int(self.receiver_payoff_matrix[row_index][col_index]) != self.receiver_payoff_matrix[row_index][col_index]:
+                    print(f"Warning: converting payoff {self.receiver_payoff_matrix[row_index][col_index]} to integer")
+                    
+                outcome[1] = int(self.receiver_payoff_matrix[row_index][col_index])
+                
+                ## Append this outcome to the game across all the different
+                ##  possible signals that could lead to it.
+                for j in range(self.messages): 
+                    
+                    g.root.children[row_index].children[j].children[col_index].outcome = outcome
+        
+        ## Now what?
+        ## You can call pygambit.nash.lcp_solve(g,rational=False) and get some numbers,
+        ##  but I don't know what they mean.
+        return g
+
 
     @property
     def max_mutual_info(self):
@@ -503,3 +602,65 @@ class NonChance:
     def calculate_receiver_mixed_strat(self, receivertypes, receiverpop):
         mixedstratreceiver = receivertypes * receiverpop[:, np.newaxis, np.newaxis]
         return sum(mixedstratreceiver)
+
+
+
+def lewis_square(n=2):
+    """
+    Factory method to produce a cooperative nxnxn signalling game
+     (what Skyrms calls a "Lewis signalling game").
+
+    Returns
+    -------
+    game : Chance object.
+        A nxnxn cooperative signalling game.
+
+    """
+    
+    ## 1. Create state_chances, the probability distribution
+    ##     over the state of the world.
+    state_chances = np.ones((n,)) / n
+    
+    ## 2. Create sender_payoff_matrix and receiver_payoff_matrix,
+    ##     which define the payoffs for sender and receiver.
+    ##    In a fully cooperative game they are identical.
+    sender_payoff_matrix = receiver_payoff_matrix = np.eye(n)
+    
+    ## 3. Define the number of messages.
+    messages = n
+    
+    ## 4. Create the game
+    lewis_n = Chance(
+        state_chances = state_chances,
+        sender_payoff_matrix = sender_payoff_matrix,
+        receiver_payoff_matrix = receiver_payoff_matrix,
+        messages = messages
+        )
+    
+    return lewis_n
+
+def gambit_example():
+    """
+    Create the gambit representation of a cooperative 2x2x2 game
+     and compute its Nash equilibria.
+
+    Returns
+    -------
+    None.
+
+    """
+    
+    ## Create the Chance() game object
+    game = lewis_square(n=2)
+    
+    ## Create the gambit game object
+    g = game.create_gambit_game()
+    
+    ## Get the Nash equilibria
+    ## Set rational=False to get floats rather than Rational() objects.
+    solutions = pygambit.nash.lcp_solve(g,rational=False)
+    
+    ## Now, what do these solutions actually mean?
+    print(f"Nash equilibria are {solutions}. What do these numbers mean?")
+    
+    
