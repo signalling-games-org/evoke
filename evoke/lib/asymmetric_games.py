@@ -204,7 +204,6 @@ class Chance:
                     ## Append the existing move here, corresponding to the signal j.
                     g.root.children[i].children[j].append_move(moves_receiver[j])
                 
-                
             
         ## OUTCOMES
         ## The size of the payoff matrices, which should be states x acts,
@@ -700,7 +699,6 @@ class NonChance:
         return g
 
 
-
 def lewis_square(n=2):
     """
     Factory method to produce a cooperative nxnxn signalling game
@@ -766,9 +764,7 @@ def gambit_example(n=2,export=False,fpath="tester.efg"):
     ## Set rational=False to get floats rather than Rational() objects.
     solutions = pygambit.nash.lcp_solve(g,rational=False)
     
-    ## Now, what do these solutions actually mean?
     print(f"Nash equilibria are {solutions}.")
     
     return g
-    
     
