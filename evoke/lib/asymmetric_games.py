@@ -141,7 +141,6 @@ class Chance:
         Returns
         -------
         g: Game() object from pygambit package.
-
         """
         
         ## Initialize.
@@ -336,15 +335,6 @@ class Chance:
 
         if hasattr(self, "_max_mutual_info"):
             del self._max_mutual_info
-=======
-        ## Now what?
-        ## You can call pygambit.nash.lcp_solve(g,rational=False) and get some numbers,
-        ##  but I don't know what they mean.
-=======
-        ## Return the game object.
->>>>>>> fc1fa13 (Basic pygambit implementation)
-        return g
->>>>>>> 6697858 (Create gambit object and compute Nash equilibria)
         
 
 class ChanceSIR:
