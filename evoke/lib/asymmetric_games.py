@@ -140,7 +140,11 @@ class Chance:
         
         Returns
         -------
+<<<<<<< HEAD
         g: Game() object from pygambit package.
+=======
+        game_gambit: Game() object from pygambit package.
+>>>>>>> 0ae12d5 (Create gambit object and compute Nash equilibria)
 
         """
         
@@ -162,7 +166,10 @@ class Chance:
         
         ## STRATEGIES
         ## Label Nature's possible actions, and add the sender's response.
+<<<<<<< HEAD
         moves_receiver = []
+=======
+>>>>>>> 0ae12d5 (Create gambit object and compute Nash equilibria)
         for i in range(self.states):
             
             ## Label the state from its index.
@@ -183,6 +190,7 @@ class Chance:
                 signal_label = move_sender.actions[j].label = str(j)
                 
                 ## For each signal, the receiver has {self.acts} actions.
+<<<<<<< HEAD
                 ## After the first state, the moves should be appended to 
                 ##  the existing infoset.
                 ## That's because the receiver doesn't know anything beyond
@@ -203,6 +211,17 @@ class Chance:
                     ## We are in a state > 0, so we have already defined the receiver's possible moves.
                     ## Append the existing move here, corresponding to the signal j.
                     g.root.children[i].children[j].append_move(moves_receiver[j])
+=======
+                move_receiver = g.root.children[i].children[j].append_move(receiver,self.acts)
+                
+                ## Label the receiver's choice node at this point.
+                ## All it knows about is the signal.
+                move_receiver.label = f'r{signal_label}'
+                
+                ## Label each act with its index.
+                for k in range(self.acts):
+                    move_receiver.actions[k].label = str(k)
+>>>>>>> 0ae12d5 (Create gambit object and compute Nash equilibria)
             
         ## OUTCOMES
         ## The size of the payoff matrices, which should be states x acts,
@@ -233,8 +252,15 @@ class Chance:
                 for j in range(self.messages): 
                     
                     g.root.children[row_index].children[j].children[col_index].outcome = outcome
+<<<<<<< HEAD
     
         ## Return the game object.
+=======
+        
+        ## Now what?
+        ## You can call pygambit.nash.lcp_solve(g,rational=False) and get some numbers,
+        ##  but I don't know what they mean.
+>>>>>>> 0ae12d5 (Create gambit object and compute Nash equilibria)
         return g
 
 
