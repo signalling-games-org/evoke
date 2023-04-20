@@ -202,7 +202,7 @@ class Chance:
                     ## We are in a state > 0, so we have already defined the receiver's possible moves.
                     ## Append the existing move here, corresponding to the signal j.
                     g.root.children[i].children[j].append_move(moves_receiver[j])
-                    
+
         ## OUTCOMES
         ## The size of the payoff matrices, which should be states x acts,
         ##  determines the number of outcomes.
