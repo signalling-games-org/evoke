@@ -159,6 +159,7 @@ class Chance:
         
         ## STRATEGIES
         ## Label Nature's possible actions, and add the sender's response.
+        moves_receiver = []
         for i in range(self.states):
             
             ## Label the state from its index.
@@ -179,15 +180,28 @@ class Chance:
                 signal_label = move_sender.actions[j].label = str(j)
                 
                 ## For each signal, the receiver has {self.acts} actions.
-                move_receiver = g.root.children[i].children[j].append_move(receiver,self.acts)
+                ## After the first state, the moves should be appended to 
+                ##  the existing infoset.
+                ## That's because the receiver doesn't know anything beyond
+                ##  which signal it received.
+                if i == 0:
+                    moves_receiver.append(g.root.children[i].children[j].append_move(receiver,self.acts))
+                    
+                    ## Label the receiver's choice node at this point.
+                    ## All it knows about is the signal.
+                    moves_receiver[j].label = f'r{signal_label}'
+                    
+                    ## Label each act with its index.
+                    for k in range(self.acts):
+                        moves_receiver[j].actions[k].label = str(k)
+                    
+                else:
+                    
+                    ## We are in a state > 0, so we have already defined the receiver's possible moves.
+                    ## Append the existing move here, corresponding to the signal j.
+                    g.root.children[i].children[j].append_move(moves_receiver[j])
                 
-                ## Label the receiver's choice node at this point.
-                ## All it knows about is the signal.
-                move_receiver.label = f'r{signal_label}'
                 
-                ## Label each act with its index.
-                for k in range(self.acts):
-                    move_receiver.actions[k].label = str(k)
             
         ## OUTCOMES
         ## The size of the payoff matrices, which should be states x acts,
@@ -219,9 +233,7 @@ class Chance:
                     
                     g.root.children[row_index].children[j].children[col_index].outcome = outcome
         
-        ## Now what?
-        ## You can call pygambit.nash.lcp_solve(g,rational=False) and get some numbers,
-        ##  but I don't know what they mean.
+        ## Return the game object.
         return g
         
 
@@ -537,10 +549,13 @@ def lewis_square(n=2):
     
     return lewis_n
 
-def gambit_example():
+def gambit_example(n=2,export=False,fpath="tester.efg"):
     """
-    Create the gambit representation of a cooperative 2x2x2 game
+    Create the gambit representation of a cooperative nxnxn game
      and compute its Nash equilibria.
+     
+    Optionally output as an extensive-form game, which can be
+     loaded into the Gambit GUI.
 
     Returns
     -------
@@ -549,16 +564,25 @@ def gambit_example():
     """
     
     ## Create the Chance() game object
-    game = lewis_square(n=2)
+    game = lewis_square(n=n)
     
     ## Create the gambit game object
     g = game.create_gambit_game()
+    
+    ## Export .efg file
+    if export:
+        f_data = g.write("native")
+        
+        with open(fpath,"w") as f:
+            f.write(f_data)
     
     ## Get the Nash equilibria
     ## Set rational=False to get floats rather than Rational() objects.
     solutions = pygambit.nash.lcp_solve(g,rational=False)
     
     ## Now, what do these solutions actually mean?
-    print(f"Nash equilibria are {solutions}. What do these numbers mean?")
+    print(f"Nash equilibria are {solutions}.")
+    
+    return g
     
     
