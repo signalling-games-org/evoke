@@ -10,11 +10,8 @@ import sys
 
 import numpy as np
 import pygambit
-<<<<<<< HEAD
 
 from evoke.lib import info
-=======
->>>>>>> 6697858 (Create gambit object and compute Nash equilibria)
 
 np.set_printoptions(precision=4)
 
@@ -140,19 +137,11 @@ class Chance:
         [SFM: For guidance creating this method I followed the tutorial at
         https://nbviewer.org/github/gambitproject/gambit/blob/master/contrib/samples/sendrecv.ipynb
         and adapted as appropriate.]
-<<<<<<< HEAD
         
         Returns
         -------
         g: Game() object from pygambit package.
 
-=======
-
-        Returns
-        -------
-        game_gambit: Game() object from pygambit package.
-
->>>>>>> 6697858 (Create gambit object and compute Nash equilibria)
         """
         
         ## Initialize.
@@ -173,10 +162,7 @@ class Chance:
         
         ## STRATEGIES
         ## Label Nature's possible actions, and add the sender's response.
-<<<<<<< HEAD
         moves_receiver = []
-=======
->>>>>>> 6697858 (Create gambit object and compute Nash equilibria)
         for i in range(self.states):
             
             ## Label the state from its index.
@@ -197,7 +183,6 @@ class Chance:
                 signal_label = move_sender.actions[j].label = str(j)
                 
                 ## For each signal, the receiver has {self.acts} actions.
-<<<<<<< HEAD
                 ## After the first state, the moves should be appended to 
                 ##  the existing infoset.
                 ## That's because the receiver doesn't know anything beyond
@@ -218,22 +203,6 @@ class Chance:
                     ## We are in a state > 0, so we have already defined the receiver's possible moves.
                     ## Append the existing move here, corresponding to the signal j.
                     g.root.children[i].children[j].append_move(moves_receiver[j])
-                
-<<<<<<< HEAD
-=======
-                
->>>>>>> ba0a583 (Basic pygambit implementation)
-=======
-                move_receiver = g.root.children[i].children[j].append_move(receiver,self.acts)
-                
-                ## Label the receiver's choice node at this point.
-                ## All it knows about is the signal.
-                move_receiver.label = f'r{signal_label}'
-                
-                ## Label each act with its index.
-                for k in range(self.acts):
-                    move_receiver.actions[k].label = str(k)
->>>>>>> 6697858 (Create gambit object and compute Nash equilibria)
             
         ## OUTCOMES
         ## The size of the payoff matrices, which should be states x acts,
@@ -264,8 +233,7 @@ class Chance:
                 for j in range(self.messages): 
                     
                     g.root.children[row_index].children[j].children[col_index].outcome = outcome
-        
-<<<<<<< HEAD
+    
         ## Return the game object.
         return g
 
@@ -372,6 +340,9 @@ class Chance:
         ## Now what?
         ## You can call pygambit.nash.lcp_solve(g,rational=False) and get some numbers,
         ##  but I don't know what they mean.
+=======
+        ## Return the game object.
+>>>>>>> fc1fa13 (Basic pygambit implementation)
         return g
 >>>>>>> 6697858 (Create gambit object and compute Nash equilibria)
         
@@ -651,7 +622,6 @@ class NonChance:
     def calculate_receiver_mixed_strat(self, receivertypes, receiverpop):
         mixedstratreceiver = receivertypes * receiverpop[:, np.newaxis, np.newaxis]
         return sum(mixedstratreceiver)
-<<<<<<< HEAD
     
     def create_gambit_game(self):
         """
@@ -735,9 +705,6 @@ class NonChance:
         
         ## Return the game object.
         return g
-=======
-
->>>>>>> 6697858 (Create gambit object and compute Nash equilibria)
 
 
 def lewis_square(n=2):
@@ -774,7 +741,6 @@ def lewis_square(n=2):
     
     return lewis_n
 
-<<<<<<< HEAD
 def gambit_example(n=2,export=False,fpath="tester.efg"):
     """
     Create the gambit representation of a cooperative nxnxn game
@@ -782,12 +748,6 @@ def gambit_example(n=2,export=False,fpath="tester.efg"):
      
     Optionally output as an extensive-form game, which can be
      loaded into the Gambit GUI.
-=======
-def gambit_example():
-    """
-    Create the gambit representation of a cooperative 2x2x2 game
-     and compute its Nash equilibria.
->>>>>>> 6697858 (Create gambit object and compute Nash equilibria)
 
     Returns
     -------
@@ -796,16 +756,11 @@ def gambit_example():
     """
     
     ## Create the Chance() game object
-<<<<<<< HEAD
     game = lewis_square(n=n)
-=======
-    game = lewis_square(n=2)
->>>>>>> 6697858 (Create gambit object and compute Nash equilibria)
     
     ## Create the gambit game object
     g = game.create_gambit_game()
     
-<<<<<<< HEAD
     ## Export .efg file
     if export:
         f_data = g.write("native")
@@ -813,26 +768,9 @@ def gambit_example():
         with open(fpath,"w") as f:
             f.write(f_data)
     
-=======
->>>>>>> 6697858 (Create gambit object and compute Nash equilibria)
     ## Get the Nash equilibria
     ## Set rational=False to get floats rather than Rational() objects.
     solutions = pygambit.nash.lcp_solve(g,rational=False)
     
-<<<<<<< HEAD
-<<<<<<< HEAD
     print(f"Nash equilibria are {solutions}.")
-=======
-    ## Now, what do these solutions actually mean?
-    print(f"Nash equilibria are {solutions}.")
-    
-    return g
->>>>>>> ba0a583 (Basic pygambit implementation)
-    
-    return g
-=======
-    ## Now, what do these solutions actually mean?
-    print(f"Nash equilibria are {solutions}. What do these numbers mean?")
-    
->>>>>>> 6697858 (Create gambit object and compute Nash equilibria)
     
