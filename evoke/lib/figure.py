@@ -642,7 +642,7 @@ class Skyrms2010_8_2(Scatter):
                 ##  (where "reaching a signalling system" is determined in part by
                 ##   the value of epsilon).
                 ## So if your figure doesn't look sufficiently similar to the original,
-                ##  the relative values of <epsilon> and <iterations> might be 
+                ##  the relative values of <epsilon> and <iterations> might be
                 ##  a good place to start.
                 if evo.is_pooling():
                     count_pooling += 1

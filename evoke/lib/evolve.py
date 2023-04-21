@@ -511,17 +511,17 @@ class Reinforcement:
 
         if calculate_stats == "end":
             self.calculate_stats()
-            
-    def is_pooling(self,epsilon=1e-3):
+
+    def is_pooling(self, epsilon=1e-3):
         """
-        Determine whether the current strategies are pooling or 
+        Determine whether the current strategies are pooling or
          a signalling system.
-        
+
         If the mutual information between states and acts at the current
          population state is within <epsilon> of the maximum possible,
          it's a signalling system.
         Otherwise, it's pooling.
-        
+
         Clearly if the number of signals is lower than both the number of states
          and the number of acts, it will necessarily be pooling.
 
@@ -538,13 +538,17 @@ class Reinforcement:
             True if the current strategies.
 
         """
-        
+
         ## TODO: add a custom exception here.
         ## Check that the game is of the appropriate type for this method.
         ## i.e. In order to determine whether a simulation is currently pooling,
         ## there must minimally be states, signals and acts.
-        assert hasattr(self.game,"states") and hasattr(self.game,"messages") and hasattr(self.game,"acts")
-        
+        assert (
+            hasattr(self.game, "states")
+            and hasattr(self.game, "messages")
+            and hasattr(self.game, "acts")
+        )
+
         ##########################################################
         ## NB: This is not true because the state_chances might be uneven enough
         ##      that a smaller number of signals is still sufficient.
@@ -557,16 +561,16 @@ class Reinforcement:
         # if self.game.messages < self.game.states and self.game.messages < self.game.acts:
         #     return True
         ##########################################################
-        
+
         ## Now we know we have enough signals that we could potentially have a signalling system.
         ## Figure out the maximum possible mutual information,
         ##  and then see whether we are within <epsilon> of that.
-        
+
         ## Maximum mutual information is determined by self.game.state_chances.
         ## Ask the game what it's maximum mutual information is.
         max_mutual_info = self.game.max_mutual_info
-        
-        ## The current mutual information 
+
+        ## The current mutual information
         ## Normalise strategy profiles
         snorm = (self.sender.strategies.T / self.sender.strategies.sum(1)).T
         rnorm = (self.receiver.strategies.T / self.receiver.strategies.sum(1)).T
@@ -574,14 +578,13 @@ class Reinforcement:
         ## Create info object and get mutual information
         info = Information(self.game, snorm, rnorm)
         mut_info_states_acts = info.mutual_info_states_acts()
-        
+
         ## Check we are within <epsilon> of the maximum.
-        if mut_info_states_acts > max_mutual_info - epsilon: 
-            
+        if mut_info_states_acts > max_mutual_info - epsilon:
             ## Current mutual info is within epsilon of the maximum.
             ## Therefore it's a signalling system, therefore it isn't pooling.
             return False
-        
+
         ## It's not a signalling system, so it's pooling.
         return True
 
@@ -592,7 +595,6 @@ class Reinforcement:
     @abstractmethod
     def calculate_stats(self):
         pass
-    
 
 
 class Matching(Reinforcement):
@@ -1131,7 +1133,6 @@ class BushMostellerSR(Reinforcement):
         self.statistics["avg_prob_success"] = np.append(
             self.statistics["avg_prob_success"], avg_prob_success
         )
-
 
 
 class Agent:

@@ -127,13 +127,13 @@ class Chance:
     def calculate_receiver_mixed_strat(self, receivertypes, receiverpop):
         mixedstratreceiver = receivertypes * receiverpop[:, np.newaxis, np.newaxis]
         return sum(mixedstratreceiver)
-    
+
     @property
     def max_mutual_info(self):
         """
         Maximum possible mutual information between states and acts.
         Depends on self.state_chances.
-        
+
         Lazy instantiation
 
         Returns
@@ -142,76 +142,77 @@ class Chance:
             The maximum mutual information between states and acts for this game.
 
         """
-        
+
         ## Lazy instantiation: if we haven't yet calculated the maximum mutual information,
         ##  calculate it now.
-        if not hasattr(self,"_max_mutual_info"):
-            
+        if not hasattr(self, "_max_mutual_info"):
             ## The maximum mutual information occurs when the conditional probabilities
             ##  of acts given states are as uneven as possible.
             ## So let's construct a fake conditional distribution of acts given states,
             ##  and set as many of its rows to one-hot vectors as possible.
             ## Then calculate the mutual information implied by that conditional distribution
             ##  together with self.state_chances.
-            
+
             ## First, initialize a square identity matrix.
-            maximising_conditional_distribution_states_acts = np.eye(min(self.states,self.acts))
-            
+            maximising_conditional_distribution_states_acts = np.eye(
+                min(self.states, self.acts)
+            )
+
             ## If there are more states than acts, stack more identity matrices
             ##  up underneath the first.
             if self.states > self.acts:
-                
                 ## How many rows do we need to add?
                 rows_left = self.states - self.acts
-                
+
                 ## Add them one by one (it could be done more cleverly than this.)
                 column_to_insert_1 = 0
                 while rows_left > 0:
-                    
                     ## Initialise row of length self.acts.
-                    new_row = np.zeros((1,self.acts))
-                    
+                    new_row = np.zeros((1, self.acts))
+
                     ## Insert a 1 in the correct place.
-                    new_row.put(column_to_insert_1,1)
-                    
+                    new_row.put(column_to_insert_1, 1)
+
                     ## Stack this row under the distribution.
-                    maximising_conditional_distribution_states_acts = np.vstack((
-                        maximising_conditional_distribution_states_acts,
-                        new_row
-                        ))
-                    
+                    maximising_conditional_distribution_states_acts = np.vstack(
+                        (maximising_conditional_distribution_states_acts, new_row)
+                    )
+
                     ## Increment where the next 1 goes
                     column_to_insert_1 += 1
-                    
+
                     ## Loop back to the first column if necessary
                     column_to_insert_1 = column_to_insert_1 % self.acts
-                    
+
                     ## There is now 1 fewer rows to insert.
                     rows_left -= 1
-                    
-        
+
             ## If there are more acts than states, just add a bunch of zeros
             ##  to the end of each row.
             if self.states < self.acts:
-            
                 ## Create a matrix of zeros, with self.states rows and
                 ##  (self.acts - self.states) columns
-                horizontal_stacker = np.zeros((self.states,self.acts-self.states))
-                
-                maximising_conditional_distribution_states_acts = np.hstack((
-                    maximising_conditional_distribution_states_acts,
-                    horizontal_stacker
-                    ))
-            
-                
+                horizontal_stacker = np.zeros((self.states, self.acts - self.states))
+
+                maximising_conditional_distribution_states_acts = np.hstack(
+                    (
+                        maximising_conditional_distribution_states_acts,
+                        horizontal_stacker,
+                    )
+                )
+
             ## Now calculate the joint of this and the states.
-            maximising_joint_states_acts = info.from_conditional_to_joint(self.state_chances,maximising_conditional_distribution_states_acts)
-            
+            maximising_joint_states_acts = info.from_conditional_to_joint(
+                self.state_chances, maximising_conditional_distribution_states_acts
+            )
+
             ## Finally, calculate the mutual information from the joint distribution.
-            self._max_mutual_info = info.mutual_info_from_joint(maximising_joint_states_acts)
-        
+            self._max_mutual_info = info.mutual_info_from_joint(
+                maximising_joint_states_acts
+            )
+
         return self._max_mutual_info
-    
+
     @max_mutual_info.deleter
     def max_mutual_info(self):
         """
@@ -222,10 +223,9 @@ class Chance:
         None.
 
         """
-        
-        if hasattr(self,"_max_mutual_info"):
+
+        if hasattr(self, "_max_mutual_info"):
             del self._max_mutual_info
-        
 
 
 class ChanceSIR:
