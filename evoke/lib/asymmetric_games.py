@@ -337,7 +337,7 @@ class Chance:
 
         if hasattr(self, "_max_mutual_info"):
             del self._max_mutual_info
-
+        
 
 class ChanceSIR:
     """
