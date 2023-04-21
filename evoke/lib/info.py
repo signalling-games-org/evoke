@@ -6,7 +6,7 @@ import numpy as np
 import scipy.optimize as opt
 from scipy import sparse
 
-from evoke.lib.asymmetric_games import Chance
+# from evoke.lib.asymmetric_games import Chance
 
 
 class Information:

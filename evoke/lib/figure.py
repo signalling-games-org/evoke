@@ -634,7 +634,16 @@ class Skyrms2010_8_2(Scatter):
                 ## Tell it to only calculate at end
                 evo.run(iterations, calculate_stats="end")
 
-                ## TODO: create this attribute!
+                ## NB the is_pooling() method has a parameter <epsilon>.
+                ## To make the figure look most similar to Skyrms's results,
+                ##  epsilon should be sensitive to the number of iterations.
+                ## That's because the more iterations the simulation runs for,
+                ##  the easier it is to reach a signalling system
+                ##  (where "reaching a signalling system" is determined in part by
+                ##   the value of epsilon).
+                ## So if your figure doesn't look sufficiently similar to the original,
+                ##  the relative values of <epsilon> and <iterations> might be
+                ##  a good place to start.
                 if evo.is_pooling():
                     count_pooling += 1
 
