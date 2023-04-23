@@ -705,7 +705,7 @@ class NonChance:
         
         ## Return the game object.
         return g
-
+        
 
 def lewis_square(n=2):
     """
