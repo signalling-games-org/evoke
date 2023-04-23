@@ -139,7 +139,7 @@ class Chance:
         
         Returns
         -------
-        game_gambit: Game() object from pygambit package.
+        g: Game() object from pygambit package.
 
         """
         
@@ -614,6 +614,89 @@ class NonChance:
     def calculate_receiver_mixed_strat(self, receivertypes, receiverpop):
         mixedstratreceiver = receivertypes * receiverpop[:, np.newaxis, np.newaxis]
         return sum(mixedstratreceiver)
+    
+    def create_gambit_game(self):
+        """
+        Create a gambit object based on this game.
+        
+        [SFM: For guidance creating this method I followed the tutorial at
+        https://nbviewer.org/github/gambitproject/gambit/blob/master/contrib/samples/sendrecv.ipynb
+        and adapted as appropriate.]
+        
+        Returns
+        -------
+        g: Game() object from pygambit package.
+
+        """
+        
+        ## Initialize.
+        ## Game.new_tree() creates a new, trivial extensive game, 
+        ##  with no players, and only a root node.
+        g = pygambit.Game.new_tree()
+        
+        ## Game title
+        g.title = f"Non-Chance Sender-Receiver game {self.messages}x{self.acts}"
+        
+        ## Players: Sender and Receiver
+        ## There is already a built-in chance player at game_gambit.players.chance
+        sender = g.players.add("Sender")
+        receiver = g.players.add("Receiver")
+        
+        ## Add the Sender's initial move
+        move_sender = g.root.append_move(sender, self.messages)
+        
+        ## Receiver
+        ## Label each signal with its index, and add the receiver's response.
+        for j in range(self.messages):
+            
+            ## Label the signal from its index.
+            signal_label = move_sender.actions[j].label = str(j)
+            
+            ## For each signal, the receiver has {self.acts} actions.
+            move_receiver = g.root.children[j].append_move(receiver,self.acts)
+            
+            ## Label the receiver's choice node at this point.
+            ## All it knows about is the signal.
+            move_receiver.label = f'r{signal_label}'
+            
+            ## Label each act with its index.
+            for k in range(self.acts):
+                move_receiver.actions[k].label = str(k)
+                
+                
+            
+        ## OUTCOMES
+        ## The size of the payoff matrices, which should be signals x acts,
+        ##  determines the number of outcomes.
+        for row_index in range(len(self.sender_payoff_matrix)):
+            
+            for col_index in range(len(self.sender_payoff_matrix[row_index])):
+                
+                ## Create the outcome.
+                outcome = g.outcomes.add(f"payoff_{row_index}_{col_index}")
+                
+                ## Sender's payoff at this outcome.
+                ## Gambit only accepts integer payoffs!!!
+                if int(self.sender_payoff_matrix[row_index][col_index]) != self.sender_payoff_matrix[row_index][col_index]:
+                    print(f"Warning: converting payoff {self.sender_payoff_matrix[row_index][col_index]} to integer")
+                    
+                outcome[0] = int(self.sender_payoff_matrix[row_index][col_index])
+                
+                ## Receiver's payoff at this outcome
+                ## Gambit only accepts integer payoffs!!!
+                if int(self.receiver_payoff_matrix[row_index][col_index]) != self.receiver_payoff_matrix[row_index][col_index]:
+                    print(f"Warning: converting payoff {self.receiver_payoff_matrix[row_index][col_index]} to integer")
+                    
+                outcome[1] = int(self.receiver_payoff_matrix[row_index][col_index])
+                
+                ## Append this outcome to the game across all the different
+                ##  possible signals that could lead to it.
+                for j in range(self.messages): 
+                    
+                    g.root.children[row_index].children[j].children[col_index].outcome = outcome
+        
+        ## Return the game object.
+        return g
 
 
 
