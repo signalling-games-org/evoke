@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Calculate equations to evolve populations in a game. Right now, we can
 calculate the replicator (-mutator) dynamics, with one or two populations, in

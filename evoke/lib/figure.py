@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Figure objects.
+    Figure objects.
+    
+    Figures can be plotted by calling an instance of the relevant class,
+     e.g. f = Skyrms2010_3_3() will create a figure object and simultaneously plot it.
+    
 """
 
 import numpy as np
@@ -42,10 +46,30 @@ class Figure(ABC):
 
     @abstractmethod
     def show(self):
+        """
+        Show the plot of the figure with the current parameters, typically with plt.show().
+        
+        This is an abstract method that must be redefined for each subclass.
+
+        Returns
+        -------
+        None.
+
+        """
         pass
 
     @abstractmethod
     def reset(self):
+        """
+        Reset parameters for the figure.
+        
+        This is an abstract method that must be redefined for each subclass.
+
+        Returns
+        -------
+        None.
+
+        """
         pass
 
 
@@ -68,10 +92,10 @@ class Scatter(Figure):
         xlim=None,
         ylim=None,
         xscale=None,
-        yscale=None,
+        yscale=None
     ):
         """
-        Update figure parameters
+        Update figure parameters, which can then be plotted with self.show().
 
         Parameters
         ----------
@@ -79,6 +103,22 @@ class Scatter(Figure):
             x-axis coordinates.
         y : array-like
             y-axis coordinates.
+        xlabel : str
+            x-axis label.
+        ylabel : str
+            y-axis label.
+        marker_size : int, optional
+            Size of the markers for each data point. The default is 10.
+        marker_color : str, optional
+            Color of the datapoint markers. The default is "k".
+        xlim : array-like, optional
+            Minimum and maximum values of x-axis. The default is None.
+        ylim : array-like, optional
+            Minimum and maximum values of y-axis. The default is None.
+        xscale : str, optional
+            x-axis scaling i.e. linear or logarithmic. The default is None.
+        yscale : str, optional
+            y-axis scaling i.e. linear or logarithmic. The default is None.
 
         Returns
         -------
@@ -86,7 +126,7 @@ class Scatter(Figure):
 
         """
 
-        ## Update global attributes, which can then be plotted in self.show()
+        ## X and Y axis values
         self.x = x
         self.y = y
 
@@ -107,6 +147,21 @@ class Scatter(Figure):
         self.yscale = yscale
 
     def show(self, line=False):
+        """
+        Show figure with the current parameters.
+
+        Parameters
+        ----------
+        line : bool, optional
+            Whether to show a line connecting the datapoints.
+            The default is False.
+
+        Returns
+        -------
+        None.
+
+        """
+        
         ## Data
         plt.scatter(x=self.x, y=self.y, s=self.s, c=self.c)
 
@@ -194,12 +249,37 @@ class Skyrms2010_3_3(Scatter):
         self.show()
 
     def initialize_simulation(self):
+        """
+        Set the parameter values for this simulation.
+
+        Returns
+        -------
+        None.
+
+        """
+        
         self.state_chances = np.array([0.5, 0.5])
         self.sender_payoff_matrix = np.eye(2)
         self.receiver_payoff_matrix = np.eye(2)
         self.messages = 2
 
     def run_simulation(self, iterations):
+        """
+        Create a game object and an evolution object,
+         and run the game <iterations> times.
+
+        Parameters
+        ----------
+        iterations : int
+            Number of timesteps in the simulation i.e. number of repetitions of the game.
+
+        Returns
+        -------
+        evo : evolve.MatchingSR
+            The evolve object controls simulations.
+
+        """
+        
         ## Create game
         game = asy.Chance(
             state_chances=self.state_chances,
@@ -228,14 +308,17 @@ class Skyrms2010_3_4(Scatter):
 
     def __init__(self, iterations=int(1e2)):
         """
-        Change iterations to int(1e6) to run the same number of iterations
+        Create object.
+        
+        NB change iterations to int(1e6) to run the same number of iterations
          as in the original figure. Warning: this takes a while.
          You should still get convergence often at 1e5.
 
         Parameters
         ----------
-        iterations : TYPE, optional
-            DESCRIPTION. The default is 100.
+        iterations : int, optional
+            Number of timesteps in the simulation i.e. number of repetitions of the game.
+            The default is 100.
 
         Returns
         -------
@@ -265,6 +348,15 @@ class Skyrms2010_3_4(Scatter):
         self.show()
 
     def initialize_simulation(self):
+        """
+        Set the parameter values for this simulation.
+
+        Returns
+        -------
+        None.
+
+        """
+        
         self.state_chances = np.array([0.5, 0.5])
         self.sender_payoff_matrix = np.eye(2)
         self.intermediary_payoff_matrix = np.eye(2)
@@ -273,6 +365,22 @@ class Skyrms2010_3_4(Scatter):
         self.messages_intermediary = 2
 
     def run_simulation(self, iterations):
+        """
+        Create a game object and an evolution object,
+         and run the game <iterations> times.
+
+        Parameters
+        ----------
+        iterations : int
+            Number of timesteps in the simulation i.e. number of repetitions of the game.
+
+        Returns
+        -------
+        evo : evolve.MatchingSIR
+            The evolve object controls simulations.
+
+        """
+        
         ## Create game
         game = asy.ChanceSIR(
             state_chances=self.state_chances,
@@ -306,14 +414,13 @@ class Skyrms2010_5_2(Scatter):
 
     def __init__(self, pr_state_2_list=np.linspace(0.5, 1, 10)):
         """
-
+        Create object.
 
         Parameters
         ----------
-        iterations : TYPE, optional
-            DESCRIPTION. The default is int(1e2).
-        x_axis : TYPE, optional
-            DESCRIPTION. The default is np.linspace(0.5,1,10).
+        pr_state_2_list : array-like, optional
+            x-axis values.
+            The default is np.linspace(0.5, 1, 10).
 
         Returns
         -------
@@ -343,13 +450,32 @@ class Skyrms2010_5_2(Scatter):
 
     def show(self):
         """
-        Show the line by default.
+        Show the figure.
+        
+        We call the superclass method and tell it to show the line
+         along with the datapoints.
 
+        Returns
+        -------
+        None.
         """
 
         super().show(True)
 
     def initialize_simulations(self, pr_state_2_list):
+        """
+        Set the parameter values for this simulation.
+
+        Parameters
+        ----------
+        pr_state_2_list : array-like
+            x-axis values.
+
+        Returns
+        -------
+        None.
+
+        """
         self.pr_state_2_list = pr_state_2_list
         self.sender_payoff_matrix = np.eye(2)
         self.receiver_payoff_matrix = np.eye(2)
@@ -357,7 +483,9 @@ class Skyrms2010_5_2(Scatter):
 
     def run_simulations(self):
         """
-        From Skyrms (2010:71):
+        Create games and run simulations.
+        
+        Details taken from Skyrms (2010:71):
             "Here we consider a one-population model, in which
                 nature assigns roles of sender or receiver on flip of a fair coin. We
                 focus on four strategies, written as a vector whose components are:
@@ -371,32 +499,19 @@ class Skyrms2010_5_2(Scatter):
 
         Together these define the playertypes payoffs.
 
-        Parameters
-        ----------
-        iterations : TYPE
-            DESCRIPTION.
-
         Returns
         -------
-        evo : TYPE
-            DESCRIPTION.
-        y_axis : TYPE
-            DESCRIPTION.
+        evo : evolve.OnePop
+            The most recent evolve object.
+        y_axis : list
+            Results; the required assortment level for each value of pr_state_2.
+            See Skyrms text for details.
 
         """
 
         y_axis = []
 
         for pr_state_2 in self.pr_state_2_list:
-            # state_chances = np.array([1-pr_state_2,pr_state_2])
-
-            # ## Create game
-            # game = asy.Chance(
-            #     state_chances               = state_chances,
-            #     sender_payoff_matrix        = self.sender_payoff_matrix,
-            #     receiver_payoff_matrix      = self.receiver_payoff_matrix,
-            #     messages                    = self.messages
-            # )
 
             ## Define payoffs based on pr_state_2.
             ## Here payoffs is an nxn matrix, with n the number of players (here 4).
@@ -475,9 +590,6 @@ class Skyrms2010_5_2(Scatter):
 
             y_axis.append(assortment_level)
 
-            ## Get info attribute
-            # y_axis.append(evo.statistics["assortment_required"])
-
         return evo, y_axis
 
 
@@ -487,6 +599,19 @@ class Skyrms2010_8_1(Scatter):
     """
 
     def __init__(self, iterations=int(1e3)):
+        """
+        Create object.
+
+        Parameters
+        ----------
+        iterations : int, optional
+            Number of timesteps in the simulation. The default is int(1e3).
+
+        Returns
+        -------
+        None.
+
+        """
         self.initialize_simulation()
 
         evo = self.run_simulation(iterations)
@@ -508,15 +633,48 @@ class Skyrms2010_8_1(Scatter):
         self.show()
 
     def show(self):
-        super().show(True)  # draw the line by default
+        """
+        Show the figure.
+        
+        We call the superclass method and tell it to show the line
+         along with the datapoints.
+
+        Returns
+        -------
+        None.
+        """
+        
+        super().show(True)
 
     def initialize_simulation(self):
+        """
+        Set parameter values for this simulation.
+
+        Returns
+        -------
+        None.
+
+        """
         self.state_chances = np.array([0.5, 0.5])
         self.sender_payoff_matrix = np.eye(2)
         self.receiver_payoff_matrix = np.eye(2)
         self.messages = 2
 
     def run_simulation(self, iterations):
+        """
+        Create game and run simulation.
+
+        Parameters
+        ----------
+        iterations : int
+            Number of timesteps.
+
+        Returns
+        -------
+        evo : evolve.MatchingSR
+            The simulation object.
+
+        """
         ## Create game
         game = asy.Chance(
             state_chances=self.state_chances,
@@ -546,6 +704,8 @@ class Skyrms2010_8_2(Scatter):
 
     def __init__(self, trials=100, iterations=int(1e3)):
         """
+        Create object.
+        
         NB It looks as though Skyrms's graph was generated with the equivalent of
             the following parameters:
                 trials = 1000
@@ -561,10 +721,12 @@ class Skyrms2010_8_2(Scatter):
 
         Parameters
         ----------
-        trials : TYPE, optional
-            DESCRIPTION. The default is 100.
-        iterations : TYPE, optional
-            DESCRIPTION. The default is int(1e3).
+        trials : int, optional
+            Number of times to repeat a simulation with specific parameters.
+            The default is 100.
+        iterations : int, optional
+            Number of timesteps in each simulation.
+            The default is int(1e3).
 
         Returns
         -------
@@ -592,9 +754,28 @@ class Skyrms2010_8_2(Scatter):
         self.show()
 
     def show(self):
-        super().show(True)  # draw the line by default
+        """
+        Show the figure.
+        
+        We call the superclass method and tell it to show the line
+         along with the datapoints.
+
+        Returns
+        -------
+        None.
+        """
+        
+        super().show(True) 
 
     def initialize_simulation(self):
+        """
+        Set parameter values for this simulation.
+
+        Returns
+        -------
+        None.
+
+        """
         self.state_chances = np.array([0.9, 0.1])
         self.sender_payoff_matrix = np.eye(2)
         self.receiver_payoff_matrix = np.eye(2)
@@ -603,6 +784,24 @@ class Skyrms2010_8_2(Scatter):
         self.initial_weights = np.array([0.0001, 0.001, 0.01, 0.1, 1, 10])
 
     def run_simulation(self, trials, iterations):
+        """
+        Create game and run simulations.
+
+        Parameters
+        ----------
+        trials : int, optional
+            Number of times to repeat a simulation with specific parameters.
+            The default is 100.
+        iterations : int, optional
+            Number of timesteps in each simulation.
+            The default is int(1e3).
+
+        Returns
+        -------
+        evo : evolve.MatchingSR
+            The last simulation object.
+
+        """
         ## Create game
         game = asy.Chance(
             state_chances=self.state_chances,
@@ -666,15 +865,22 @@ class Skyrms2010_8_3(Scatter):
         learning_params=[0.01, 0.03, 0.05, 0.07, 0.1, 0.15, 0.2],
     ):
         """
+        Create object.
+        
         Not sure how many trials Skyrms is reporting -- probably at least 1000.
         He explicitly states 300 iterations on p.98.
 
         Parameters
         ----------
-        iterations : TYPE, optional
-            DESCRIPTION. The default is 300.
-        learning_params : TYPE, optional
-            DESCRIPTION. The default is [0.01,0.03,0.05,0.07,0.1,0.15,0.2].
+        trials : int, optional
+            Number of times to repeat each simulation.
+            The default is 100.
+        iterations : int, optional
+            Number of timesteps per simulation.
+            The default is 300.
+        learning_params : array-like, optional
+            Learning parameters to run simulations for.
+            The default is [0.01,0.03,0.05,0.07,0.1,0.15,0.2].
 
         Returns
         -------
@@ -703,12 +909,12 @@ class Skyrms2010_8_3(Scatter):
 
     def initialize_simulation(self, learning_params):
         """
-
+        Set parameters for the simulations in self.run_simulation().
 
         Parameters
         ----------
-        learning_params : TYPE
-            DESCRIPTION.
+        learning_params : array-like, optional
+            Learning parameters to run simulations for.
 
         Returns
         -------
@@ -727,19 +933,19 @@ class Skyrms2010_8_3(Scatter):
 
     def run_simulation(self, trials, iterations):
         """
-
+        Create game and run simulations.
 
         Parameters
         ----------
-        trials : TYPE
-            DESCRIPTION.
-        iterations : TYPE
-            DESCRIPTION.
+        trials : int, optional
+            Number of times to repeat each simulation.
+        iterations : int, optional
+            Number of timesteps per simulation.
 
         Returns
         -------
-        evo : inherits from evolve.Evolve
-            DESCRIPTION.
+        evo : evolve.BushMostellerSR
+            Simulation object.
 
         """
 
