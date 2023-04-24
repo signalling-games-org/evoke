@@ -141,7 +141,6 @@ class Chance:
         Returns
         -------
         g: Game() object from pygambit package.
-
         """
         
         ## Initialize.
@@ -203,9 +202,7 @@ class Chance:
                     ## We are in a state > 0, so we have already defined the receiver's possible moves.
                     ## Append the existing move here, corresponding to the signal j.
                     g.root.children[i].children[j].append_move(moves_receiver[j])
-                
-                
-            
+
         ## OUTCOMES
         ## The size of the payoff matrices, which should be states x acts,
         ##  determines the number of outcomes.
@@ -235,7 +232,7 @@ class Chance:
                 for j in range(self.messages): 
                     
                     g.root.children[row_index].children[j].children[col_index].outcome = outcome
-        
+
         ## Return the game object.
         return g
 
@@ -698,8 +695,7 @@ class NonChance:
         
         ## Return the game object.
         return g
-
-
+    
 
 def lewis_square(n=2):
     """
@@ -766,9 +762,5 @@ def gambit_example(n=2,export=False,fpath="tester.efg"):
     ## Set rational=False to get floats rather than Rational() objects.
     solutions = pygambit.nash.lcp_solve(g,rational=False)
     
-    ## Now, what do these solutions actually mean?
     print(f"Nash equilibria are {solutions}.")
-    
-    return g
-    
     
