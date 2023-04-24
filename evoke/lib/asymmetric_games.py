@@ -203,6 +203,7 @@ class Chance:
                     ## We are in a state > 0, so we have already defined the receiver's possible moves.
                     ## Append the existing move here, corresponding to the signal j.
                     g.root.children[i].children[j].append_move(moves_receiver[j])
+
             
         ## OUTCOMES
         ## The size of the payoff matrices, which should be states x acts,
@@ -233,7 +234,7 @@ class Chance:
                 for j in range(self.messages): 
                     
                     g.root.children[row_index].children[j].children[col_index].outcome = outcome
-    
+
         ## Return the game object.
         return g
 
@@ -336,15 +337,7 @@ class Chance:
 
         if hasattr(self, "_max_mutual_info"):
             del self._max_mutual_info
-=======
-        ## Now what?
-        ## You can call pygambit.nash.lcp_solve(g,rational=False) and get some numbers,
-        ##  but I don't know what they mean.
-=======
-        ## Return the game object.
->>>>>>> fc1fa13 (Basic pygambit implementation)
-        return g
->>>>>>> 6697858 (Create gambit object and compute Nash equilibria)
+
         
 
 class ChanceSIR:
@@ -705,7 +698,6 @@ class NonChance:
         
         ## Return the game object.
         return g
-        
 
 def lewis_square(n=2):
     """
