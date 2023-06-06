@@ -1218,7 +1218,7 @@ class Agent:
 
         "If an act is chosen and a reward is gotten
          the probability is incremented by adding some fraction of the
-         distance between the original probability and probability one.8
+         distance between the original probability and probability one.
          Alternative action probabilities are decremented so that everything
          adds to one. The fraction used is the product of the reward and
          some learning parameter."
