@@ -71,6 +71,19 @@ class Figure(ABC):
 
         """
         pass
+    
+    @classmethod
+    def demo_warning(cls):
+        """
+        Warn the user that they are running in demo mode.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        print(f"Note: figure will be created in demo mode. To create the full figure use {cls.__name__}(demo=False).")
 
 
 class Scatter(Figure):

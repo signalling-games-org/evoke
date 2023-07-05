@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Jun  6 16:43:28 2023
 
-@author: ste_m
-
-Skyrms, B. (2010). Signals: Evolution, Learning, and Information. Oxford University Press.
+evoke library examples from:
+    
+    Skyrms, B. (2010). Signals: Evolution, Learning, and Information. Oxford University Press.
 
 """
 
