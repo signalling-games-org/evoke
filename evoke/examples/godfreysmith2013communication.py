@@ -232,7 +232,7 @@ class GodfreySmith2013_1(Scatter):
         for c_value, games_list in tqdm(self.games.items()):
             
             ## Loop at games per C value...
-            for game in tqdm(games_list):
+            for game in tqdm(games_list, disable=True):
         
                 ## Assume there is no info-using equilibrium.
                 results[c_value].append(False)
@@ -469,7 +469,7 @@ class GodfreySmith2013_2(Scatter):
         for c_value, games_list in tqdm(self.games.items()):
             
             ## Loop at games per C value...
-            for game in tqdm(games_list):
+            for game in tqdm(games_list, disable=True):
         
                 ## Assume there is no info-using equilibrium.
                 results[c_value].append(False)
@@ -640,7 +640,5 @@ def find_games_3x3(dir_out,games_per_c=1500,c_values=c_3x3_equiprobable):
             
                 ## Otherwise, print remaining values
                 print(f"C values remaining: {c_outstanding}")
-        
-    ## Test return!
-    return results
+
     
