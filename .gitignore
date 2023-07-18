@@ -2,4 +2,5 @@
 
 build/
 dist/
+evoke/data/
 *.egg-info/
