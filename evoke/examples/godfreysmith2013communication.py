@@ -639,7 +639,7 @@ def find_games_3x3(
 
 
 def analyse_games_3x3(
-    games_per_c=1500, c_values=c_3x3_equiprobable, dir_games="../data/"
+    games_per_c=1500, c_values=c_3x3_equiprobable, dir_games="../data/", sigfig = 5
 ) -> None:
     """
     Find information-using equilibria of 3x3 games
@@ -700,7 +700,7 @@ def analyse_games_3x3(
                 state_chances=state_chances,
                 sender_payoff_matrix=np.array(game_dict["s"]),
                 receiver_payoff_matrix=np.array(game_dict["r"]),
-                messages=messages,
+                messages=messages
             )
 
             # Is there an info-using equilibrium?
@@ -719,27 +719,33 @@ def analyse_games_3x3(
 
             # Now for each equilibrium, check if it is info-using
             for equilibrium in equilibria:
+                
                 # Figure out whether the strategies at this equilibrium
-                # lead to an information-using situation
-                sender_strategy = equilibrium[0]
-                receiver_strategy = equilibrium[1]
+                # lead to an information-using situation.
+                
+                ## Sometimes gambit gives back long decimals e.g. 0.999999996
+                ## We want to round these before dumping to a file.
+                sender_strategy = np.around(np.array(equilibrium[0]),sigfig)
+                receiver_strategy = np.around(np.array(equilibrium[1]),sigfig)
 
                 ## Create info object to make info measurements
                 info = Information(game, sender_strategy, receiver_strategy)
 
                 ## Get current mutual info
-                current_mutual_info = info.mutual_info_states_acts()
-
-                ## Fix rounding error
-                if current_mutual_info < 0:
-                    current_mutual_info = 0
+                ## Sometimes it spits out -0.0, which should be 0.0.
+                current_mutual_info = abs(info.mutual_info_states_acts())
 
                 if current_mutual_info >= current_highest_info_at_equilibrium:
+                    
                     ## Update game details
-                    game_dict["e"] = list(equilibrium)
+                    ## The equilibrium is just the current sender strategy
+                    ##  followed by the current receiver strategy.
+                    game_dict["e"] = [sender_strategy.tolist(),receiver_strategy.tolist()]
+                    
+                    ## The mutual information is the current mutual info at this equilibrium.
                     game_dict[
                         "i"
-                    ] = current_highest_info_at_equilibrium = current_mutual_info
+                    ] = current_highest_info_at_equilibrium = round(current_mutual_info,sigfig)
 
         ## Dump this updated game file
         with open(fpath_json, "w") as f:
