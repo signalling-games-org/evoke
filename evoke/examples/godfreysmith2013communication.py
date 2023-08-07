@@ -153,9 +153,9 @@ class GodfreySmith2013_1(Scatter):
             with open(fpath_json, "r") as f:
                 games_list_loaded = json.load(f)
 
-            ## Load each game into an object
+            # Load each game into an object
             for game_dict in games_list_loaded:
-                ## Create game
+                # Create game
                 game = asy.Chance(
                     state_chances,
                     np.array(game_dict["s"]),  # sender payoff matrix
@@ -163,11 +163,11 @@ class GodfreySmith2013_1(Scatter):
                     messages,
                 )
 
-                ## Append information-using equilibria as game object attribute
+                # Append information-using equilibria as game object attribute
                 game.best_equilibrium = game_dict["e"]
                 game.info_transmission_at_best_equilibrium = game_dict["i"]
 
-                ## Append this game to the figure object's game list.
+                # Append this game to the figure object's game list.
                 self.games[c_value].append(game)
 
     def create_games_demo(self, games_per_c):
@@ -203,7 +203,8 @@ class GodfreySmith2013_1(Scatter):
             receiver_payoff_matrix = np.random.randint(0, 9, (3, 3))
 
             # Check common interest
-            c = calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix)
+            c = calculate_C(state_chances, sender_payoff_matrix,
+                            receiver_payoff_matrix)
 
             # Skip 0 and 1/9 values in demo mode
             if f"{c:.3f}" == "0.000" or f"{c:.3f}" == "0.111":
@@ -254,17 +255,17 @@ class GodfreySmith2013_1(Scatter):
         for c_value, games_list in tqdm(self.games.items()):
             # Loop at games per C value...
             for game in tqdm(games_list, disable=True):
-                ## If this game's info transmission at its best equilibrium
-                ##  is greater than zero...
+                # If this game's info transmission at its best equilibrium
+                # is greater than zero...
                 if game.info_transmission_at_best_equilibrium > 0:
-                    ## Append True to the results list.
+                    # Append True to the results list.
                     results[c_value].append(True)
 
                 else:  # otherwise...
-                    ## Append False to the results list.
+                    # Append False to the results list.
                     results[c_value].append(False)
 
-        ## Count the total number of info-using equilibria per level of C
+        # Count the total number of info-using equilibria per level of C
         self.info_using_equilibria = []
         for key in sorted(results):  # for each level of C...
             self.info_using_equilibria.append(
@@ -373,9 +374,9 @@ class GodfreySmith2013_2(Scatter):
             with open(fpath_json, "r") as f:
                 games_list_loaded = json.load(f)
 
-            ## Load each game into an object
+            # Load each game into an object
             for game_dict in games_list_loaded:
-                ## Create game
+                # Create game
                 game = asy.Chance(
                     state_chances,
                     np.array(game_dict["s"]),  # sender payoff matrix
@@ -383,11 +384,11 @@ class GodfreySmith2013_2(Scatter):
                     messages,
                 )
 
-                ## Append information-using equilibria as game object attribute
+                # Append information-using equilibria as game object attribute
                 game.best_equilibrium = game_dict["e"]
                 game.info_transmission_at_best_equilibrium = game_dict["i"]
 
-                ## Append this game to the figure object's game list.
+                # Append this game to the figure object's game list.
                 self.games[c_value].append(game)
 
     def create_games_demo(self, games_per_c):
@@ -423,7 +424,8 @@ class GodfreySmith2013_2(Scatter):
             receiver_payoff_matrix = np.random.randint(0, 9, (3, 3))
 
             # Check common interest
-            c = calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix)
+            c = calculate_C(state_chances, sender_payoff_matrix,
+                            receiver_payoff_matrix)
 
             # Skip 0 and 1/9 values in demo mode
             if f"{c:.3f}" == "0.000" or f"{c:.3f}" == "0.111":
@@ -479,8 +481,9 @@ class GodfreySmith2013_2(Scatter):
         for c_value, games_list in tqdm(self.games.items()):
             # Loop at games per C value...
             for game in tqdm(games_list, disable=True):
-                ## Get this game's highest info-transmission.
-                results[c_value].append(game.info_transmission_at_best_equilibrium)
+                # Get this game's highest info-transmission.
+                results[c_value].append(
+                    game.info_transmission_at_best_equilibrium)
 
         # Count the total number of info-using equilibria per level of C
         self.highest_mi = []
@@ -491,6 +494,41 @@ class GodfreySmith2013_2(Scatter):
 """
     Shared methods
 """
+
+
+def calculate_D(payoff_matrix, state, act_1, act_2)->float:
+    """
+    Calculate an agent's relative preference of acts <act_1> and <act_2>
+     in state <state>.
+
+    The measure is defined in the supplement of Godfrey-Smith and Martínez (2013), page 1.
+
+    Parameters
+    ----------
+    payoff_matrix : array-like
+        DESCRIPTION.
+    state : int
+        Index of the state.
+    act_1 : int
+        Index of the first act to be compared.
+    act_2 : int
+        Index of the second act to be compared.
+
+    Returns
+    -------
+    D : float
+        0   if act 1 is preferred
+        0.5 if the payoffs are equal
+        1   if act 2 is preferred
+
+    """
+    
+    ## Sanity check
+    assert act_1 != act_2
+    
+    ## Get the sign of the difference, then convert the scale [-1, 0, 1] to [0, 0.5, 1]
+    ##  by adding 1 and dividing by 2.
+    return (np.sign(payoff_matrix[state][act_2] - payoff_matrix[state][act_1]) + 1) / 2
 
 
 def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix) -> float:
@@ -507,43 +545,122 @@ def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix) -> 
         PGS & MM's measure C.
 
     """
+    
+    # It's only defined when the number of states is equal to the number of acts.
+    assert len(state_chances) == len(sender_payoff_matrix[0])
+    
+    n = len(state_chances)
 
     # 1. Initialise
     sum_total = 0
 
     # Loop around states and pairs of acts
     for i in range(len(state_chances)):
-        # This will loop around acts
-        for j in range(len(sender_payoff_matrix[i]) - 1):
-            # This will loop around acts with a higher index than j
-            for k in range(j + 1, len(sender_payoff_matrix[i])):
-                # Calculate sender's d-component
-                if sender_payoff_matrix[i][j] < sender_payoff_matrix[i][k]:
-                    d_sender_component = 0
-                elif sender_payoff_matrix[i][j] == sender_payoff_matrix[i][k]:
-                    d_sender_component = 1 / 2
-                else:
-                    d_sender_component = 1
+        
+        # This will loop around acts, excluding the first act (with index 0)
+        for j in range(1, len(sender_payoff_matrix[i])):
+            
+            # This will loop around acts with a lower index than j
+            for k in range(j):
+                
+                ## Calculate sender's d-component
+                d_sender_component = calculate_D(sender_payoff_matrix,i,j,k)
 
                 # Calculate receiver's d-component
-                if receiver_payoff_matrix[i][j] < receiver_payoff_matrix[i][k]:
-                    d_receiver_component = 0
-                elif receiver_payoff_matrix[i][j] == receiver_payoff_matrix[i][k]:
-                    d_receiver_component = 1 / 2
-                else:
-                    d_receiver_component = 1
+                d_receiver_component = calculate_D(receiver_payoff_matrix,i,j,k)
 
                 # Get this component of the sum
-                factor = np.floor(abs(d_sender_component - d_receiver_component))
+                factor = np.floor(
+                    abs(d_sender_component - d_receiver_component))
 
                 # Add this component to the total sum
                 sum_total += factor * state_chances[i]
 
-    subtractor = 2 * sum_total / 6
+    subtractor = (2 * sum_total) / (n * (n-1))
 
     c = 1 - subtractor
 
     return c
+
+def calculate_Ks(sender_payoff_matrix,receiver_payoff_matrix):
+    """
+    Calculate the extent to which an agent's preference ordering
+     over receiver actions varies with the state of the world.
+    
+    Defined as K_S and K_R in the supplement of Godfrey-Smith and Martínez (2013), page 2.
+
+    Parameters
+    ----------
+    payoff_matrix : array-like
+        The agent's payoff matrix.
+
+    Returns
+    -------
+    K : float
+
+    """
+    
+    
+    # It's only defined when the number of states is equal to the number of acts.
+    assert len(sender_payoff_matrix) == len(sender_payoff_matrix[0])
+    
+    n = len(sender_payoff_matrix)
+    
+    # ## 1. Initialise
+    sum_total_sender = 0
+    sum_total_receiver = 0
+
+    # Loop around pairs of states and pairs of acts
+    # All states except the first (with index 0)
+    for i in range(1,len(sender_payoff_matrix)):
+        
+        # All states with a lower index than i
+        for j in range(i):
+        
+            # All acts except the first (with index 0)
+            for k in range(1, len(sender_payoff_matrix[i])):
+                
+                # All acts with a lower index than k
+                for l in range(k):
+                    
+                    # Get the sender and receiver D-measures
+                    
+                    # SENDER
+                    
+                    # Calculate sender's d-components
+                    d_sender_component_1 = calculate_D(sender_payoff_matrix,i,k,l)
+                    d_sender_component_2 = calculate_D(sender_payoff_matrix,j,k,l)
+                    
+                    # Get this component of the sum
+                    factor = np.floor(
+                        abs(d_sender_component_1 - d_sender_component_2))
+                    
+                    # Add to sender total
+                    # The definition has the multiplication factor inside the sum.
+                    # It doesn't really matter, but we'll put it here for consistency.
+                    sum_total_sender += (2 * factor) / (n * (n-1))
+                    
+                    # RECEIVER
+
+                    # Calculate receiver's d-component
+                    d_receiver_component_1 = calculate_D(receiver_payoff_matrix,i,k,l)
+                    d_receiver_component_2 = calculate_D(receiver_payoff_matrix,j,k,l)
+                    
+                    # Get this component of the sum
+                    factor = np.floor(
+                        abs(d_receiver_component_1 - d_receiver_component_2))
+                    
+                    # Add to sender total
+                    sum_total_receiver += factor
+                    
+    # Return both
+    # Note that these are NOT NORMALISED.
+    # For a range of values of K_S and K_R, you have to normalise them manually 
+    #  by finding the maximum value.
+    return sum_total_sender, sum_total_receiver
+                    
+
+def calculate_Ks_from_game(game): return calculate_Ks(game.sender_payoff_matrix,game.receiver_payoff_matrix)
 
 
 def find_games_3x3(
@@ -574,44 +691,44 @@ def find_games_3x3(
 
     """
 
-    ## Initialise
-    ## Values of C in truncated string format
+    # Initialise
+    # Values of C in truncated string format
     c_outstanding = {f"{k:.3f}" for k in c_values}
 
-    ## Dict to conveniently store the matrices before outputting.
+    # Dict to conveniently store the matrices before outputting.
     results = {f"{k:.3f}": [] for k in c_values}
 
-    ## State chances (required to calculate C)
+    # State chances (required to calculate C)
     state_chances = np.array([1 / 3, 1 / 3, 1 / 3])
 
-    ## While there are values of C that have not yet had all games found and saved...
+    # While there are values of C that have not yet had all games found and saved...
     while len(c_outstanding) > 0:
-        ## Create a game
+        # Create a game
         sender_payoff_matrix = np.random.randint(0, 9, (3, 3))
         receiver_payoff_matrix = np.random.randint(0, 9, (3, 3))
 
-        ## Check common interest
+        # Check common interest
         c_value = calculate_C(
             state_chances, sender_payoff_matrix, receiver_payoff_matrix
         )
 
-        ## Does this value of C require saving?
+        # Does this value of C require saving?
         if f"{c_value:.3f}" in c_outstanding:
-            ## If yes, add to the output dict.
-            ## Each value in the output dict is a list of dicts (i.e. a list of games)
-            ##  with this format:
+            # If yes, add to the output dict.
+            # Each value in the output dict is a list of dicts (i.e. a list of games)
+            # with this format:
             ##
-            ## {
-            ##      "s": <sender payoff matrix>
-            ##      "r": <receiver payoff matrix>
-            ##      "e": <equilibrium with the highest information transmission>
-            ##      "i": <mutual information between states and acts at this equilibrium>
-            ## }
+            # {
+            # "s": <sender payoff matrix>
+            # "r": <receiver payoff matrix>
+            # "e": <equilibrium with the highest information transmission>
+            # "i": <mutual information between states and acts at this equilibrium>
+            # }
             ##
-            ## The values for e and i will be left blank here.
-            ## The function analyse_games() will fill them in.
+            # The values for e and i will be left blank here.
+            # The function analyse_games() will fill them in.
 
-            ## Create game dict.
+            # Create game dict.
             results[f"{c_value:.3f}"].append(
                 {
                     "s": sender_payoff_matrix.tolist(),
@@ -619,27 +736,27 @@ def find_games_3x3(
                 }
             )
 
-            ## Has this value of C now had all its games found?
+            # Has this value of C now had all its games found?
             if len(results[f"{c_value:.3f}"]) >= games_per_c:
-                ## If yes, save JSON file and remove this value of C from the "to-do" list.
+                # If yes, save JSON file and remove this value of C from the "to-do" list.
                 fpath_out = f"{dir_games}games_c{c_value:.3f}_n{games_per_c}.json"
 
                 with open(fpath_out, "w") as f:
                     json.dump(results[f"{c_value:.3f}"], f)
 
-                ## Remove this value of C from the "to-do" list
+                # Remove this value of C from the "to-do" list
                 c_outstanding.remove(f"{c_value:.3f}")
 
-                ## Are there any values of C left outstanding? If not, quit the while-loop.
+                # Are there any values of C left outstanding? If not, quit the while-loop.
                 if len(c_outstanding) == 0:
                     break
 
-                ## Otherwise, print remaining values
+                # Otherwise, print remaining values
                 print(f"C values remaining: {c_outstanding}")
 
 
 def analyse_games_3x3(
-    games_per_c=1500, c_values=c_3x3_equiprobable, dir_games="../data/", sigfig = 5
+    games_per_c=1500, c_values=c_3x3_equiprobable, dir_games="../data/", sigfig=5
 ) -> None:
     """
     Find information-using equilibria of 3x3 games
@@ -676,26 +793,26 @@ def analyse_games_3x3(
 
     """
 
-    ## Game objects will be stored in a dictionary by C value.
+    # Game objects will be stored in a dictionary by C value.
     games = {f"{k:.3f}": [] for k in c_values}
 
-    ## State chances and messages are always the same.
+    # State chances and messages are always the same.
     state_chances = np.array([1 / 3, 1 / 3, 1 / 3])
     messages = 3
 
-    ## Loop at C values...
+    # Loop at C values...
     for c_value, games_list in tqdm(games.items()):
-        ## Get name of JSON file
+        # Get name of JSON file
         fpath_json = f"{dir_games}games_c{c_value}_n{games_per_c}.json"
 
-        ## The filename MUST have this format. Otherwise tell the user
-        ##  they should use find_games_3x3() to find exactly this many games.
+        # The filename MUST have this format. Otherwise tell the user
+        # they should use find_games_3x3() to find exactly this many games.
         with open(fpath_json, "r") as f:
             games_list_loaded = json.load(f)
 
-        ## Load each game into an object
+        # Load each game into an object
         for game_dict in games_list_loaded:
-            ## Create the game
+            # Create the game
             game = asy.Chance(
                 state_chances=state_chances,
                 sender_payoff_matrix=np.array(game_dict["s"]),
@@ -709,44 +826,46 @@ def analyse_games_3x3(
             gambit_game = game.create_gambit_game()
 
             # Now get the equilibria
-            equilibria_gambit = pygambit.nash.lcp_solve(gambit_game, rational=False)
+            equilibria_gambit = pygambit.nash.lcp_solve(
+                gambit_game, rational=False)
 
             # Convert to python list
             equilibria = eval(str(equilibria_gambit))
 
-            ## Initialize
+            # Initialize
             current_highest_info_at_equilibrium = 0
 
             # Now for each equilibrium, check if it is info-using
             for equilibrium in equilibria:
-                
+
                 # Figure out whether the strategies at this equilibrium
                 # lead to an information-using situation.
-                
-                ## Sometimes gambit gives back long decimals e.g. 0.999999996
-                ## We want to round these before dumping to a file.
-                sender_strategy = np.around(np.array(equilibrium[0]),sigfig)
-                receiver_strategy = np.around(np.array(equilibrium[1]),sigfig)
 
-                ## Create info object to make info measurements
+                # Sometimes gambit gives back long decimals e.g. 0.999999996
+                # We want to round these before dumping to a file.
+                sender_strategy = np.around(np.array(equilibrium[0]), sigfig)
+                receiver_strategy = np.around(np.array(equilibrium[1]), sigfig)
+
+                # Create info object to make info measurements
                 info = Information(game, sender_strategy, receiver_strategy)
 
-                ## Get current mutual info
-                ## Sometimes it spits out -0.0, which should be 0.0.
+                # Get current mutual info
+                # Sometimes it spits out -0.0, which should be 0.0.
                 current_mutual_info = abs(info.mutual_info_states_acts())
 
                 if current_mutual_info >= current_highest_info_at_equilibrium:
-                    
-                    ## Update game details
-                    ## The equilibrium is just the current sender strategy
-                    ##  followed by the current receiver strategy.
-                    game_dict["e"] = [sender_strategy.tolist(),receiver_strategy.tolist()]
-                    
-                    ## The mutual information is the current mutual info at this equilibrium.
+
+                    # Update game details
+                    # The equilibrium is just the current sender strategy
+                    # followed by the current receiver strategy.
+                    game_dict["e"] = [
+                        sender_strategy.tolist(), receiver_strategy.tolist()]
+
+                    # The mutual information is the current mutual info at this equilibrium.
                     game_dict[
                         "i"
-                    ] = current_highest_info_at_equilibrium = round(current_mutual_info,sigfig)
+                    ] = current_highest_info_at_equilibrium = round(current_mutual_info, sigfig)
 
-        ## Dump this updated game file
+        # Dump this updated game file
         with open(fpath_json, "w") as f:
             json.dump(games_list_loaded, f)
