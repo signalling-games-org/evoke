@@ -650,8 +650,10 @@ def calculate_Ks(sender_payoff_matrix,receiver_payoff_matrix):
                     factor = np.floor(
                         abs(d_receiver_component_1 - d_receiver_component_2))
                     
-                    # Add to sender total
-                    sum_total_receiver += factor
+                    # Add to receiver total
+                    # The definition has the multiplication factor inside the sum.
+                    # It doesn't really matter, but we'll put it here for consistency.
+                    sum_total_receiver += (2 * factor) / (n * (n-1))
                     
     # Return both
     # Note that these are NOT NORMALISED.
