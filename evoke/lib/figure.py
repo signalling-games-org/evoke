@@ -11,6 +11,7 @@ import numpy as np
 from itertools import combinations
 from abc import ABC, abstractmethod
 from matplotlib import pyplot as plt
+from matplotlib import cm
 
 ## 3D plotting
 # from mpl_toolkits.mplot3d import Axes3D
@@ -541,3 +542,131 @@ class Ternary(Figure):
 
         ## Show plot
         tax.show()
+
+
+class Surface(Figure):
+    """
+        Superclass for 3D surface plots (e.g. colormap).
+        Uses ax.plot_surface().
+    """
+    
+    def __init__(self, evo, **kwargs):
+        super().__init__(evo=evo, **kwargs)
+        
+        # Data parameters
+        self.x = None
+        self.y = None
+        self.z = None
+    
+    def reset(self,
+              x=None,
+              y=None,
+              z=None,
+              xlabel=None,
+              ylabel=None,
+              zlabel=None,
+              xlim = None,
+              ylim = None,
+              zlim = None,
+              cmap=cm.coolwarm,
+              linewidth=1,
+              antialiased=False,
+              elev=15.,
+              azim=245
+        )->None:
+        """
+        Update figure parameters, which can then be plotted with self.show().
+
+        Parameters
+        ----------
+        x : array-like
+            x-axis values.
+        y : array-like
+            y-axis values.
+        z : array-like
+            z-axis values.
+        xlim : array-like, optional
+            Minimum and maximum values of x-axis. The default is None.
+        ylim : array-like, optional
+            Minimum and maximum values of y-axis. The default is None.
+        zlim : array-like, optional
+            Minimum and maximum values of z-axis. The default is None.
+        cmap : matplotlib.colors.LinearSegmentedColormap, optional
+            Color mapping. The default is cm.coolwarm.
+        linewidth : float(?) or int, optional
+            Width of the lines in the surface. The default is 1.
+        antialiased : bool, optional
+            Whether the figure is antialiased. The default is False.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        # Data. Only update if supplied.
+        if x is not None: self.x = np.array(x)
+        if y is not None: self.y = np.array(y)
+        if z is not None: self.z = np.array(z)
+        
+        # Need to meshgrid it
+        self.x, self.y = np.meshgrid(self.x, self.y)
+        
+        # Axis labels
+        if xlabel: self.xlabel = xlabel
+        if ylabel: self.ylabel = ylabel
+        if zlabel: self.zlabel = zlabel
+        
+        # Axis limits
+        if xlim is not None: self.xlim = xlim
+        if ylim is not None: self.ylim = ylim
+        if zlim is not None: self.zlim = zlim
+        
+        # Cosmetic
+        self.cmap = cmap
+        self.linewidth = linewidth
+        self.antialiased = antialiased
+        
+        # Camera angle
+        self.elev = elev
+        self.azim = azim
+    
+    def show(self)->None:
+        """
+        Show figure with current parameters.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        # Create 3D projection
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+        
+        # Plot the surface.
+        surf = ax.plot_surface(self.x, 
+                               self.y, 
+                               self.z, 
+                               cmap=self.cmap,
+                               linewidth=self.linewidth, 
+                               antialiased=self.antialiased)
+        
+        # Axis labels
+        if hasattr(self,"xlabel"): ax.set_xlabel(self.xlabel)
+        if hasattr(self,"ylabel"): ax.set_ylabel(self.ylabel)
+        if hasattr(self,"zlabel"): ax.set_zlabel(self.zlabel)
+        
+        # Axis limits
+        if hasattr(self,"xlim"): ax.set_xlim(self.xlim)
+        if hasattr(self,"ylim"): ax.set_ylim(self.ylim)
+        if hasattr(self,"zlim"): ax.set_zlim(self.zlim)
+        
+        # Add a color bar which maps values to colors.
+        fig.colorbar(surf, shrink=0.5, aspect=5)
+        
+        # Camera angle
+        if self.elev and self.azim: ax.view_init(elev=self.elev, azim=self.azim)
+        
+        plt.show()
+        
