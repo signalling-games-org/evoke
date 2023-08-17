@@ -202,8 +202,8 @@ class GodfreySmith2013_1(Scatter):
             total_games_surveyed += 1
 
             # Generate random payoff matrices.
-            sender_payoff_matrix = np.random.randint(0, 10, (3, 3))
-            receiver_payoff_matrix = np.random.randint(0, 10, (3, 3))
+            sender_payoff_matrix = get_random_payoffs()
+            receiver_payoff_matrix = get_random_payoffs()
 
             # Check common interest
             c = calculate_C(state_chances, sender_payoff_matrix,
@@ -423,8 +423,8 @@ class GodfreySmith2013_2(Scatter):
             total_games_surveyed += 1
 
             # Generate random payoff matrices.
-            sender_payoff_matrix = np.random.randint(0, 10, (3, 3))
-            receiver_payoff_matrix = np.random.randint(0, 10, (3, 3))
+            sender_payoff_matrix = get_random_payoffs()
+            receiver_payoff_matrix = get_random_payoffs()
 
             # Check common interest
             c = calculate_C(state_chances, sender_payoff_matrix,
@@ -768,7 +768,7 @@ def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix) -> 
 
     return c
 
-def calculate_Ks(sender_payoff_matrix,receiver_payoff_matrix):
+def calculate_Ks_and_Kr(sender_payoff_matrix,receiver_payoff_matrix):
     """
     Calculate the extent to which an agent's preference ordering
      over receiver actions varies with the state of the world.
@@ -818,13 +818,13 @@ def calculate_Ks(sender_payoff_matrix,receiver_payoff_matrix):
                     d_sender_component_2 = calculate_D(sender_payoff_matrix,j,k,l)
                     
                     # Get this component of the sum
-                    factor = np.floor(
+                    factor_sender = np.floor(
                         abs(d_sender_component_1 - d_sender_component_2))
                     
                     # Add to sender total
                     # The definition has the multiplication factor inside the sum.
                     # It doesn't really matter, but we'll put it here for consistency.
-                    sum_total_sender += (2 * factor) / (n * (n-1))
+                    sum_total_sender += (2 * factor_sender) / (n * (n-1))
                     
                     # RECEIVER
 
@@ -833,13 +833,13 @@ def calculate_Ks(sender_payoff_matrix,receiver_payoff_matrix):
                     d_receiver_component_2 = calculate_D(receiver_payoff_matrix,j,k,l)
                     
                     # Get this component of the sum
-                    factor = np.floor(
+                    factor_receiver = np.floor(
                         abs(d_receiver_component_1 - d_receiver_component_2))
                     
                     # Add to receiver total
                     # The definition has the multiplication factor inside the sum.
                     # It doesn't really matter, but we'll put it here for consistency.
-                    sum_total_receiver += (2 * factor) / (n * (n-1))
+                    sum_total_receiver += (2 * factor_receiver) / (n * (n-1))
                     
     # Return both
     # Note that these are NOT NORMALISED.
@@ -848,7 +848,7 @@ def calculate_Ks(sender_payoff_matrix,receiver_payoff_matrix):
     return sum_total_sender, sum_total_receiver
                     
 
-def calculate_Ks_from_game(game): return calculate_Ks(game.sender_payoff_matrix,game.receiver_payoff_matrix)
+def calculate_Ks_and_Kr_from_game(game): return calculate_Ks_and_Kr(game.sender_payoff_matrix,game.receiver_payoff_matrix)
 
 
 def find_games_3x3(
@@ -892,8 +892,8 @@ def find_games_3x3(
     # While there are values of C that have not yet had all games found and saved...
     while len(c_outstanding) > 0:
         # Create a game
-        sender_payoff_matrix = np.random.randint(0, 10, (3, 3))
-        receiver_payoff_matrix = np.random.randint(0, 10, (3, 3))
+        sender_payoff_matrix = get_random_payoffs()
+        receiver_payoff_matrix = get_random_payoffs()
 
         # Check common interest
         c_value = calculate_C(
@@ -1118,8 +1118,8 @@ def find_games_3x3_c_and_k(
     while len(games_outstanding) > 0:
         
         # Create a game
-        sender_payoff_matrix = np.random.randint(0, 10, (3, 3))
-        receiver_payoff_matrix = np.random.randint(0, 10, (3, 3))
+        sender_payoff_matrix = get_random_payoffs()
+        receiver_payoff_matrix = get_random_payoffs()
 
         # Check common interest
         c_value = calculate_C(
@@ -1130,7 +1130,7 @@ def find_games_3x3_c_and_k(
         if f"{c_value:.3f}" in c_outstanding:
             
             # If yes, calculate the k values.
-            k_sender, k_receiver = calculate_Ks(sender_payoff_matrix, receiver_payoff_matrix)
+            k_sender, k_receiver = calculate_Ks_and_Kr(sender_payoff_matrix, receiver_payoff_matrix)
             
             # Which k-value are we using now?
             k_value = k_sender if sender else k_receiver
@@ -1314,3 +1314,63 @@ def analyse_games_3x3_c_and_k(
         # Dump this updated game file
         with open(fpath_json, "w") as f:
             json.dump(games_list_loaded, f)
+
+
+def hard_to_find_Cs_and_Ks():
+    
+    # Initialise
+    state_chances = np.array([1/3,1/3,1/3])
+    
+    # First find a sender matrix so that Ks = 1
+    while True:
+        sender_payoff_matrix = get_random_payoffs()
+        receiver_dummy = np.zeros((3,3))
+        
+        # Get Ks
+        Ks = calculate_Ks_and_Kr(sender_payoff_matrix, receiver_dummy)[0]
+        print(f"Ks: {Ks}") # debug
+        
+        if Ks == 1:
+            break
+    
+    # Now you know K_s = 1, so you can try and find a receiver matrix
+    #  such that C = 0
+    for _ in trange(10000):
+        receiver_payoff_matrix = get_random_payoffs()
+        
+        # Get C
+        C = calculate_C(state_chances,sender_payoff_matrix,receiver_payoff_matrix)
+        # print(f"C: {C}")
+        
+        if C < 0.1:
+            return sender_payoff_matrix, receiver_payoff_matrix
+        
+    return sender_payoff_matrix
+
+"""
+    Helper functions specific to this script
+"""
+
+def get_random_payoffs(states=3,acts=3,min_payoff=0,max_payoff=100):
+    """
+    Generate a random payoff matrix.
+
+    Parameters
+    ----------
+    states : int, optional
+        Number of states observable by the sender. The default is 3.
+    acts: int, optional.
+        Number of acts available to the receiver.
+    min_payoff : int, optional
+        Smallest possible payoff. The default is 0.
+    max_payoff : int, optional
+        Largest possible payoff. The default is 100.
+
+    Returns
+    -------
+    payoffs : array-like
+        A random payoff matrix of shape (states,acts).
+
+    """
+    
+    return np.random.randint(min_payoff, max_payoff, (states, acts))
