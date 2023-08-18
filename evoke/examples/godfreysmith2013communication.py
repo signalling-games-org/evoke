@@ -3,8 +3,8 @@
 
 evoke library examples from:
     
-    Godfrey-Smith, P., & Martínez, M. (2013). Communication and Common Interest. 
-    PLOS Computational Biology, 9(11), e1003282. https://doi.org/10.1371/journal.pcbi.1003282
+Godfrey-Smith, P., & Martínez, M. (2013). Communication and Common Interest. 
+*PLOS Computational Biology*, 9(11), e1003282. https://doi.org/10.1371/journal.pcbi.1003282
 
 ======================
 HOW TO USE THIS SCRIPT
@@ -13,12 +13,13 @@ HOW TO USE THIS SCRIPT
 Quick run: Create figure objects with demo=True.
 
 Full run, minimal parameters:
+    
 1. Decide how many games per value of C you want to analyse, <games_per_c>. 
-    Godfrey-Smith and Martínez use 1500.
-2. Run find_games_3x3(<games_per_c>). This will generate <games_per_c> games per value of C
-    and store them in a local directory.
-3. Run analyse_games_3x3(<games_per_c>). This will calculate values required to create
-    figures 1 and 2. This can take a long time! 1500 games takes about 30 minutes.
+   Godfrey-Smith and Martínez use 1500.
+2. Run find_games_3x3(<games_per_c>). 
+   This will generate <games_per_c> games per value of C and store them in a local directory.
+3. Run analyse_games_3x3(<games_per_c>). This will calculate values required to create figures 1 and 2. 
+   This can take a long time! 1500 games takes about 30 minutes.
 4. Run GodfreySmith2013_1(<games_per_c>, demo=False) to create Figure 1.
 5. Run GodfreySmith2013_2(<games_per_c>, demo=False) to create Figure 2.
 
@@ -60,7 +61,7 @@ class GodfreySmith2013_1(Scatter):
     Original figure: https://doi.org/10.1371/journal.pcbi.1003282.g001
 
     How probable is an information-using equilibrium in a randomly-chosen game
-     with a particular level of common interest?
+    with a particular level of common interest?
 
     Common interest here is defined as Godfrey-Smith and Martínez's measure C.
 
@@ -69,15 +70,16 @@ class GodfreySmith2013_1(Scatter):
     =====================
 
     You have two options to create this figure: demo mode and full mode.
+    
     + Demo mode omits hard-to-find classes and places an upper limit on <games_per_c>.
-       This allows it to run in a reasonable amount of time.
+      This allows it to run in a reasonable amount of time.
     + Full mode requires an existing set of pickled classes.
-       These can be created via the class GodfreySmith2013_1_prep.
+      These can be created via the class GodfreySmith2013_1_prep.
 
     The reason for demo mode is that the figure takes a VERY long time to create
-     with the published parameter of games_per_c=1500.
+    with the published parameter of games_per_c=1500.
     Realistically we need to prepare by finding <games_per_c> games for each value of c,
-     pickling them, and calling them at runtime to count the equilibria.
+    pickling them, and calling them at runtime to count the equilibria.
     Demo mode omits games with c=0.000 and c=0.111 because they are especially hard to find.
 
     """
@@ -124,11 +126,11 @@ class GodfreySmith2013_1(Scatter):
     def load_saved_games(self, dir_games, games_per_c):
         """
         Get sender and receiver matrices and load them into game objects.
-         Put them into dictionary self.games.
+        Put them into dictionary self.games.
 
         The games should already exist in dir_games with filenames of the form:
 
-            f"{dir_games}games_c{c_value:.3f}_n{games_per_c}.json"
+        - f"{dir_games}games_c{c_value:.3f}_n{games_per_c}.json"
 
         Parameters
         ----------
@@ -243,7 +245,7 @@ class GodfreySmith2013_1(Scatter):
         """
 
         For each value of <self.c_values>, count how many games
-         have info-using equilibria.
+        have info-using equilibria.
 
         Returns
         -------
@@ -281,7 +283,7 @@ class GodfreySmith2013_2(Scatter):
     Original figure: https://doi.org/10.1371/journal.pcbi.1003282.g002
 
     What is the highest level of information transmission at equilibrium
-     across a sample of games with a particular level of common interest?
+    across a sample of games with a particular level of common interest?
 
     Common interest here is defined as Godfrey-Smith and Martínez's measure C.
 
@@ -290,15 +292,18 @@ class GodfreySmith2013_2(Scatter):
     =====================
 
     You have two options to create this figure: demo mode and full mode.
+    
     + Demo mode omits hard-to-find classes and places an upper limit on <games_per_c>.
-       This allows it to run in a reasonable amount of time.
+      This allows it to run in a reasonable amount of time.
     + Full mode requires an existing set of pickled classes.
-       These can be created via the class GodfreySmith2013_2_prep.
+      These can be created via the class GodfreySmith2013_2_prep.
 
     The reason for demo mode is that the figure takes a VERY long time to create
-     with the published parameter of games_per_c=1500.
+    with the published parameter of games_per_c=1500.
+    
     Realistically we need to prepare by finding <games_per_c> games for each value of c,
-     pickling them, and calling them at runtime to count the equilibria.
+    pickling them, and calling them at runtime to count the equilibria.
+    
     Demo mode omits games with c=0.000 and c=0.111 because they are especially hard to find.
 
     """
@@ -345,11 +350,11 @@ class GodfreySmith2013_2(Scatter):
     def load_saved_games(self, dir_games, games_per_c):
         """
         Get sender and receiver matrices and load them into game objects.
-         Put them into dictionary self.games.
+        Put them into dictionary self.games.
 
         The games should already exist in dir_games with filenames of the form:
 
-            f"{dir_games}games_c{c_value:.3f}_n{games_per_c}.json"
+        - f"{dir_games}games_c{c_value:.3f}_n{games_per_c}.json"
 
         Parameters
         ----------
@@ -464,7 +469,7 @@ class GodfreySmith2013_2(Scatter):
         """
 
         For each value of <self.c_values>, count how many out of <games_per_c> games
-         have info-using equilibria.
+        have info-using equilibria.
 
         Parameters
         ----------
@@ -559,11 +564,11 @@ class GodfreySmith2013_3(Surface):
     def load_saved_games(self, dir_games, games_per_c_and_k):
         """
         Get sender and receiver matrices and load them into game objects.
-         Put them into dictionary self.games.
+        Put them into dictionary self.games.
 
         The games should already exist in dir_games with filenames of the form:
 
-            f"{dir_games}games_c{c_value:.3f}_{ks or kr}{k_value:.3f}_n{games_per_c_and_k}.json"
+        - f"{dir_games}games_c{c_value:.3f}_{ks or kr}{k_value:.3f}_n{games_per_c_and_k}.json"
 
         Parameters
         ----------
@@ -614,7 +619,7 @@ class GodfreySmith2013_3(Surface):
         """
 
         For each value of <self.c_values>, count how many games
-         have info-using equilibria.
+        have info-using equilibria.
 
         Returns
         -------
@@ -685,7 +690,7 @@ class GodfreySmith2013_3_receiver(GodfreySmith2013_3):
 def calculate_D(payoff_matrix, state, act_1, act_2)->float:
     """
     Calculate an agent's relative preference of acts <act_1> and <act_2>
-     in state <state>.
+    in state <state>.
 
     The measure is defined in the supplement of Godfrey-Smith and Martínez (2013), page 1.
 
@@ -723,7 +728,7 @@ def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix) -> 
     Calculate C as per Godfrey-Smith and Martínez's definition.
 
     (It's not clear whether common_interest.tau_per_rows() is doing what it should be,
-     so we will calculate C explicitly here instead.)
+    so we will calculate C explicitly here instead.)
 
     Returns
     -------
@@ -771,7 +776,7 @@ def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix) -> 
 def calculate_Ks_and_Kr(sender_payoff_matrix,receiver_payoff_matrix):
     """
     Calculate the extent to which an agent's preference ordering
-     over receiver actions varies with the state of the world.
+    over receiver actions varies with the state of the world.
     
     Defined as K_S and K_R in the supplement of Godfrey-Smith and Martínez (2013), page 2.
 
@@ -856,12 +861,12 @@ def find_games_3x3(
 ) -> None:
     """
     Finds <games_per_c> 3x3 sender and receiver matrices
-     and saves them as JSON files, storing them by C value in <dir_games>.
+    and saves them as JSON files, storing them by C value in <dir_games>.
 
     Since it's hard to find games for certain values of C, we'll save each
-     JSON file individually once we've found it.
+    JSON file individually once we've found it.
     Then if you have to terminate early, you can come back and just search for
-     games with the values of C you need later on.
+    games with the values of C you need later on.
 
     Parameters
     ----------
@@ -948,20 +953,20 @@ def analyse_games_3x3(
 ) -> None:
     """
     Find information-using equilibria of 3x3 games
-     and the mutual information between states and acts at those equilibria.
+    and the mutual information between states and acts at those equilibria.
 
     The games should already exist in dir_games with filenames of the form:
 
-        f"{dir_games}games_c{c_value:.3f}_n{games_per_c}.json"
+    - f"{dir_games}games_c{c_value:.3f}_n{games_per_c}.json"
 
     Each file should be a list of dicts. Each dict corresponds to a game:
 
-        {
-            "s": <sender payoff matrix>
-            "r": <receiver payoff matrix>
-            "e": <equilibrium with the highest information transmission>
-            "i": <mutual information between states and acts at this equilibrium>
-        }
+    ``{
+    "s": <sender payoff matrix>
+    "r": <receiver payoff matrix>
+    "e": <equilibrium with the highest information transmission>
+    "i": <mutual information between states and acts at this equilibrium>
+    }``
 
     s and r already exist; this function fills in e and i.
 
@@ -1071,18 +1076,16 @@ def find_games_3x3_c_and_k(
     ) -> None:
     """
     Finds <games_per_c_and_k> 3x3 sender and receiver matrices
-     and saves them as JSON files, storing them by C and K values in <dir_games>.
+    and saves them as JSON files, storing them by C and K values in <dir_games>.
     
-    *****
     Note that it is EXTREMELY difficult to find games for some combinations
-      of C and K, especially when C=0.
+    of C and K, especially when C=0.
     Expect this to take a long time!
-    *****
 
     Since it's hard to find games for certain combinations of C and K, we'll save each
-     JSON file individually once we've found it.
+    JSON file individually once we've found it.
     Then if you have to terminate early, you can come back and just search for
-     games with the combinations of C and K you need later on.
+    games with the combinations of C and K you need later on.
 
     Parameters
     ----------
@@ -1198,20 +1201,20 @@ def analyse_games_3x3_c_and_k(
     ) -> None:
     """
     Find information-using equilibria of 3x3 games
-     and the mutual information between states and acts at those equilibria.
+    and the mutual information between states and acts at those equilibria.
 
     The games should already exist in dir_games with filenames of the form:
 
-        f"{dir_games}games_c{c_value:.3f}_{ks or kr}{k_value:.3f}_n{games_per_c}.json"
+    - f"{dir_games}games_c{c_value:.3f}_{ks or kr}{k_value:.3f}_n{games_per_c}.json"
 
     Each file should be a list of dicts. Each dict corresponds to a game:
 
-        {
-            "s": <sender payoff matrix>
-            "r": <receiver payoff matrix>
-            "e": <equilibrium with the highest information transmission>
-            "i": <mutual information between states and acts at this equilibrium>
-        }
+    ``{
+    "s": <sender payoff matrix>
+    "r": <receiver payoff matrix>
+    "e": <equilibrium with the highest information transmission>
+    "i": <mutual information between states and acts at this equilibrium>
+    }``
 
     s and r already exist; this function fills in e and i.
 
