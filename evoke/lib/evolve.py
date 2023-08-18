@@ -516,27 +516,27 @@ class Reinforcement:
     def is_pooling(self, epsilon=1e-3):
         """
         Determine whether the current strategies are pooling or
-         a signalling system.
+        a signalling system.
 
         If the mutual information between states and acts at the current
-         population state is within <epsilon> of the maximum possible,
-         it's a signalling system.
+        population state is within <epsilon> of the maximum possible,
+        it's a signalling system.
         Otherwise, it's pooling.
 
         Clearly if the number of signals is lower than both the number of states
-         and the number of acts, it will necessarily be pooling.
+        and the number of acts, it will necessarily be pooling.
 
         Parameters
         ----------
         epsilon : float
             How close to the maximum possible mutual information must
-             the current mutual information be in order to count
-             as a signalling system?
+            the current mutual information be in order to count
+            as a signalling system?
 
         Returns
         -------
         pooling : bool
-            True if the current strategies.
+            True if the current strategies constitute a pooling equilibrium.
 
         """
 

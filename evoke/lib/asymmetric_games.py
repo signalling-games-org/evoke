@@ -2,8 +2,9 @@
 """
 Set up an asymmetric evolutionary game, that can be then fed to the evolve
 module.  There are two main classes here:
-    - Games with a chance player
-    - Games without a chance player
+    
+- ``Chance``: Games with a chance player
+- ``NonChance``: Games without a chance player
 """
 import itertools as it
 import sys
