@@ -105,27 +105,27 @@ class RDT:
             ]
         )
 
-    def blahut(self, lambda_, max_rounds=100, return_cond=False):
+    def blahut(self, lambda_DUMMY, max_rounds=100, return_cond=False):
         """
         Calculate the point in the R(D, D') surface with slopes given by
-        lambda_ and mu_. Follows Cover & Thomas 2006, p. 334
+        lambda_DUMMY and mu. Follows Cover & Thomas 2006, p. 334
         """
         # we start with the uniform output distribution
-        params = len(lambda_)
+        params = len(lambda_DUMMY)
         output = np.ones(self.outcomes) / self.outcomes
-        cond = self.update_conditional(lambda_, output)
+        cond = self.update_conditional(lambda_DUMMY, output)
         rate = self.calc_rate(cond, output)
         delta_dist = 2 * self.epsilon
         rounds = 0
         while delta_dist > self.epsilon and rounds <= max_rounds:
             output = self.pmf @ cond
-            cond = self.update_conditional(lambda_, output)
+            cond = self.update_conditional(lambda_DUMMY, output)
             new_rate = self.calc_rate(cond, output)
             delta_dist = np.abs(new_rate - rate)
             rate = new_rate
             rounds = rounds + 1
             if rounds == max_rounds:
-                print("Max rounds for {}".format(lambda_))
+                print("Max rounds for {}".format(lambda_DUMMY))
         distortion = [self.calc_distortion(cond, matrix) for matrix in range(params)]
         if return_cond:
             return_tuple = (rate, *distortion, cond)
@@ -133,15 +133,15 @@ class RDT:
             return_tuple = (rate, *distortion)
         return return_tuple
 
-    def update_conditional(self, lambda_, output):
+    def update_conditional(self, lambda_DUMMY, output):
         """
         Calculate a new conditional distribution from the <output> distribution
-        and the <lambda_> parameters.  The conditional probability matrix is such that
+        and the <lambda_DUMMY> parameters.  The conditional probability matrix is such that
         cond[i, j] corresponds to P(x^_j | x_i)
         """
-        params = len(lambda_)
+        params = len(lambda_DUMMY)
         axes = tuple([Ellipsis] + [np.newaxis] * params)
-        lagrange = (-1 * lambda_[axes] * self.dist_tensor).sum(0)
+        lagrange = (-1 * lambda_DUMMY[axes] * self.dist_tensor).sum(0)
         cond = output * np.exp(lagrange)
         return normalize_axis(cond, 1)
 
@@ -405,7 +405,7 @@ class OptimizeMessages(RDT):
 class OptimizeMessageEntropy(RDT):
     """
     A class to calculate rate-distortion (where rate is actually the entropy of
-    messages= with a scipy optimizer
+    messages with a scipy optimizer).
     """
 
     def __init__(
@@ -743,10 +743,14 @@ def conditional_entropy(conds, unconds):
     probabilities of the row r. v.. Calculate the conditional entropy of
     column r. v. on row r. v. That is:
     Input:
-        [[P(B1|A1), ...., P(Bn|A1)],..., [P(B1|Am),...,P(Bn|Am)]]
-        [P(A1), ..., P(Am)]
+        
+    >>> [[P(B1|A1), ...., P(Bn|A1)],..., [P(B1|Am),...,P(Bn|Am)]]
+    >>> [P(A1), ..., P(Am)]
+    
     Output:
-        H(B|A)
+        
+    >>> H(B|A)
+    
     """
     return unconds.dot(np.apply_along_axis(entropy, 1, conds))
 
@@ -795,10 +799,10 @@ def from_conditional_to_joint(unconds, conds):
     and output a matrix of joint probabilities.
 
     Input:
-            [[P(B1|A1), ...., P(Bn|A1)],..., [P(B1|Am),...,P(Bn|Am)]]
-            [P(A1), ..., P(Am)]
+    >>> [[P(B1|A1), ...., P(Bn|A1)],..., [P(B1|Am),...,P(Bn|Am)]]
+    >>> [P(A1), ..., P(Am)]
     Output:
-            [[P(B1,A1), ...., P(Bn,A1)],..., [P(B1,Am),...,P(Bn,Am)]]
+    >>> [[P(B1,A1), ...., P(Bn,A1)],..., [P(B1,Am),...,P(Bn,Am)]]
     """
     return conds * unconds[..., None]
 
@@ -809,16 +813,12 @@ def bayes_theorem(unconds, conds):
 
     Parameters
     ----------
-    unconds:
-        a (n x 1) numpy array of unconditional probabilities [P(A1), ... , P(An)]
-    conds:
-        a (m x n) numpy array of conditional probabilities
-        [[P(B1|A1), ... , P(Bm|A1)], ... , [P(B1|An), ..., P(Bm|An)]]
+    unconds: a (n x 1) numpy array of unconditional probabilities [P(A1), ... , P(An)]
+    conds: a (m x n) numpy array of conditional probabilities [[P(B1|A1), ... , P(Bm|A1)], ... , [P(B1|An), ..., P(Bm|An)]]
 
     Returns
     -------
-    A (n x m) numpy array of conditional probabilities
-        [[P(A1|B1), ... , P(An|B1)], ... , [P(PA1|Bm), ... , P(An|Bm)]]
+    A (n x m) numpy array of conditional probabilities [[P(A1|B1), ... , P(An|B1)], ... , [P(PA1|Bm), ... , P(An|Bm)]]
     """
     joint = from_conditional_to_joint(unconds, conds)
     return from_joint_to_conditional(joint.T).T
