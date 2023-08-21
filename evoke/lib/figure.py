@@ -178,8 +178,8 @@ class Scatter(Figure):
         """
         
         # Check data exists
-        if not hasattr(self,"x") or not self.x: raise ex.NoDataException("Axis X has no data")
-        if not hasattr(self,"y") or not self.y: raise ex.NoDataException("Axis Y has no data")
+        if not hasattr(self,"x") or self.x is None: raise ex.NoDataException("Axis X has no data")
+        if not hasattr(self,"y") or self.y is None: raise ex.NoDataException("Axis Y has no data")
 
         ## Data
         plt.scatter(x=self.x, y=self.y, s=self.s, c=self.c)
@@ -286,10 +286,10 @@ class Quiver2D(Quiver):
         """
         
         # Check data exists
-        if not hasattr(self,"X") or not self.X: raise ex.NoDataException("Axis X has no data")
-        if not hasattr(self,"Y") or not self.Y: raise ex.NoDataException("Axis Y has no data")
-        if not hasattr(self,"U") or not self.U: raise ex.NoDataException("Velocities U do not exist")
-        if not hasattr(self,"V") or not self.V: raise ex.NoDataException("Velocities V do not exist")
+        if not hasattr(self,"X") or self.X is None: raise ex.NoDataException("Axis X has no data")
+        if not hasattr(self,"Y") or self.Y is None: raise ex.NoDataException("Axis Y has no data")
+        if not hasattr(self,"U") or self.U is None: raise ex.NoDataException("Velocities U do not exist")
+        if not hasattr(self,"V") or self.V is None: raise ex.NoDataException("Velocities V do not exist")
         
         ## Create the figure
         fig, ax = plt.subplots()
@@ -379,12 +379,12 @@ class Quiver3D(Quiver):
         """
         
         # Check data exists
-        if not hasattr(self,"X") or not self.X: raise ex.NoDataException("Axis X has no data")
-        if not hasattr(self,"Y") or not self.Y: raise ex.NoDataException("Axis Y has no data")
-        if not hasattr(self,"Z") or not self.Y: raise ex.NoDataException("Axis Z has no data")
-        if not hasattr(self,"U") or not self.U: raise ex.NoDataException("Velocities U do not exist")
-        if not hasattr(self,"V") or not self.V: raise ex.NoDataException("Velocities V do not exist")
-        if not hasattr(self,"W") or not self.V: raise ex.NoDataException("Velocities W do not exist")
+        if not hasattr(self,"X") or self.X is None: raise ex.NoDataException("Axis X has no data")
+        if not hasattr(self,"Y") or self.Y is None: raise ex.NoDataException("Axis Y has no data")
+        if not hasattr(self,"Z") or self.Z is None: raise ex.NoDataException("Axis Z has no data")
+        if not hasattr(self,"U") or self.U is None: raise ex.NoDataException("Velocities U do not exist")
+        if not hasattr(self,"V") or self.V is None: raise ex.NoDataException("Velocities V do not exist")
+        if not hasattr(self,"W") or self.W is None: raise ex.NoDataException("Velocities W do not exist")
         
         ## Create figure
         fig = plt.figure()
@@ -520,8 +520,8 @@ class Bar(Figure):
         
         
         # Check data exists
-        if not hasattr(self,"x") or not self.x: raise ex.NoDataException("Axis X has no data")
-        if not hasattr(self,"y") or not self.y: raise ex.NoDataException("Axis Y has no data")
+        if not hasattr(self,"x") or self.x is None: raise ex.NoDataException("Axis X has no data")
+        if not hasattr(self,"y") or self.y is None: raise ex.NoDataException("Axis Y has no data")
         
         ## Data
         plt.bar(x=self.x, height=self.y, color=self.c, edgecolor="k")
@@ -600,7 +600,7 @@ class Ternary(Figure):
         """
         
         # Check data exists
-        if not hasattr(self,"xyzs") or not self.xyzs: raise ex.NoDataException("Ternary axis values not supplied.")
+        if not hasattr(self,"xyzs") or self.xyzs is None: raise ex.NoDataException("Ternary axis values not supplied.")
         
         
         # self.xyzs is a list of arrays of dimensions nx3, such that each row is a
@@ -728,9 +728,9 @@ class Surface(Figure):
         """
         
         # Check data exists
-        if not hasattr(self,"x") or not self.x: raise ex.NoDataException("Axis X has no data.")
-        if not hasattr(self,"y") or not self.y: raise ex.NoDataException("Axis Y has no data.")
-        if not hasattr(self,"z") or not self.z: raise ex.NoDataException("Axis Z has no data.")
+        if not hasattr(self,"x") or self.x is None: raise ex.NoDataException("Axis X has no data.")
+        if not hasattr(self,"y") or self.y is None: raise ex.NoDataException("Axis Y has no data.")
+        if not hasattr(self,"z") or self.z is None: raise ex.NoDataException("Axis Z has no data.")
         
         # Create 3D projection
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
