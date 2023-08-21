@@ -259,6 +259,82 @@ class Quiver(Figure):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+    
+    """ Property: marker color """
+    @property
+    def color(self):
+        
+        # Lazy instantiation: default to black
+        if not hasattr(self,"_color"): self._color = "k"
+        
+        return self._color
+    
+    @color.setter
+    def color(self,color):
+        self._color = color
+        
+        # Update automatically?
+        if hasattr(self,"show_immediately") and self.show_immediately: self.show()
+    
+    @color.deleter
+    def color(self): del self._color
+    
+    """ Property: x-axis label """
+    @property
+    def xlabel(self):
+        
+        # Lazy instantiation: default to None
+        if not hasattr(self,"_xlabel"): self._xlabel = None
+        
+        return self._xlabel
+    
+    @xlabel.setter
+    def xlabel(self,xlabel):
+        self._xlabel = xlabel
+        
+        # Update automatically?
+        if hasattr(self,"show_immediately") and self.show_immediately: self.show()
+    
+    @xlabel.deleter
+    def xlabel(self): del self._xlabel
+    
+    """ Property: y-axis label """
+    @property
+    def ylabel(self):
+        
+        # Lazy instantiation: default to None
+        if not hasattr(self,"_ylabel"): self._ylabel = None
+        
+        return self._ylabel
+    
+    @ylabel.setter
+    def ylabel(self,ylabel):
+        self._ylabel = ylabel
+        
+        # Update automatically?
+        if hasattr(self,"show_immediately") and self.show_immediately: self.show()
+    
+    @ylabel.deleter
+    def ylabel(self): del self._ylabel
+    
+    """ Property: axis toggle """
+    @property
+    def noaxis(self):
+        
+        # Lazy instantiation: default to None
+        if not hasattr(self,"_noaxis"): self._noaxis = None
+        
+        return self._noaxis
+    
+    @noaxis.setter
+    def noaxis(self,noaxis):
+        self._noaxis = noaxis
+        
+        # Update automatically?
+        if hasattr(self,"show_immediately") and self.show_immediately: self.show()
+    
+    @noaxis.deleter
+    def noaxis(self): del self._noaxis
 
 
 class Quiver2D(Quiver):
@@ -271,8 +347,14 @@ class Quiver2D(Quiver):
 
         super().__init__(**kwargs)
 
-    def reset(self):
-        pass  # TODO -- here is where plot parameters can be changed.
+    def reset(self,color=None,xlabel=None,ylabel=None):
+        
+        # Set global attributes based on what was supplied
+        if color: self.color = color
+        
+        if xlabel: self.xlabel = xlabel
+        
+        if ylabel: self.ylabel = ylabel
 
     def show(self):
         """
@@ -310,7 +392,12 @@ class Quiver2D(Quiver):
             self.U,
             self.V,
             scale=self.scale,
+            color=self.color,
         )
+        
+        # Axis labels
+        if self.xlabel: ax.set_xlabel(self.xlabel)
+        if self.ylabel: ax.set_ylabel(self.ylabel)
 
         plt.show()
 
@@ -339,8 +426,8 @@ class Quiver2D(Quiver):
         )
         new_senders, new_receivers = self.evo.vector_to_populations(new_pop_vector)
         return (1 - x) - new_senders[1], (1 - y) - new_receivers[1]
-
-
+    
+    
 class Quiver3D(Quiver):
     """
     Plot a 3D quiver plot.
