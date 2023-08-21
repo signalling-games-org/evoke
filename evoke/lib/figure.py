@@ -34,9 +34,13 @@ class Figure(ABC):
     Abstract superclass for all figures.
     """
 
-    def __init__(self, evo, **kwargs):  # Evolve object
-        ## Set the evolve object as a class attribute
-        self.evo = evo
+    def __init__(self, evo=None, game=None, **kwargs):  # Evolve object
+        
+        # If there's an evolve object, set it as a class attribute
+        if evo is not None: self.evo = evo
+        
+        # If there's a game object, set it as a class attribute
+        if game is not None: self.game = game
 
         ## Set keyword arguments as class attributes.
         for k, v in kwargs.items():
@@ -93,8 +97,8 @@ class Scatter(Figure):
     Superclass for scatter plots
     """
 
-    def __init__(self, evo, **kwargs):
-        super().__init__(evo=evo, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def reset(
         self,
@@ -253,8 +257,8 @@ class Quiver(Figure):
     Superclass for Quiver plots
     """
 
-    def __init__(self, evo, **kwargs):
-        super().__init__(evo=evo, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
 
 class Quiver2D(Quiver):
@@ -262,10 +266,10 @@ class Quiver2D(Quiver):
     Plot a 2D quiver plot.
     """
 
-    def __init__(self, evo, scale=20, **kwargs):
+    def __init__(self, scale=20, **kwargs):
         self.scale = scale
 
-        super().__init__(evo=evo, **kwargs)
+        super().__init__(**kwargs)
 
     def reset(self):
         pass  # TODO -- here is where plot parameters can be changed.
@@ -344,7 +348,6 @@ class Quiver3D(Quiver):
 
     def __init__(
         self,
-        evo,
         color="k",
         normalize=True,
         length=0.5,
@@ -358,7 +361,7 @@ class Quiver3D(Quiver):
         self.arrow_length_ratio = arrow_length_ratio
         self.pivot = pivot
 
-        super().__init__(evo=evo, **kwargs)
+        super().__init__(**kwargs)
 
     def reset(self):
         pass  # TODO -- here is where plot parameters can be changed.
@@ -462,8 +465,8 @@ class Bar(Figure):
     Bar chart abstract superclass.
     """
 
-    def __init__(self, evo, **kwargs):
-        super().__init__(evo=evo, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def reset(
         self, x, y, xlabel, ylabel, bar_color="w", xlim=None, ylim=None, yscale=None
@@ -572,8 +575,8 @@ class Ternary(Figure):
     Superclass for ternary (2-simplex) plots
     """
 
-    def __init__(self, evo, **kwargs):
-        super().__init__(evo=evo, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def reset(self, right_corner_label, top_corner_label, left_corner_label, fontsize):
         ## Update global attributes, which can then be plotted in self.show()
@@ -636,8 +639,8 @@ class Surface(Figure):
         Uses ax.plot_surface().
     """
     
-    def __init__(self, evo, **kwargs):
-        super().__init__(evo=evo, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         
         # Data parameters
         self.x = None

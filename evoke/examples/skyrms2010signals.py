@@ -220,7 +220,7 @@ class Skyrms2010_3_3(Scatter):
         ## Get info attribute
         y = evo.statistics["mut_info_states_signals"]
 
-        super().__init__(evo)
+        super().__init__(evo=evo)
 
         self.reset(x=range(iterations), y=y, xlabel="Iterations", ylabel="Information")
 
@@ -310,10 +310,11 @@ class Skyrms2010_3_4(Scatter):
 
         ## Get info attribute
         y = evo.statistics["prob_success"]
+        
+        # Create superclass
+        super().__init__(evo=evo)
 
-        super().__init__(evo)
-
-        ## TODO: The data points only include the start point and each power of 10.
+        # The data points only include the start point and each power of 10.
         self.reset(
             x=range(iterations),
             y=y,
@@ -408,11 +409,10 @@ class Skyrms2010_5_2(Scatter):
 
         self.initialize_simulations(pr_state_2_list)
 
-        evo, y_axis = self.run_simulations()
+        y_axis = self.run_simulations()
 
-        ## The superclass doesn't (yet) expect multiple simulations.
-        ## Just pass in the most recent one.
-        super().__init__(evo)
+        ## Create superclass
+        super().__init__()
 
         ## Set data for the graph.
         self.reset(
@@ -567,7 +567,7 @@ class Skyrms2010_5_2(Scatter):
 
             y_axis.append(assortment_level)
 
-        return evo, y_axis
+        return y_axis
 
 
 class Skyrms2010_8_1(Scatter):
@@ -596,7 +596,7 @@ class Skyrms2010_8_1(Scatter):
         ## Get info attribute
         y = evo.statistics["avg_prob_success"]
 
-        super().__init__(evo)
+        super().__init__(evo=evo)
 
         self.reset(
             x=range(iterations),
@@ -684,17 +684,19 @@ class Skyrms2010_8_2(Scatter):
         Create object.
 
         NB It looks as though Skyrms's graph was generated with the equivalent of
-            the following parameters:
-                trials = 1000
-                iterations = int(1e5)
-            But this will take A VERY LONG TIME TO RUN as things are now.
+        the following parameters:
+        
+        + trials = 1000
+        + iterations = int(1e5)
+        
+        But this will take A VERY LONG TIME TO RUN as things are now.
 
-            Even with iterations at int(1e4), it's looking like 12 mins per weight,
-             so about an hour overall.
+        Even with iterations at int(1e4), it's looking like 12 mins per weight,
+        so about an hour overall.
 
-            This, combined with the difficulty of figuring out exactly how Skyrms is
-             identifying pooling equilibria, leads to us overestimating
-             the probability of pooling.
+        This, combined with the difficulty of figuring out exactly how Skyrms is
+        identifying pooling equilibria, leads to us overestimating
+        the probability of pooling.
 
         Parameters
         ----------
@@ -710,14 +712,17 @@ class Skyrms2010_8_2(Scatter):
         None.
 
         """
-
+        
+        # Set parameters for simulations
         self.initialize_simulation()
+        
+        # Run the simluations
+        self.run_simulation(trials, iterations)
 
-        evo = self.run_simulation(trials, iterations)
-
-        ## Superclass needs an evo object. Just pass it whatever we got from run_simulations().
-        super().__init__(evo)
-
+        # Create the figure superclass
+        super().__init__()
+        
+        # Set parameters for the figure
         self.reset(
             x=self.initial_weights,
             y=self.probability_of_pooling,
@@ -727,7 +732,8 @@ class Skyrms2010_8_2(Scatter):
             marker_size=5,
             xscale="log",
         )
-
+        
+        # Show the figure
         self.show()
 
     def show(self):
@@ -826,8 +832,6 @@ class Skyrms2010_8_2(Scatter):
             ## For each initial weight, get the proportion of evo games (out of 1000)
             ##        that led to partial pooling.
             self.probability_of_pooling.append(count_pooling / trials)
-
-        return evo
 
 
 class Skyrms2010_8_3(Scatter):
@@ -999,7 +1003,7 @@ class Skyrms2010_10_5(Bar):
 
         self.initialize_simulation()
 
-        evo = self.run_simulation(trials, iterations)
+        self.run_simulation(trials, iterations)
 
         ## Get graph info
         results_as_array = np.array(sorted(self.signal_frequencies.items()))
@@ -1008,8 +1012,9 @@ class Skyrms2010_10_5(Bar):
 
         ## Y-axis limits
         ylim = [0, max(y_axis) + 0.1 * max(y_axis)]
-
-        super().__init__(evo)
+        
+        # Create superclass
+        super().__init__()
 
         self.reset(
             x=x_axis,
@@ -1060,4 +1065,3 @@ class Skyrms2010_10_5(Bar):
             else:
                 self.signal_frequencies[n_signals_int] = 1
 
-        return evo
