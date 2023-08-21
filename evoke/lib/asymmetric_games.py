@@ -253,6 +253,216 @@ class Chance:
         return g
 
     @property
+    def has_info_using_equilibrium(self,sigfig=5)->bool:
+        """
+        
+        Does this game have an information-using equilibrium?
+
+
+        Parameters
+        ----------
+        sigfig : int, optional
+            The number of significant figures to report values in.
+            Since gambit sometimes has problems rounding, it generates values like 0.9999999999996.
+            We want to report these as 1.0000, especially if we're dumping to a file.
+            The default is 5.
+
+        
+        Returns
+        -------
+        bool
+            If True, the game has at least one information-using equilibrium.
+            If False, the game does not have an information-using equilibrium.
+
+        """
+        
+        # Lazy instantiation
+        if hasattr(self,"_has_info_using_equilibrium"): return self._has_info_using_equilibrium
+        
+        # Is there an info-using equilibrium?
+        # First get the gambit game object
+        gambit_game = self.create_gambit_game()
+
+        # Now get the equilibria
+        equilibria_gambit = pygambit.nash.lcp_solve(
+            gambit_game, rational=False)
+
+        # Convert to python list
+        equilibria = eval(str(equilibria_gambit))
+
+        # Now for each equilibrium, check whether it is info-using
+        for equilibrium in equilibria:
+
+            # Figure out whether the strategies at this equilibrium
+            # lead to an information-using situation.
+
+            # Sometimes gambit gives back long decimals e.g. 0.999999996
+            # We want to round these before inspecting.
+            sender_strategy = np.around(np.array(equilibrium[0]), sigfig)
+            receiver_strategy = np.around(np.array(equilibrium[1]), sigfig)
+
+            # Create info object to make info measurements
+            info_object = info.Information(self, sender_strategy, receiver_strategy)
+
+            # Get the mutual information between states and acts at this equilibrium.
+            # If it's greater than zero, we've got what we need and can return.
+            # Otherwise the loop will continue checking subsequent equilibria.
+            if info_object.mutual_info_states_acts() > 0: 
+                self._has_info_using_equilibrium = True
+                return self._has_info_using_equilibrium
+       
+        # No information-using equilibria were found.
+        self._has_info_using_equilibrium = False
+        return self._has_info_using_equilibrium
+
+    @has_info_using_equilibrium.setter
+    def has_info_using_equilibrium(self,has_info_using_equilibrium)->None:
+        """
+        Manually set the boolean whether this game has an information-using equilibrium.
+        Useful when you are loading the game from a file and don't want to have to
+        run all the gambit processing again.
+
+        Parameters
+        ----------
+        has_info_using_equilibrium : bool
+            If True, this game has an information-using equilibrium.
+            If False, it doesn't.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        self._has_info_using_equilibrium = has_info_using_equilibrium
+
+    @property
+    def highest_info_using_equilibrium(self,sigfig=5)->tuple:
+        """
+        Get the mutual information between states and acts at the
+        equilibrium with the highest such value.
+        Also get the strategies at this equilibrium
+        
+        Note that if the game has no information-using equilibria,
+        the value of mutual information will be 0.
+        The strategies returned will then be an arbitrary equilibrium.
+
+        Parameters
+        ----------
+        sigfig : int, optional
+            The number of significant figures to report values in.
+            Since gambit sometimes has problems rounding, it generates values like 0.9999999999996.
+            We want to report these as 1.0000, especially if we're dumping to a file.
+            The default is 5.
+
+        Returns
+        -------
+        tuple
+            First element is a list containing the highest-info-using sender and receiver strategies.
+            Second element is the mutual information between states and acts given these strategies.
+
+        """
+        
+        # Lazy instantiation
+        if hasattr(self,"_best_strategies") and hasattr(self,"_highest_info_at_equilibrium"):
+            return self._best_strategies, self._highest_info_at_equilibrium
+        
+        # First get the gambit game object
+        gambit_game = self.create_gambit_game()
+
+        # Now get the equilibria
+        equilibria_gambit = pygambit.nash.lcp_solve(
+            gambit_game, rational=False)
+
+        # Convert to python list
+        equilibria = eval(str(equilibria_gambit))
+
+        # Initialize
+        current_highest_info_at_equilibrium = 0
+
+        # Now for each equilibrium, check if it is info-using
+        for equilibrium in equilibria:
+
+            # Figure out whether the strategies at this equilibrium
+            # lead to an information-using situation.
+
+            # Sometimes gambit gives back long decimals e.g. 0.999999996
+            # We want to round these before dumping to a file.
+            sender_strategy = np.around(np.array(equilibrium[0]), sigfig)
+            receiver_strategy = np.around(np.array(equilibrium[1]), sigfig)
+
+            # Create info object to make info measurements
+            info_object = info.Information(self, sender_strategy, receiver_strategy)
+
+            # Get current mutual info
+            # Sometimes it spits out -0.0, which should be 0.0.
+            current_mutual_info = abs(info_object.mutual_info_states_acts())
+
+            if current_mutual_info >= current_highest_info_at_equilibrium:
+
+                # Update game details
+                # The equilibrium is just the current sender strategy
+                # followed by the current receiver strategy.
+                current_best_strategies = [
+                    sender_strategy.tolist(), receiver_strategy.tolist()]
+
+                # The mutual information is the current mutual info at this equilibrium.
+                current_highest_info_at_equilibrium = round(current_mutual_info, sigfig)
+        
+        # Return the best strategies and highest info found
+        self._best_strategies = current_best_strategies
+        self._highest_info_at_equilibrium = current_highest_info_at_equilibrium
+        
+        # If it's non-zero, set the relevant boolean attribute
+        if self._highest_info_at_equilibrium > 0:
+            self.has_info_using_equilibrium = True
+        else:
+            self.has_info_using_equilibrium = False
+        
+        return self._best_strategies, self._highest_info_at_equilibrium
+    
+    @highest_info_using_equilibrium.setter
+    def highest_info_using_equilibrium(self,equilibrium_data)->None:
+        """
+        Manually set the best strategy and amount of mutual information between
+        states and acts at the highest information-using equilibrium.
+        Useful when you are loading the game from a file and don't want to have to
+        run all the gambit processing again.
+
+
+        Parameters
+        ----------
+        best_strategies : array-like
+            First element is sender strat, second element is receiver strat.
+        highest_info_at_equilibrium : float
+            The amount of mutual information between states and acts
+            at the highest info-using equilibrium.
+
+        Returns
+        -------
+        None
+
+        """
+        
+        try:
+            best_strategies, highest_info_at_equilibrium = equilibrium_data
+        except ValueError:
+            exception_message = "This function needs an iterable as input. "+\
+                                "The first element should be a list [sender_strategy, receiver_strategy]. "+\
+                                "The second element should be a float."
+            raise ValueError(exception_message)
+        
+        self._best_strategies = best_strategies
+        self._highest_info_at_equilibrium = highest_info_at_equilibrium
+        
+        # If the highest info is greater than zero, also set the relevant boolean attribute.
+        if self._highest_info_at_equilibrium > 0:
+            self.has_info_using_equilibrium = True
+        else:
+            self.has_info_using_equilibrium = False
+    
+    
+    @property
     def max_mutual_info(self):
         """
         Maximum possible mutual information between states and acts.

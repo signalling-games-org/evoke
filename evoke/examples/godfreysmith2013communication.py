@@ -40,6 +40,7 @@ from evoke.lib.symmetric_games import NoSignal
 
 # from evoke.lib.common_interest import tau_per_rows as C_measure
 from evoke.lib.info import Information
+import evoke.lib.exceptions as ex
 
 # Global variables
 
@@ -155,8 +156,12 @@ class GodfreySmith2013_1(Scatter):
 
             # The filename MUST have this format. Otherwise tell the user
             # they should use find_games_3x3() to find exactly this many games.
-            with open(fpath_json, "r") as f:
-                games_list_loaded = json.load(f)
+            try:
+                with open(fpath_json, "r") as f:
+                    games_list_loaded = json.load(f)
+            
+            except FileNotFoundError:
+                raise ex.NoDataException(f"File {fpath_json} was not found. Have you run find_games_3x3() and analyse_games_3x3() for games_per_c={games_per_c} yet?")
 
             # Load each game into an object
             for game_dict in games_list_loaded:
@@ -169,8 +174,7 @@ class GodfreySmith2013_1(Scatter):
                 )
 
                 # Append information-using equilibria as game object attribute
-                game.best_equilibrium = game_dict["e"]
-                game.info_transmission_at_best_equilibrium = game_dict["i"]
+                game.highest_info_using_equilibrium = (game_dict["e"],game_dict["i"])
 
                 # Append this game to the figure object's game list.
                 self.games[c_value].append(game)
@@ -220,20 +224,22 @@ class GodfreySmith2013_1(Scatter):
                 continue
 
             # This value of C still needs games.
-            self.games[f"{c:.3f}"].append(
-                asy.Chance(
-                    state_chances,
-                    sender_payoff_matrix,
-                    receiver_payoff_matrix,
-                    messages,
-                )
+            # Create the game...
+            game = asy.Chance(
+                state_chances,
+                sender_payoff_matrix,
+                receiver_payoff_matrix,
+                messages,
             )
+            
+            # ...and associate it with this value of C.
+            self.games[f"{c:.3f}"].append(game)
 
             # Do we have all the required games yet?
             games_added_to_count += 1
 
             # Report progress
-            if games_added_to_count % (np.floor(total_games_required / 100)) == 0:
+            if total_games_required > 100 and games_added_to_count % (np.floor(total_games_required / 100)) == 0:
                 print(
                     f"Surveyed {total_games_surveyed} games; added {games_added_to_count} of {total_games_required}"
                 )
@@ -260,9 +266,10 @@ class GodfreySmith2013_1(Scatter):
         for c_value, games_list in tqdm(self.games.items()):
             # Loop at games per C value...
             for game in tqdm(games_list, disable=True):
+               
                 # If this game's info transmission at its best equilibrium
                 # is greater than zero...
-                if game.info_transmission_at_best_equilibrium > 0:
+                if game.has_info_using_equilibrium:
                     # Append True to the results list.
                     results[c_value].append(True)
 
@@ -379,8 +386,12 @@ class GodfreySmith2013_2(Scatter):
 
             # The filename MUST have this format. Otherwise tell the user
             # they should use find_games_3x3() to find exactly this many games.
-            with open(fpath_json, "r") as f:
-                games_list_loaded = json.load(f)
+            try:
+                with open(fpath_json, "r") as f:
+                    games_list_loaded = json.load(f)
+            
+            except FileNotFoundError:
+                raise ex.NoDataException(f"File {fpath_json} was not found. Have you run find_games_3x3() and analyse_games_3x3() for games_per_c={games_per_c} yet?")
 
             # Load each game into an object
             for game_dict in games_list_loaded:
@@ -393,8 +404,7 @@ class GodfreySmith2013_2(Scatter):
                 )
 
                 # Append information-using equilibria as game object attribute
-                game.best_equilibrium = game_dict["e"]
-                game.info_transmission_at_best_equilibrium = game_dict["i"]
+                game.highest_info_using_equilibrium = (game_dict["e"], game_dict["i"])
 
                 # Append this game to the figure object's game list.
                 self.games[c_value].append(game)
@@ -491,7 +501,7 @@ class GodfreySmith2013_2(Scatter):
             for game in tqdm(games_list, disable=True):
                 # Get this game's highest info-transmission.
                 results[c_value].append(
-                    game.info_transmission_at_best_equilibrium)
+                    game.highest_info_at_equilibrium[1])
 
         # Count the total number of info-using equilibria per level of C
         self.highest_mi = []
@@ -503,10 +513,29 @@ class GodfreySmith2013_3(Surface):
     """
         See figure at https://doi.org/10.1371/journal.pcbi.1003282.g003
         
-        This is the sender's graph, using K_S, on the left hand side of the figure.
+        See documentation for running in demo mode versus full mode.
     """
     
     def __init__(self, games_per_c_and_k=150, k_indicator=None, demo=False, dir_games="../data/"):
+        """
+        Constructor for GodfreySmith2013_3 object.
+
+        Parameters
+        ----------
+        games_per_c_and_k : int, optional
+            Number of games to analyse per combination of C value and K value.
+            The default is 150.
+        k_indicator : str, optional
+            This MUST be set to either "ks" or "kr".
+            Indicates whether the plot is created for sender values of K or receiver values.
+            The default is None, forcing the user to specify the value.
+        demo : bool, optional
+            If True, runs in demo mode.    
+            The default is False.
+        dir_games : str, optional
+            Directory for stored game data. The default is "../data/".
+
+        """
 
         if k_indicator: self.k_indicator = k_indicator
         
@@ -524,8 +553,7 @@ class GodfreySmith2013_3(Surface):
             # # Create games in demo mode
             # self.create_games_demo(games_per_c)
             
-            print("Demo mode not available yet!")
-            return False
+            raise NotImplementedError("Demo mode not available for this figure yet!")
 
         else:
             
@@ -594,8 +622,13 @@ class GodfreySmith2013_3(Surface):
 
             # The filename MUST have this format. Otherwise tell the user
             # they should use find_games_3x3() to find exactly this many games.
-            with open(fpath_json, "r") as f:
-                games_list_loaded = json.load(f)
+            try:
+                with open(fpath_json, "r") as f:
+                    games_list_loaded = json.load(f)
+            
+            except FileNotFoundError:
+                raise ex.NoDataException(f"File {fpath_json} was not found. Have you run find_games_3x3() and analyse_games_3x3() for games_per_c_and_k={games_per_c_and_k} yet?")
+
 
             # Load each game into an object
             for game_dict in games_list_loaded:
@@ -608,8 +641,7 @@ class GodfreySmith2013_3(Surface):
                 )
 
                 # Append information-using equilibria as game object attribute
-                game.best_equilibrium = game_dict["e"]
-                game.info_transmission_at_best_equilibrium = game_dict["i"]
+                game.highest_info_at_equilibrium = (game_dict["e"], game_dict["i"])
 
                 # Append this game to the figure object's game list.
                 self.games[value_string].append(game)
@@ -638,7 +670,7 @@ class GodfreySmith2013_3(Surface):
                 
                 # If this game's info transmission at its best equilibrium
                 # is greater than zero...
-                if game.info_transmission_at_best_equilibrium > 0:
+                if game.has_info_using_equilibrium:
                     # Append True to the results list.
                     results[value_string].append(True)
 
@@ -979,7 +1011,12 @@ def analyse_games_3x3(
     c_values : array-like
         List of C values to find games for.
         The default is the global variable c_3x3_equiprobable.
-
+    sigfig : int, optional.
+        The number of significant figures to report values in.
+        Since gambit sometimes has problems rounding, it generates values like 0.9999999999996.
+        We want to report these as 1.0000, especially if we're dumping to a file.
+        The default is 5.
+    
     Returns
     -------
     None
@@ -1014,50 +1051,7 @@ def analyse_games_3x3(
             )
 
             # Is there an info-using equilibrium?
-            # TODO: These next 10-15 lines should be a native method in the game.Chance() class.
-            # First get the gambit game object
-            gambit_game = game.create_gambit_game()
-
-            # Now get the equilibria
-            equilibria_gambit = pygambit.nash.lcp_solve(
-                gambit_game, rational=False)
-
-            # Convert to python list
-            equilibria = eval(str(equilibria_gambit))
-
-            # Initialize
-            current_highest_info_at_equilibrium = 0
-
-            # Now for each equilibrium, check if it is info-using
-            for equilibrium in equilibria:
-
-                # Figure out whether the strategies at this equilibrium
-                # lead to an information-using situation.
-
-                # Sometimes gambit gives back long decimals e.g. 0.999999996
-                # We want to round these before dumping to a file.
-                sender_strategy = np.around(np.array(equilibrium[0]), sigfig)
-                receiver_strategy = np.around(np.array(equilibrium[1]), sigfig)
-
-                # Create info object to make info measurements
-                info = Information(game, sender_strategy, receiver_strategy)
-
-                # Get current mutual info
-                # Sometimes it spits out -0.0, which should be 0.0.
-                current_mutual_info = abs(info.mutual_info_states_acts())
-
-                if current_mutual_info >= current_highest_info_at_equilibrium:
-
-                    # Update game details
-                    # The equilibrium is just the current sender strategy
-                    # followed by the current receiver strategy.
-                    game_dict["e"] = [
-                        sender_strategy.tolist(), receiver_strategy.tolist()]
-
-                    # The mutual information is the current mutual info at this equilibrium.
-                    game_dict[
-                        "i"
-                    ] = current_highest_info_at_equilibrium = round(current_mutual_info, sigfig)
+            game_dict["e"], game_dict["i"] = game.get_highest_info_using_equilibrium(sigfig=sigfig)
 
         # Dump this updated game file
         with open(fpath_json, "w") as f:
@@ -1269,50 +1263,7 @@ def analyse_games_3x3_c_and_k(
             )
 
             # Is there an info-using equilibrium?
-            # TODO: These next 10-15 lines should be a native method in the game.Chance() class.
-            # First get the gambit game object
-            gambit_game = game.create_gambit_game()
-
-            # Now get the equilibria
-            equilibria_gambit = pygambit.nash.lcp_solve(
-                gambit_game, rational=False)
-
-            # Convert to python list
-            equilibria = eval(str(equilibria_gambit))
-
-            # Initialize
-            current_highest_info_at_equilibrium = 0
-
-            # Now for each equilibrium, check if it is info-using
-            for equilibrium in equilibria:
-
-                # Figure out whether the strategies at this equilibrium
-                # lead to an information-using situation.
-
-                # Sometimes gambit gives back long decimals e.g. 0.999999996
-                # We want to round these before dumping to a file.
-                sender_strategy = np.around(np.array(equilibrium[0]), sigfig)
-                receiver_strategy = np.around(np.array(equilibrium[1]), sigfig)
-
-                # Create info object to make info measurements
-                info = Information(game, sender_strategy, receiver_strategy)
-
-                # Get current mutual info
-                # Sometimes it spits out -0.0, which should be 0.0.
-                current_mutual_info = abs(info.mutual_info_states_acts())
-
-                if current_mutual_info >= current_highest_info_at_equilibrium:
-
-                    # Update game details
-                    # The equilibrium is just the current sender strategy
-                    # followed by the current receiver strategy.
-                    game_dict["e"] = [
-                        sender_strategy.tolist(), receiver_strategy.tolist()]
-
-                    # The mutual information is the current mutual info at this equilibrium.
-                    game_dict[
-                        "i"
-                    ] = current_highest_info_at_equilibrium = round(current_mutual_info, sigfig)
+            game_dict["e"], game_dict["i"] = game.get_highest_info_using_equilibrium(sigfig=sigfig)
 
         # Dump this updated game file
         with open(fpath_json, "w") as f:
