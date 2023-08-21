@@ -13,6 +13,7 @@ import numpy as np
 import pygambit
 
 from evoke.lib import info
+from evoke.lib import exceptions as ex
 
 np.set_printoptions(precision=4)
 
@@ -33,18 +34,22 @@ class Chance:
         a mxo numpy array with the sender payoffs, a mxo numpy array with
         receiver payoffs, and the number of available messages
         """
+        
+        # Check data is consistent
         if any(
             state_chances.shape[0] != row
             for row in [sender_payoff_matrix.shape[0], receiver_payoff_matrix.shape[0]]
         ):
-            sys.exit(
-                "The number of rows in sender and receiver payoffs should"
-                "be the same as the number of states"
-            )
+            exception_message = "The number of rows in sender and receiver payoffs should "+\
+                                "be the same as the number of states"
+            raise ex.InconsistentDataException(exception_message)
+        
         if sender_payoff_matrix.shape != receiver_payoff_matrix.shape:
-            sys.exit("Sender and receiver payoff arrays should have the same" "shape")
-        if not isinstance(messages, int):
-            sys.exit("The number of messages should be an integer")
+            raise ex.InconsistentDataException("Sender and receiver payoff arrays should have the same shape")
+        
+        if not isinstance(messages, int) or messages < 1:
+            raise ex.InconsistentDataException("The number of messages should be a positive integer")
+        
         self.state_chances = state_chances
         self.sender_payoff_matrix = sender_payoff_matrix
         self.receiver_payoff_matrix = receiver_payoff_matrix
@@ -385,6 +390,24 @@ class ChanceSIR:
         None.
 
         """
+        
+        # Check data is consistent
+        if any(
+            state_chances.shape[0] != row
+            for row in [sender_payoff_matrix.shape[0], intermediary_payoff_matrix.shape[0], receiver_payoff_matrix.shape[0]]
+        ):
+            exception_message = "The number of rows in sender, intermediary and receiver payoffs should "+\
+                                "be the same as the number of states"
+            raise ex.InconsistentDataException(exception_message)
+        
+        if sender_payoff_matrix.shape != receiver_payoff_matrix.shape or sender_payoff_matrix.shape != intermediary_payoff_matrix.shape:
+            raise ex.InconsistentDataException("All agents' payoff arrays should have the same shape")
+        
+        if not isinstance(messages_sender, int) or messages_sender < 1:
+            raise ex.InconsistentDataException("The number of sender messages should be a positive integer")
+        
+        if not isinstance(messages_intermediary, int) or messages_intermediary < 1:
+            raise ex.InconsistentDataException("The number of intermediary messages should be a positive integer")
 
         self.state_chances = state_chances
         self.sender_payoff_matrix = sender_payoff_matrix
@@ -540,10 +563,15 @@ class NonChance:
         Take a mxo numpy array with the sender payoffs, a mxo numpy array
         with receiver payoffs, and the number of available messages
         """
+        
+        # Check data is consistent
         if sender_payoff_matrix.shape != receiver_payoff_matrix.shape:
-            sys.exit("Sender and receiver payoff arrays should have the same" "shape")
-        if not isinstance(messages, int):
-            sys.exit("The number of messages should be an integer")
+            raise ex.InconsistentDataException("Sender and receiver payoff arrays should have the same shape")
+        
+        if not isinstance(messages, int) or messages < 1:
+            raise ex.InconsistentDataException("The number of messages should be a positive integer")
+        
+        
         self.chance_node = False  # flag to know where the game comes from
         self.sender_payoff_matrix = sender_payoff_matrix
         self.receiver_payoff_matrix = receiver_payoff_matrix
