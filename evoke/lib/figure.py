@@ -26,6 +26,7 @@ from ternary import figure  # from https://github.com/marcharper/python-ternary
 # from evoke.lib import symmetric_games as sym
 # from evoke.lib import evolve as ev
 # from evoke.lib.symmetric_games import NoSignal
+import evoke.lib.exceptions as ex
 
 
 class Figure(ABC):
@@ -175,6 +176,10 @@ class Scatter(Figure):
         None.
 
         """
+        
+        # Check data exists
+        if not hasattr(self,"x") or not self.x: raise ex.NoDataException("Axis X has no data")
+        if not hasattr(self,"y") or not self.y: raise ex.NoDataException("Axis Y has no data")
 
         ## Data
         plt.scatter(x=self.x, y=self.y, s=self.s, c=self.c)
@@ -266,6 +271,26 @@ class Quiver2D(Quiver):
         pass  # TODO -- here is where plot parameters can be changed.
 
     def show(self):
+        """
+        Display the 2D quiver plot with the loaded data.
+
+        Raises
+        ------
+        NoDataException
+            The requisite data has not been supplied by the user.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        # Check data exists
+        if not hasattr(self,"X") or not self.X: raise ex.NoDataException("Axis X has no data")
+        if not hasattr(self,"Y") or not self.Y: raise ex.NoDataException("Axis Y has no data")
+        if not hasattr(self,"U") or not self.U: raise ex.NoDataException("Velocities U do not exist")
+        if not hasattr(self,"V") or not self.V: raise ex.NoDataException("Velocities V do not exist")
+        
         ## Create the figure
         fig, ax = plt.subplots()
 
@@ -339,6 +364,28 @@ class Quiver3D(Quiver):
         pass  # TODO -- here is where plot parameters can be changed.
 
     def show(self):
+        """
+        Display the 3D quiver plot with the loaded data.
+
+        Raises
+        ------
+        NoDataException
+            The requisite data has not been supplied.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        # Check data exists
+        if not hasattr(self,"X") or not self.X: raise ex.NoDataException("Axis X has no data")
+        if not hasattr(self,"Y") or not self.Y: raise ex.NoDataException("Axis Y has no data")
+        if not hasattr(self,"Z") or not self.Y: raise ex.NoDataException("Axis Z has no data")
+        if not hasattr(self,"U") or not self.U: raise ex.NoDataException("Velocities U do not exist")
+        if not hasattr(self,"V") or not self.V: raise ex.NoDataException("Velocities V do not exist")
+        if not hasattr(self,"W") or not self.V: raise ex.NoDataException("Velocities W do not exist")
+        
         ## Create figure
         fig = plt.figure()
         ax = fig.add_subplot(111, projection="3d")
@@ -456,6 +503,26 @@ class Bar(Figure):
         self.yscale = yscale
 
     def show(self):
+        """
+        Display the bar chart with the loaded data.
+
+        Raises
+        ------
+        NoDataException
+            The requisite data has not been supplied.
+            Bar charts need x-axis values and y-axis values.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        
+        # Check data exists
+        if not hasattr(self,"x") or not self.x: raise ex.NoDataException("Axis X has no data")
+        if not hasattr(self,"y") or not self.y: raise ex.NoDataException("Axis Y has no data")
+        
         ## Data
         plt.bar(x=self.x, height=self.y, color=self.c, edgecolor="k")
 
@@ -517,6 +584,25 @@ class Ternary(Figure):
         self.left_corner_label = left_corner_label
 
     def show(self):
+        """
+        Display the ternary plot with the loaded data.
+
+        Raises
+        ------
+        NoDataException
+            The requisite data was not supplied.
+            Ternary plots require an <xyzs> attribute.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        # Check data exists
+        if not hasattr(self,"xyzs") or not self.xyzs: raise ex.NoDataException("Ternary axis values not supplied.")
+        
+        
         # self.xyzs is a list of arrays of dimensions nx3, such that each row is a
         # 3-dimensional stochastic vector.  That is to say, for now, a collection
         # of orbits
@@ -640,6 +726,11 @@ class Surface(Figure):
         None.
 
         """
+        
+        # Check data exists
+        if not hasattr(self,"x") or not self.x: raise ex.NoDataException("Axis X has no data.")
+        if not hasattr(self,"y") or not self.y: raise ex.NoDataException("Axis Y has no data.")
+        if not hasattr(self,"z") or not self.z: raise ex.NoDataException("Axis Z has no data.")
         
         # Create 3D projection
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})

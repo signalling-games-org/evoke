@@ -10,3 +10,11 @@ class ChanceNodeError(Exception):
     """
 
     pass
+
+class NoDataException(Exception):
+    """
+    Error to raise when the user tries to show a plot but the figure object
+    doesn't have the required data.
+    """
+    
+    pass
