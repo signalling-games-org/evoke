@@ -196,7 +196,7 @@ class TwoPops:
     """
     Calculate the equations necessary to evolve a population of senders and one
     of receivers. It takes as input a <game>, (which as of now only can be a
-    Chance object>, and a tuple: the first (second) member of the tuple is a
+    Chance object), and a tuple: the first (second) member of the tuple is a
     nxm array such that the <i,j> cell gives the expected payoff for the sender
     (receiver) of an encounter in which the sender follows strategy i and the
     receiver follows strategy j.

@@ -716,7 +716,7 @@ class NonChance:
 def lewis_square(n=2):
     """
     Factory method to produce a cooperative nxnxn signalling game
-     (what Skyrms calls a "Lewis signalling game").
+    (what Skyrms calls a "Lewis signalling game").
 
     Returns
     -------
