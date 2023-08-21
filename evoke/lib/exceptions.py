@@ -18,3 +18,12 @@ class NoDataException(Exception):
     """
     
     pass
+
+class InconsistentDataException(Exception):
+    """
+    Error to raise when the user provides data that is inconsistent
+    e.g. payoff matrices that do not have a shape corresponding to
+    the set of states or set of acts.
+    """
+    
+    pass
