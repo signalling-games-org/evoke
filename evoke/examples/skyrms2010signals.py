@@ -22,10 +22,9 @@ import numpy as np
 from tqdm import trange
 
 
-from evoke.lib.figure import Scatter, Bar, Quiver2D, Quiver3D
+from evoke.lib.figure import Scatter, Bar, Quiver2D, Quiver3D, Ternary
 from evoke.lib import asymmetric_games as asy
-
-# from evoke.lib import symmetric_games as sym
+from evoke.lib import symmetric_games as sym
 from evoke.lib import evolve as ev
 from evoke.lib.symmetric_games import NoSignal
 
@@ -383,6 +382,51 @@ class Skyrms2010_3_4(Scatter):
         ## Run simulation for <iterations> steps
         evo.run(iterations)
 
+        return evo
+
+
+class Skyrms2010_4_1(Ternary):
+    """
+    Figure 4.1, page 59, of Skyrms 2010
+    """
+
+    def __init__(self):
+        """
+        Parameters
+        ----------
+        None
+        Returns
+        -------
+        None
+        """
+
+        self.initialize_simulation()
+
+        evo = self.run_orbits()
+
+        super().__init__(evo=evo)
+
+        self.reset("y", "z", "x", 10)
+
+        self.show()
+
+    def show(self):
+        super().show()  # draw the line by default
+
+    def initialize_simulation(self) -> None:
+        self.initplayer1 = np.array([0.8, 0.1, 0.1])
+        self.initplayer2 = np.array([0.6, 0.2, 0.2])
+        self.initplayer3 = np.array([0.4, 0.3, 0.3])
+        self.rps_payoff_matrix = np.array([[1, 2, 0], [0, 1, 2], [2, 0, 1]])
+
+    def run_orbits(self):
+        ## Create game
+        game = sym.NoSignal(self.rps_payoff_matrix)
+        evo = ev.OnePop(game, game.pure_strats())
+        self.xyzs = [
+            evo.replicator_odeint(initplayer, np.linspace(0, 100, num=1000))
+            for initplayer in [self.initplayer1, self.initplayer2, self.initplayer3]
+        ]
         return evo
 
 
