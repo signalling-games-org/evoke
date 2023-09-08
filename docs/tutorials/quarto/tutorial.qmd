@@ -250,6 +250,34 @@ The ignorant sender very quickly drops to zero, while the responsive sender very
 
 ## Expert: Adding to the stock of figures
 
+You might want to add figures from the literature that aren't part of evoke's example library yet.
+If so, thanks!
+We hope to expand the set of examples so that evoke can become a place to test modelling assumptions and play around with data.
 
+### Fork the repository
+
+First, fork the [evoke](https://github.com/signalling-games-org/evoke) repository.
+
+### Create a script
+
+To add an example, create a new script whose name is the same format as the others in the evoke/examples/ directory i.e. the first author's surname, the year, and the first word of the publication's title, all in lower case and without breaks or punctuation.
+So for example Skyrms's book Signals, published in 2010, becomes skyrms2010signals.py.
+The paper 'Communication and Common Interest' by Godfrey-Smith and Martínez becomes godfreysmith2013communication.py.
+
+### Subclass from `figure.py`
+
+Inside your script, create an object with the name formatted `Surname_Year_figure_number`.
+For example, figure 4.1 of Skyrms (2010) is called `Skyrms_2010_4_1`.
+
+This object **must** subclass from one of the classes defined in `figure.py`.
+
+### Add custom code
+
+Add your custom code in the object you just created.
+Take a look at the existing examples to get a feel for how this works.
+
+### Pull request
+
+When you've tested and everything looks good, create a pull request from your fork.
 
 ## References
