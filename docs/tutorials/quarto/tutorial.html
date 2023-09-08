@@ -98,12 +98,19 @@ div.csl-indent {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#basics" id="toc-basics" class="nav-link active" data-scroll-target="#basics"><span class="header-section-number">1</span> Basics</a>
+  <li><a href="#basics-using-results-from-the-literature" id="toc-basics-using-results-from-the-literature" class="nav-link active" data-scroll-target="#basics-using-results-from-the-literature"><span class="header-section-number">1</span> Basics: Using results from the literature</a>
   <ul class="collapse">
   <li><a href="#creating-figures-tweaking-cosmetic-features" id="toc-creating-figures-tweaking-cosmetic-features" class="nav-link" data-scroll-target="#creating-figures-tweaking-cosmetic-features"><span class="header-section-number">1.1</span> Creating figures; tweaking cosmetic features</a></li>
   <li><a href="#changing-data-in-figures" id="toc-changing-data-in-figures" class="nav-link" data-scroll-target="#changing-data-in-figures"><span class="header-section-number">1.2</span> Changing data in figures</a></li>
   </ul></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">2</span> References</a></li>
+  <li><a href="#advanced-creating-your-own-results" id="toc-advanced-creating-your-own-results" class="nav-link" data-scroll-target="#advanced-creating-your-own-results"><span class="header-section-number">2</span> Advanced: Creating your own results</a>
+  <ul class="collapse">
+  <li><a href="#defining-game-parameters" id="toc-defining-game-parameters" class="nav-link" data-scroll-target="#defining-game-parameters"><span class="header-section-number">2.1</span> Defining game parameters</a></li>
+  <li><a href="#creating-the-game-object" id="toc-creating-the-game-object" class="nav-link" data-scroll-target="#creating-the-game-object"><span class="header-section-number">2.2</span> Creating the game object</a></li>
+  <li><a href="#creating-the-simulation-object" id="toc-creating-the-simulation-object" class="nav-link" data-scroll-target="#creating-the-simulation-object"><span class="header-section-number">2.3</span> Creating the simulation object</a></li>
+  </ul></li>
+  <li><a href="#expert-adding-to-the-stock-of-figures" id="toc-expert-adding-to-the-stock-of-figures" class="nav-link" data-scroll-target="#expert-adding-to-the-stock-of-figures"><span class="header-section-number">3</span> Expert: Adding to the stock of figures</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">4</span> References</a></li>
   </ul>
 </nav>
 </div>
@@ -126,8 +133,8 @@ div.csl-indent {
 
 </header>
 
-<section id="basics" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="basics"><span class="header-section-number">1</span> Basics</h2>
+<section id="basics-using-results-from-the-literature" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="basics-using-results-from-the-literature"><span class="header-section-number">1</span> Basics: Using results from the literature</h2>
 <section id="creating-figures-tweaking-cosmetic-features" class="level3" data-number="1.1">
 <h3 data-number="1.1" class="anchored" data-anchor-id="creating-figures-tweaking-cosmetic-features"><span class="header-section-number">1.1</span> Creating figures; tweaking cosmetic features</h3>
 <p>Suppose you want to recreate Figure 1.1 from <span class="citation" data-cites="skyrms2010signals">(<a href="#ref-skyrms2010signals" role="doc-biblioref">Skyrms, 2010, p. 11</a>)</span>. It’s as easy as importing the relevant class and creating an instance of it.</p>
@@ -218,7 +225,7 @@ div.csl-indent {
 <div class="cell-output cell-output-display">
 <div id="fig-skyrms2010-3-3" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
-<p><img src="tutorial_files/figure-html/fig-skyrms2010-3-3-output-1.png" width="606" height="422" class="figure-img"></p>
+<p><img src="tutorial_files/figure-html/fig-skyrms2010-3-3-output-1.png" width="589" height="422" class="figure-img"></p>
 <figcaption class="figure-caption">Figure&nbsp;7: <span class="citation" data-cites="skyrms2010signals">(<a href="#ref-skyrms2010signals" role="doc-biblioref">Skyrms, 2010, p. 40</a>)</span> figure 3.3.</figcaption>
 </figure>
 </div>
@@ -231,7 +238,7 @@ div.csl-indent {
 <div class="cell-output cell-output-display">
 <div id="fig-skyrms2010-3-3-iterations" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
-<p><img src="tutorial_files/figure-html/fig-skyrms2010-3-3-iterations-output-1.png" width="589" height="422" class="figure-img"></p>
+<p><img src="tutorial_files/figure-html/fig-skyrms2010-3-3-iterations-output-1.png" width="597" height="422" class="figure-img"></p>
 <figcaption class="figure-caption">Figure&nbsp;8: Crank up the iterations!</figcaption>
 </figure>
 </div>
@@ -240,12 +247,141 @@ div.csl-indent {
 <p>Even if 100 iterations was not enough to generate appreciable information transmission between agents, 1000 iterations very likely will be.</p>
 </section>
 </section>
-<section id="references" class="level2 unnumbered" data-number="2">
+<section id="advanced-creating-your-own-results" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="advanced-creating-your-own-results"><span class="header-section-number">2</span> Advanced: Creating your own results</h2>
+<section id="defining-game-parameters" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="defining-game-parameters"><span class="header-section-number">2.1</span> Defining game parameters</h3>
+<p>You can use evoke to create your own signalling games and evolutionary simulations. Let’s create a very simple 3x3 signalling game with two players. We need four pieces of information to create the game:</p>
+<ul>
+<li><code>state_chances</code>: The number of states the sender can observe, and their probabilities. For this example there will be three equiprobable states.</li>
+<li><code>sender_payoff_matrix</code> and <code>receiver_payoff_matrix</code>: Matrices defining the payoffs of sender and receiver. For this example they will be the same: when the state matches the act, both agents get a payoff of 1, otherwise they get a payoff of zero.</li>
+<li><code>messages</code>: The number of messages available for the sender to send, which in this example is three.</li>
+</ul>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>state_chances <span class="op">=</span> np.array([<span class="dv">1</span><span class="op">/</span><span class="dv">3</span>, <span class="dv">1</span><span class="op">/</span><span class="dv">3</span>, <span class="dv">1</span><span class="op">/</span><span class="dv">3</span>])</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>sender_payoff_matrix <span class="op">=</span> np.eye(<span class="dv">3</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>receiver_payoff_matrix <span class="op">=</span> np.eye(<span class="dv">3</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>messages <span class="op">=</span> <span class="dv">3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let’s have a look at one of those payoff matrices:</p>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>sender_payoff_matrix</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="366">
+<pre><code>array([[1., 0., 0.],
+       [0., 1., 0.],
+       [0., 0., 1.]])</code></pre>
+</div>
+</div>
+<p>The rows correspond to states and the columns to acts. So when the first act is performed in the first state, the agent gets a payoff of 1, and ditto for the second and third states and acts. Any other combination of state and act yields a payoff of zero.</p>
+</section>
+<section id="creating-the-game-object" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="creating-the-game-object"><span class="header-section-number">2.2</span> Creating the game object</h3>
+<p>Sender-receiver games are <em>asymmetric</em>, in that the sender and receiver have different roles. They also have a state that is determined by chance. We therefore need to import the <code>Chance</code> class from the <code>asymmetric_games</code> module.</p>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> evoke.lib.asymmetric_games <span class="im">import</span> Chance</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We can now create the game object, This is an instance of the <code>Chance</code> class, with the game parameters fed into it.</p>
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>game <span class="op">=</span> asy.Chance(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    state_chances   <span class="op">=</span> state_chances,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    sender_payoff_matrix <span class="op">=</span> sender_payoff_matrix,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    receiver_payoff_matrix <span class="op">=</span> receiver_payoff_matrix,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    messages <span class="op">=</span> messages</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="creating-the-simulation-object" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="creating-the-simulation-object"><span class="header-section-number">2.3</span> Creating the simulation object</h3>
+<p>A game is a static object. It doesn’t do anything on its own. To make something happen, we need a set of <strong>strategies</strong> and a means by which those strategies <strong>evolve</strong> according to the payoffs they bring to the agents.</p>
+<p>Fortunately, the game object already knows all the strategies that are in principle available to an agent:</p>
+<div class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>sender_strategies <span class="op">=</span> game.sender_pure_strats()</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>receiver_strategies <span class="op">=</span> game.receiver_pure_strats()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let’s imagine that some senders always send the same signal no matter the state, while others choose a different signal for each state. These correspond to the first and sixth sender strategies (indexed by 0 and 5, because python indexing starts from 0):</p>
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>sender_strategies[<span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="370">
+<pre><code>array([[1., 0., 0.],
+       [1., 0., 0.],
+       [1., 0., 0.]])</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>sender_strategies[<span class="dv">5</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="371">
+<pre><code>array([[1., 0., 0.],
+       [0., 1., 0.],
+       [0., 0., 1.]])</code></pre>
+</div>
+</div>
+<p>So, we will construct a population with just these two strategies, along with the corresponding strategies for the receiver:</p>
+<div class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>sender_strategies <span class="op">=</span> np.array([sender_strategies[<span class="dv">0</span>],sender_strategies[<span class="dv">5</span>]])</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>receiver_strategies <span class="op">=</span> np.array([receiver_strategies[<span class="dv">0</span>],receiver_strategies[<span class="dv">5</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>…and we can evolve a population playing some mixture of these strategies using an appropriate simulation object from the <code>evolve</code> module:</p>
+<div class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> evoke.lib.evolve <span class="im">import</span> TwoPops <span class="co"># One population of senders, one population of receivers</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the simulation object</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>evo <span class="op">=</span> TwoPops(game, sender_strategies, receiver_strategies)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let’s see what happens when we evolve these populations.</p>
+<div class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define equiprobable strategies</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>sender_strategy_vector <span class="op">=</span> receiver_strategy_vector <span class="op">=</span> np.array([<span class="dv">1</span><span class="op">/</span><span class="dv">2</span>,<span class="dv">1</span><span class="op">/</span><span class="dv">2</span>])</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Get a population vector in the format evo expects it</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>population_vector <span class="op">=</span> np.concatenate((sender_strategy_vector, receiver_strategy_vector))</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="co"># For 100 iterations, get the new population vector</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>population_vectors_over_time <span class="op">=</span> np.array([population_vector]) <span class="co"># this will store information about how the population changes</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">100</span>):</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Get the population vector at the next step</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    population_vector <span class="op">=</span> evo.discrete_replicator_delta_X(population_vector)</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Store the population vector</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    population_vectors_over_time <span class="op">=</span> np.vstack((population_vectors_over_time,np.array([population_vector])))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now <code>population_vectors_over_time</code> is a big list of how many of each type of sender and receiver there was at each step of the simulation. Let’s plot the change in the two sender types:</p>
+<div class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the proportions of each sender type as it changes over time</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>sender_type_ignorant_time_series <span class="op">=</span> population_vectors_over_time.T[<span class="dv">0</span>]</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>sender_type_responsive_time_series <span class="op">=</span> population_vectors_over_time.T[<span class="dv">1</span>]</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the plot</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>plt.plot(<span class="bu">range</span>(<span class="bu">len</span>(population_vectors_over_time)),sender_type_ignorant_time_series,label<span class="op">=</span><span class="st">"Ignorant sender"</span>)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>plt.plot(<span class="bu">range</span>(<span class="bu">len</span>(population_vectors_over_time)),sender_type_responsive_time_series,label<span class="op">=</span><span class="st">"Responsive sender"</span>)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Add a legend</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Add axis labels</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Generations"</span>)</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Proportion of sender type"</span>)</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Show the plot</span></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="tutorial_files/figure-html/cell-20-output-1.png" width="589" height="422"></p>
+</div>
+</div>
+<p>The ignorant sender very quickly drops to zero, while the responsive sender very quickly dominates.</p>
+</section>
+</section>
+<section id="expert-adding-to-the-stock-of-figures" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="expert-adding-to-the-stock-of-figures"><span class="header-section-number">3</span> Expert: Adding to the stock of figures</h2>
+</section>
+<section id="references" class="level2 unnumbered" data-number="4">
 
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">2 References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-line-spacing="2" role="list">
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">4 References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-line-spacing="2" role="list">
 <div id="ref-skyrms2010signals" class="csl-entry" role="listitem">
 Skyrms, B. (2010). <em>Signals: <span>Evolution</span>, <span>Learning</span>, and <span>Information</span></em>. <span>Oxford University Press</span>.
 </div>
