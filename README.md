@@ -5,3 +5,7 @@ this into a proper library.
 
 See [this Jupyter notebook](tutorial.ipynb) if you want to know how it
 works, and perhaps use it for your own research.
+
+## Tutorial
+
+See the interactive tutorial on [Google Colab](https://drive.google.com/file/d/1AwUCP05lpITAP7_EZD7loGv3unhnwvhM/view?usp=sharing).
