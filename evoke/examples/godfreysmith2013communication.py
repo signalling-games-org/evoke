@@ -165,6 +165,7 @@ class GodfreySmith2013_1(Scatter):
 
             # Load each game into an object
             for game_dict in games_list_loaded:
+                
                 # Create game
                 game = asy.Chance(
                     state_chances,
@@ -173,8 +174,12 @@ class GodfreySmith2013_1(Scatter):
                     messages,
                 )
 
-                # Append information-using equilibria as game object attribute
-                game.highest_info_using_equilibrium = (game_dict["e"],game_dict["i"])
+                # Append information-using equilibria as game object attribute.
+                # This setter method sets three private attributes:
+                # game._best_strategies
+                # game._max_mutual_info
+                # game._has_info_using_equilibrium
+                game.highest_info_using_equilibrium = (game_dict["e"], game_dict["i"])
 
                 # Append this game to the figure object's game list.
                 self.games[c_value].append(game)
@@ -395,6 +400,7 @@ class GodfreySmith2013_2(Scatter):
 
             # Load each game into an object
             for game_dict in games_list_loaded:
+                
                 # Create game
                 game = asy.Chance(
                     state_chances,
@@ -403,7 +409,11 @@ class GodfreySmith2013_2(Scatter):
                     messages,
                 )
 
-                # Append information-using equilibria as game object attribute
+                # Append information-using equilibria as game object attributes.
+                # This setter method sets three private attributes:
+                # game._best_strategies
+                # game._max_mutual_info
+                # game._has_info_using_equilibrium
                 game.highest_info_using_equilibrium = (game_dict["e"], game_dict["i"])
 
                 # Append this game to the figure object's game list.
@@ -501,7 +511,7 @@ class GodfreySmith2013_2(Scatter):
             for game in tqdm(games_list, disable=True):
                 # Get this game's highest info-transmission.
                 results[c_value].append(
-                    game.highest_info_at_equilibrium[1])
+                    game.max_mutual_info)
 
         # Count the total number of info-using equilibria per level of C
         self.highest_mi = []
@@ -1051,7 +1061,7 @@ def analyse_games_3x3(
             )
 
             # Is there an info-using equilibrium?
-            game_dict["e"], game_dict["i"] = game.get_highest_info_using_equilibrium(sigfig=sigfig)
+            game_dict["e"], game_dict["i"] = game.highest_info_using_equilibrium
 
         # Dump this updated game file
         with open(fpath_json, "w") as f:
@@ -1064,7 +1074,7 @@ def analyse_games_3x3(
 def find_games_3x3_c_and_k(
     games_per_c_and_k=1500, 
     sender=True, 
-    c_values=c_3x3_equiprobable, 
+    c_values=c_3x3_equiprobable_demo, 
     k_values=k_3x3, 
     dir_games="../data/"
     ) -> None:
@@ -1188,7 +1198,7 @@ def find_games_3x3_c_and_k(
 def analyse_games_3x3_c_and_k(
     games_per_c_and_k=1500, 
     sender=True, 
-    c_values=c_3x3_equiprobable, 
+    c_values=c_3x3_equiprobable_demo, 
     k_values=k_3x3, 
     dir_games="../data/",
     sigfig=5
@@ -1263,7 +1273,7 @@ def analyse_games_3x3_c_and_k(
             )
 
             # Is there an info-using equilibrium?
-            game_dict["e"], game_dict["i"] = game.get_highest_info_using_equilibrium(sigfig=sigfig)
+            game_dict["e"], game_dict["i"] = game.highest_info_using_equilibrium
 
         # Dump this updated game file
         with open(fpath_json, "w") as f:

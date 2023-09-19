@@ -17,6 +17,9 @@ from evoke.lib import exceptions as ex
 
 np.set_printoptions(precision=4)
 
+# Significant figures for certain calculations.
+SIGFIG = 5
+
 
 class Chance:
     """
@@ -253,7 +256,7 @@ class Chance:
         return g
 
     @property
-    def has_info_using_equilibrium(self,sigfig=5)->bool:
+    def has_info_using_equilibrium(self)->bool:
         """
         
         Does this game have an information-using equilibrium?
@@ -298,8 +301,8 @@ class Chance:
 
             # Sometimes gambit gives back long decimals e.g. 0.999999996
             # We want to round these before inspecting.
-            sender_strategy = np.around(np.array(equilibrium[0]), sigfig)
-            receiver_strategy = np.around(np.array(equilibrium[1]), sigfig)
+            sender_strategy = np.around(np.array(equilibrium[0]), SIGFIG)
+            receiver_strategy = np.around(np.array(equilibrium[1]), SIGFIG)
 
             # Create info object to make info measurements
             info_object = info.Information(self, sender_strategy, receiver_strategy)
@@ -337,7 +340,7 @@ class Chance:
         self._has_info_using_equilibrium = has_info_using_equilibrium
 
     @property
-    def highest_info_using_equilibrium(self,sigfig=5)->tuple:
+    def highest_info_using_equilibrium(self)->tuple:
         """
         Get the mutual information between states and acts at the
         equilibrium with the highest such value.
@@ -364,8 +367,8 @@ class Chance:
         """
         
         # Lazy instantiation
-        if hasattr(self,"_best_strategies") and hasattr(self,"_highest_info_at_equilibrium"):
-            return self._best_strategies, self._highest_info_at_equilibrium
+        if hasattr(self,"_best_strategies") and hasattr(self,"_max_mutual_info"):
+            return self._best_strategies, self._max_mutual_info
         
         # First get the gambit game object
         gambit_game = self.create_gambit_game()
@@ -388,8 +391,8 @@ class Chance:
 
             # Sometimes gambit gives back long decimals e.g. 0.999999996
             # We want to round these before dumping to a file.
-            sender_strategy = np.around(np.array(equilibrium[0]), sigfig)
-            receiver_strategy = np.around(np.array(equilibrium[1]), sigfig)
+            sender_strategy = np.around(np.array(equilibrium[0]), SIGFIG)
+            receiver_strategy = np.around(np.array(equilibrium[1]), SIGFIG)
 
             # Create info object to make info measurements
             info_object = info.Information(self, sender_strategy, receiver_strategy)
@@ -407,19 +410,19 @@ class Chance:
                     sender_strategy.tolist(), receiver_strategy.tolist()]
 
                 # The mutual information is the current mutual info at this equilibrium.
-                current_highest_info_at_equilibrium = round(current_mutual_info, sigfig)
+                current_highest_info_at_equilibrium = round(current_mutual_info, SIGFIG)
         
         # Return the best strategies and highest info found
         self._best_strategies = current_best_strategies
-        self._highest_info_at_equilibrium = current_highest_info_at_equilibrium
+        self._max_mutual_info = current_highest_info_at_equilibrium
         
         # If it's non-zero, set the relevant boolean attribute
-        if self._highest_info_at_equilibrium > 0:
+        if self._max_mutual_info > 0:
             self.has_info_using_equilibrium = True
         else:
             self.has_info_using_equilibrium = False
         
-        return self._best_strategies, self._highest_info_at_equilibrium
+        return self._best_strategies, self._max_mutual_info
     
     @highest_info_using_equilibrium.setter
     def highest_info_using_equilibrium(self,equilibrium_data)->None:
@@ -434,7 +437,7 @@ class Chance:
         ----------
         best_strategies : array-like
             First element is sender strat, second element is receiver strat.
-        highest_info_at_equilibrium : float
+        max_mutual_info : float
             The amount of mutual information between states and acts
             at the highest info-using equilibrium.
 
@@ -445,7 +448,7 @@ class Chance:
         """
         
         try:
-            best_strategies, highest_info_at_equilibrium = equilibrium_data
+            best_strategies, max_mutual_info = equilibrium_data
         except ValueError:
             exception_message = "This function needs an iterable as input. "+\
                                 "The first element should be a list [sender_strategy, receiver_strategy]. "+\
@@ -453,10 +456,10 @@ class Chance:
             raise ValueError(exception_message)
         
         self._best_strategies = best_strategies
-        self._highest_info_at_equilibrium = highest_info_at_equilibrium
+        self.max_mutual_info = max_mutual_info
         
         # If the highest info is greater than zero, also set the relevant boolean attribute.
-        if self._highest_info_at_equilibrium > 0:
+        if self.max_mutual_info > 0:
             self.has_info_using_equilibrium = True
         else:
             self.has_info_using_equilibrium = False
@@ -546,7 +549,27 @@ class Chance:
             )
 
         return self._max_mutual_info
+    
+    @max_mutual_info.setter
+    def max_mutual_info(self,max_mutual_info):
+        """
+        Set the maximum mutual information at equilibrium for this game.
 
+        Parameters
+        ----------
+        max_mutual_info : float
+            Maximum mutual information at equilibrium.
+            If self.has_info_using_equilibrium is False, this should be 0.
+            If self.has_info_using_equilibrium is True, this should be > 0.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        self._max_mutual_info = max_mutual_info
+    
     @max_mutual_info.deleter
     def max_mutual_info(self):
         """
