@@ -747,8 +747,9 @@ class Surface(Figure):
               cmap=cm.coolwarm,
               linewidth=1,
               antialiased=False,
-              elev=15.,
-              azim=245
+              elev=25.,
+              azim=245,
+              dist=12 
         )->None:
         """
         Update figure parameters, which can then be plotted with self.show().
@@ -773,6 +774,12 @@ class Surface(Figure):
             Width of the lines in the surface. The default is 1.
         antialiased : bool, optional
             Whether the figure is antialiased. The default is False.
+        elev : float
+            camera elevation
+        azim : int
+            camera azimuth
+        dist : int
+            camera distance
 
         Returns
         -------
@@ -806,6 +813,7 @@ class Surface(Figure):
         # Camera angle
         self.elev = elev
         self.azim = azim
+        self.dist = dist
     
     def show(self)->None:
         """
@@ -848,6 +856,9 @@ class Surface(Figure):
         
         # Camera angle
         if self.elev and self.azim: ax.view_init(elev=self.elev, azim=self.azim)
+        
+        # Camera distance
+        ax.dist = self.dist
         
         plt.show()
         
