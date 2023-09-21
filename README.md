@@ -10,8 +10,28 @@ See the interactive tutorial on [Google Colab](https://colab.research.google.com
 
 ## Installation
 
-`pip install evoke-signals`
+Clone into a local repository and run `pip install -e evoke`.
+
+We are working on adding evoke to PyPi so you can install with pip -- watch this space!
 
 ## Basic usage
 
-TODO
+To create one of the example figures, simply import the relevant class and create an instance of it:
+
+```
+from evoke.examples.skyrms2010signals import Skyrms2010_1_1
+fig1_1 = Skyrms2010_1_1()
+```
+
+![Example of Skyrms 2010 Figure 1.1](docs/tutorials/figures/skyrms2010_1_1.png)
+
+Certain figures allow you to specify your own parameters:
+
+```
+from evoke.examples.skyrms2010signals import Skyrms2010_3_3
+fig3_3 = Skyrms2010_3_3(iterations=1000)
+````
+
+![Example of Skyrms 2010 Figure 3.3](docs/tutorials/figures/skyrms2010_3_3.png)
+
+See the `examples/` directory for a collection of available figures.
