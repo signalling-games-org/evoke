@@ -133,7 +133,7 @@ class Figure(ABC):
         list_of_properties.remove("properties")
         
         # Create a dict from this list, including the current values.
-        dict_of_propertes = {k:getattr(self, k) for k in list_of_properties}
+        dict_of_propertes = {k:getattr(self, k) for k in sorted(list_of_properties)}
         
         return dict_of_propertes
 
@@ -590,12 +590,19 @@ class Quiver3D(Quiver):
         # Display axis?
         if hasattr(self, "noaxis") and self.noaxis:
             ax.set_axis_off()
+            
+            # Camera distance. TODO make this a property of the Quiver3D object.
+            ax.dist = 10
+            
         else:
             # There are axes. Are there axis labels?
             # Axis labels
             if hasattr(self,"xlabel"): ax.set_xlabel(self.xlabel)
             if hasattr(self,"ylabel"): ax.set_ylabel(self.ylabel)
             if hasattr(self,"zlabel"): ax.set_zlabel(self.zlabel)
+            
+            # Camera distance. TODO make this a property of the Quiver3D object.
+            ax.dist = 13
 
         ## Tetrahedron lines
         ## TODO tidy this up.
@@ -621,8 +628,6 @@ class Quiver3D(Quiver):
         # # Camera angle. TODO make these properties of the Quiver3D object.
         # if self.elev and self.azim: ax.view_init(elev=self.elev, azim=self.azim)
         
-        # # Camera distance. TODO make this a property of the Quiver3D object.
-        # ax.dist = self.dist
 
         plt.show()
         
