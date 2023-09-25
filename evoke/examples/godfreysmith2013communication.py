@@ -124,8 +124,9 @@ class GodfreySmith2013_1(Scatter):
             ylim=[0, 1],
         )
 
-        # # Show the graph, with the line between the scatter points
-        self.show(line=True)
+        # Show the graph, with the line between the scatter points
+        self.show_line = True
+        self.show()
 
     def load_saved_games(self, dir_games, games_per_c):
         """
@@ -359,8 +360,9 @@ class GodfreySmith2013_2(Scatter):
             ylim=[0, 2],
         )
 
-        # # Show the graph, with the line between the scatter points
-        self.show(line=True)
+        # Show the graph, with the line between the scatter points
+        self.show_line = True
+        self.show()
 
     def load_saved_games(self, dir_games, games_per_c):
         """
@@ -640,10 +642,9 @@ class GodfreySmith2013_3(Surface):
             # Delete that entry from <self.games>
             del self.games[combination_to_exclude]
         
-
         # State chances and messages are always the same.
-        state_chances = np.array([1 / 3, 1 / 3, 1 / 3])
-        messages = 3
+        # state_chances = np.array([1 / 3, 1 / 3, 1 / 3])
+        # messages = 3
 
         # Loop at C values...
         for value_string, games_list in self.games.items():

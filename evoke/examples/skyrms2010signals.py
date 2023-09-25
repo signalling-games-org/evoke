@@ -39,7 +39,9 @@ class Skyrms2010_1_1(Quiver2D):
 
         evo = self.run_simulation()
 
-        super().__init__(evo=evo, show_immediately=True)
+        super().__init__(evo=evo)
+        
+        self.show()
 
     def initialize_simulation(self):
         self.states = np.array([0.5, 0.5])
@@ -99,7 +101,9 @@ class Skyrms2010_1_2(Quiver3D):
 
         evo = self.run_simulation()
 
-        super().__init__(evo=evo, noaxis=True, show_immediately=True)
+        super().__init__(evo=evo, noaxis=True)
+        
+        self.show()
 
     def initialize_simulation(self):
         ## Create interaction payoff matrix

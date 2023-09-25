@@ -45,10 +45,7 @@ class Figure(ABC):
         ## Set keyword arguments as class attributes.
         for k, v in kwargs.items():
             setattr(self, k, v)
-
-        ## Do we show the plot immediately?
-        if hasattr(self, "show_immediately") and self.show_immediately:
-            self.show()
+        
 
     @abstractmethod
     def show(self):
@@ -90,6 +87,55 @@ class Figure(ABC):
         """
         
         print(f"Note: figure will be created in demo mode. To create the full figure use {cls.__name__}(demo=False).")
+    
+    @property
+    def properties(self):
+        """
+        Get a dict of all the editable properties of the figure, with their current values.
+        
+        Typically includes properties like plot color, axis labels, plot scale etc.
+
+        Returns
+        -------
+        list_of_properties : list
+            A list of the editable properties of the object.
+
+        """
+        
+        # Initialise
+        list_of_properties = []
+        
+        # We need to check properties defined by the class itself,
+        # as well as all properties defined by its superclasses,
+        # up to and including the Figure class.
+        
+        # We need to find where the Figure class is in the hierarchy of superclasses.
+        # First we need to create a list of class names in that hierarchy.
+        superclass_list = [c.__name__ for c in type(self).__mro__]
+        
+        # Then get the index of the string "Figure" in that list of names.
+        figure_location = superclass_list.index("Figure")
+        
+        # Now start from the base class and step through each superclass.
+        for i in range(figure_location+1):
+            
+            # Add this superclass's properties to the big list of properties.
+            # In future we might need to do further tweaking here
+            # to exclude properties that aren't in fact editable.
+            # For now I'm assuming all properties created with the @property decorator
+            # are intended as user-editable properties of the figure plot.
+            list_of_properties.extend(
+                [k for k, v in vars(type(self).__mro__[i]).items() if isinstance(v, property)]
+            )
+        
+        
+        # Omit the "properties" property!
+        list_of_properties.remove("properties")
+        
+        # Create a dict from this list, including the current values.
+        dict_of_propertes = {k:getattr(self, k) for k in list_of_properties}
+        
+        return dict_of_propertes
 
 
 class Scatter(Figure):
@@ -165,7 +211,7 @@ class Scatter(Figure):
         self.xscale = xscale
         self.yscale = yscale
 
-    def show(self, line=False):
+    def show(self):
         """
         Show figure with the current parameters.
 
@@ -188,7 +234,7 @@ class Scatter(Figure):
         ## Data
         plt.scatter(x=self.x, y=self.y, s=self.s, c=self.c)
 
-        if line:
+        if self.show_line:
             plt.plot(self.x, self.y, color=self.c)
 
         ## Labels
@@ -209,6 +255,13 @@ class Scatter(Figure):
 
         ## Show plot
         plt.show()
+        
+        # If this is the first time this method has been called,
+        # we want to allow the user to change cosmetic properties
+        # and show the plot immediately when those properties are changed.
+        # Therefore, if the show_immediately flag has not yet been created,
+        # create it here and set it to True.
+        if not hasattr(self, "show_immediately"): self.show_immediately = True
 
     """
         SCATTER ATTRIBUTES AND ALIASES
@@ -224,6 +277,8 @@ class Scatter(Figure):
     @s.setter
     def s(self, inp):
         self._s = inp
+        
+        if hasattr(self,"show_immediately") and self.show_immediately: self.show()
 
     @s.deleter
     def s(self):
@@ -243,6 +298,8 @@ class Scatter(Figure):
     @c.setter
     def c(self, inp):
         self._c = inp
+        
+        if hasattr(self,"show_immediately") and self.show_immediately: self.show()
 
     @c.deleter
     def c(self):
@@ -250,7 +307,27 @@ class Scatter(Figure):
 
     # Alias
     marker_color = c
-
+    
+    """
+        Line connecting the markers
+    """
+    @property
+    def show_line(self):
+        
+        # Lazy instantiation: default is False
+        if not hasattr(self,"_show_line"): self._show_line = False
+        
+        return self._show_line
+    
+    @show_line.setter
+    def show_line(self,inp):
+        self._show_line = inp
+        
+        if hasattr(self,"show_immediately") and self.show_immediately: self.show()
+    
+    @show_line.deleter
+    def show_line(self):
+        del self._show_line
 
 class Quiver(Figure):
     """
@@ -398,8 +475,18 @@ class Quiver2D(Quiver):
         # Axis labels
         if self.xlabel: ax.set_xlabel(self.xlabel)
         if self.ylabel: ax.set_ylabel(self.ylabel)
+        
+        # Include axis?
+        if self.noaxis: ax.set_axis_off()
 
         plt.show()
+        
+        # If this is the first time this method has been called,
+        # we want to allow the user to change cosmetic properties
+        # and show the plot immediately when those properties are changed.
+        # Therefore, if the show_immediately flag has not yet been created,
+        # create it here and set it to True.
+        if not hasattr(self, "show_immediately"): self.show_immediately = True
 
     def uv_from_xy(self, x, y):
         """
@@ -498,9 +585,17 @@ class Quiver3D(Quiver):
         ax.set_xlim([-0.05, 2.1])  # TODO: determine from self.vertices
         ax.set_ylim([-0.05, 3.05])  # TODO: determine from self.vertices
         ax.set_zlim([-0.05, 3.05])  # TODO: determine from self.vertices
-
+        
+        
+        # Display axis?
         if hasattr(self, "noaxis") and self.noaxis:
             ax.set_axis_off()
+        else:
+            # There are axes. Are there axis labels?
+            # Axis labels
+            if hasattr(self,"xlabel"): ax.set_xlabel(self.xlabel)
+            if hasattr(self,"ylabel"): ax.set_ylabel(self.ylabel)
+            if hasattr(self,"zlabel"): ax.set_zlabel(self.zlabel)
 
         ## Tetrahedron lines
         ## TODO tidy this up.
@@ -517,8 +612,26 @@ class Quiver3D(Quiver):
             ax.plot3D(
                 line[0], line[1], line[2], c="0", linestyle=linestyle, linewidth=0.8
             )
+        
+        # # TODO make these editable properties!
+        # self.elev=25.
+        # self.azim=245
+        # self.dist=12 
+        
+        # # Camera angle. TODO make these properties of the Quiver3D object.
+        # if self.elev and self.azim: ax.view_init(elev=self.elev, azim=self.azim)
+        
+        # # Camera distance. TODO make this a property of the Quiver3D object.
+        # ax.dist = self.dist
 
         plt.show()
+        
+        # If this is the first time this method has been called,
+        # we want to allow the user to change cosmetic properties
+        # and show the plot immediately when those properties are changed.
+        # Therefore, if the show_immediately flag has not yet been created,
+        # create it here and set it to True.
+        if not hasattr(self, "show_immediately"): self.show_immediately = True
 
     def vector_to_barycentric(self, vector):
         """
@@ -545,6 +658,26 @@ class Quiver3D(Quiver):
         barycentric_location = u @ self.vertices
 
         return barycentric_location
+    
+    """ Property: z-axis label """
+    @property
+    def zlabel(self):
+        
+        # Lazy instantiation: default to None
+        if not hasattr(self,"_zlabel"): self._zlabel = None
+        
+        return self._zlabel
+    
+    @zlabel.setter
+    def zlabel(self,zlabel):
+        self._zlabel = zlabel
+        
+        # Update automatically?
+        if hasattr(self,"show_immediately") and self.show_immediately: self.show()
+    
+    @zlabel.deleter
+    def zlabel(self): del self._zlabel
+    
 
 
 class Bar(Figure):
@@ -632,6 +765,13 @@ class Bar(Figure):
 
         ## Show plot
         plt.show()
+        
+        # If this is the first time this method has been called,
+        # we want to allow the user to change cosmetic properties
+        # and show the plot immediately when those properties are changed.
+        # Therefore, if the show_immediately flag has not yet been created,
+        # create it here and set it to True.
+        if not hasattr(self, "show_immediately"): self.show_immediately = True
 
     """
         BAR ATTRIBUTES AND ALIASES
@@ -648,6 +788,8 @@ class Bar(Figure):
     @c.setter
     def c(self, inp):
         self._c = inp
+        
+        if hasattr(self,"show_immediately") and self.show_immediately: self.show()
 
     @c.deleter
     def c(self):
@@ -861,4 +1003,11 @@ class Surface(Figure):
         ax.dist = self.dist
         
         plt.show()
+        
+        # If this is the first time this method has been called,
+        # we want to allow the user to change cosmetic properties
+        # and show the plot immediately when those properties are changed.
+        # Therefore, if the show_immediately flag has not yet been created,
+        # create it here and set it to True.
+        if not hasattr(self, "show_immediately"): self.show_immediately = True
         
