@@ -102,40 +102,45 @@ class Figure(ABC):
 
         """
         
-        # Initialise
-        list_of_properties = []
+        # Lazy instantiation of the property names
+        if not hasattr(self,"_list_of_properties"):
         
-        # We need to check properties defined by the class itself,
-        # as well as all properties defined by its superclasses,
-        # up to and including the Figure class.
-        
-        # We need to find where the Figure class is in the hierarchy of superclasses.
-        # First we need to create a list of class names in that hierarchy.
-        superclass_list = [c.__name__ for c in type(self).__mro__]
-        
-        # Then get the index of the string "Figure" in that list of names.
-        figure_location = superclass_list.index("Figure")
-        
-        # Now start from the base class and step through each superclass.
-        for i in range(figure_location+1):
+            # Initialise
+            self._list_of_properties = []
             
-            # Add this superclass's properties to the big list of properties.
-            # In future we might need to do further tweaking here
-            # to exclude properties that aren't in fact editable.
-            # For now I'm assuming all properties created with the @property decorator
-            # are intended as user-editable properties of the figure plot.
-            list_of_properties.extend(
-                [k for k, v in vars(type(self).__mro__[i]).items() if isinstance(v, property)]
-            )
+            # We need to check properties defined by the class itself,
+            # as well as all properties defined by its superclasses,
+            # up to and including the Figure class.
+            
+            # We need to find where the Figure class is in the hierarchy of superclasses.
+            # First we need to create a list of class names in that hierarchy.
+            superclass_list = [c.__name__ for c in type(self).__mro__]
+            
+            # Then get the index of the string "Figure" in that list of names.
+            figure_location = superclass_list.index("Figure")
+            
+            # Now start from the base class and step through each superclass.
+            for i in range(figure_location+1):
+                
+                # Add this superclass's properties to the big list of properties.
+                # In future we might need to do further tweaking here
+                # to exclude properties that aren't in fact editable.
+                # For now I'm assuming all properties created with the @property decorator
+                # are intended as user-editable properties of the figure plot.
+                self._list_of_properties.extend(
+                    [k for k, v in vars(type(self).__mro__[i]).items() if isinstance(v, property)]
+                )
+            
+            # Omit the "properties" property!
+            self._list_of_properties.remove("properties")
+            
+            self._list_of_properties = sorted(self._list_of_properties)
         
-        
-        # Omit the "properties" property!
-        list_of_properties.remove("properties")
-        
+        # Current property values
         # Create a dict from this list, including the current values.
-        dict_of_propertes = {k:getattr(self, k) for k in sorted(list_of_properties)}
+        dict_of_properties = {k:getattr(self, k) for k in self._list_of_properties}
         
-        return dict_of_propertes
+        return dict_of_properties
 
 
 class Scatter(Figure):
