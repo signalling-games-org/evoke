@@ -12,6 +12,13 @@ To use evoke, first install it using pip:
    (.venv) $ pip install evoke
 
 
+Tutorial
+--------
+
+The best way to discover evoke is `the interactive tutorial <https://colab.research.google.com/drive/1AwUCP05lpITAP7_EZD7loGv3unhnwvhM#forceEdit=true&sandboxMode=true>`.
+The rest of this document describes very simple use cases.
+
+
 The simplest case: reproducing a figure from the literature
 -----------------------------------------------------------
 
