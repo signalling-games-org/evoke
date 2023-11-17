@@ -8,3 +8,5 @@ evoke/data/
 docs/build/
 
 tutorials/jupyter/.ipynb_checkpoints/
+
+.spyproject
