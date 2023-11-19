@@ -6,7 +6,7 @@ discrete or continuous time
 """
 
 ## Built-in
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 import numpy as np
 from scipy.integrate import ode
 from scipy.integrate import odeint
@@ -15,8 +15,7 @@ from scipy.integrate import odeint
 from tqdm import trange
 
 ## evoke
-from evoke.lib.asymmetric_games import Chance, NonChance, ChanceSIR
-from evoke.lib.info import Information, entropy
+from evoke.src.info import Information
 
 
 class OnePop:
