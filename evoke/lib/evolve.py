@@ -79,6 +79,12 @@ class OnePop:
         if self.e == 0:
             return player @ self.avgpayoffs
 
+        meeting_probabilities = np.tile(
+            player, (1, self.lps)
+        )  # a square array of copies of <player>
+        meeting_probabilities += self.e * (np.eye(self.lps) - meeting_probabilities)
+        payoffs = meeting_probabilities @ self.avgpayoffs
+
         avg_payoffs = []
 
         ## Otherwise, loop and specify the assortment-weighted probabilities.
@@ -107,7 +113,7 @@ class OnePop:
 
             i += 1
 
-        return avg_payoffs
+        return avg_payoffs, payoffs
 
     def replicator_dX_dt_odeint(self, X, t):
         """
