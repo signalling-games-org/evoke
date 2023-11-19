@@ -80,40 +80,11 @@ class OnePop:
             return player @ self.avgpayoffs
 
         meeting_probabilities = np.tile(
-            player, (1, self.lps)
+            player, (self.lps, 1)
         )  # a square array of copies of <player>
         meeting_probabilities += self.e * (np.eye(self.lps) - meeting_probabilities)
-        payoffs = meeting_probabilities @ self.avgpayoffs
-
-        avg_payoffs = []
-
-        ## Otherwise, loop and specify the assortment-weighted probabilities.
-        ## This can probably be vectorised.
-        i = 0
-        for p_i in player:
-            meeting_probabilities = []
-
-            j = 0
-            for p_j in player:
-                if i == j:
-                    ## p_i is the proportion of individuals of type i.
-                    meeting_probabilities.append(p_i + self.e * (1 - p_i))
-
-                else:
-                    ## p_j are all the others
-                    meeting_probabilities.append(p_j - self.e * p_j)
-
-                j += 1
-
-            meeting_probabilities = np.array(meeting_probabilities)
-
-            payoff_i = (meeting_probabilities @ self.avgpayoffs)[i]
-
-            avg_payoffs.append(payoff_i)
-
-            i += 1
-
-        return avg_payoffs, payoffs
+        avg_payoffs = np.einsum("ij,ji->i", meeting_probabilities, self.avgpayoffs)
+        return avg_payoffs
 
     def replicator_dX_dt_odeint(self, X, t):
         """
