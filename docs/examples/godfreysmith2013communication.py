@@ -27,20 +27,15 @@ Full run, minimal parameters:
 
 # Standard libraries
 import numpy as np
-from tqdm import tqdm, trange
-import pygambit
-import pickle
+from tqdm import tqdm
 import json
 
 # Custom library
-from evoke.lib.figure import Scatter, Bar, Quiver2D, Quiver3D, Surface
-from evoke.lib import asymmetric_games as asy
-from evoke.lib import evolve as ev
-from evoke.lib.symmetric_games import NoSignal
+from evoke.src.figure import Scatter, Surface
+from evoke.src import asymmetric_games as asy
 
 # from evoke.lib.common_interest import tau_per_rows as C_measure
-from evoke.lib.info import Information
-import evoke.lib.exceptions as ex
+import evoke.src.exceptions as ex
 
 # Global variables
 
@@ -51,10 +46,10 @@ c_3x3_equiprobable = np.array([i / 9 for i in range(0, 10)])
 c_3x3_equiprobable_demo = np.array([i / 9 for i in range(2, 10)])
 
 # Values of the K measure for 3x3 games
-k_3x3 = np.array([i/3 for i in range(0, 7)])
+k_3x3 = np.array([i / 3 for i in range(0, 7)])
 
 # Values of K to exclude when C=0 (because the combination is impossible)
-k_3x3_excluded_at_c_0 = np.array([1/3,3/3,5/3])
+k_3x3_excluded_at_c_0 = np.array([1 / 3, 3 / 3, 5 / 3])
 
 # Figures
 # Each class inherits from a superclass from figure.py
@@ -74,7 +69,7 @@ class GodfreySmith2013_1(Scatter):
     =====================
 
     You have two options to create this figure: demo mode and full mode.
-    
+
     + Demo mode omits hard-to-find classes and places an upper limit on <games_per_c>.
       This allows it to run in a reasonable amount of time.
     + Full mode requires an existing set of pickled classes.
@@ -163,13 +158,14 @@ class GodfreySmith2013_1(Scatter):
             try:
                 with open(fpath_json, "r") as f:
                     games_list_loaded = json.load(f)
-            
+
             except FileNotFoundError:
-                raise ex.NoDataException(f"File {fpath_json} was not found. Have you run find_games_3x3() and analyse_games_3x3() for games_per_c={games_per_c} yet?")
+                raise ex.NoDataException(
+                    f"File {fpath_json} was not found. Have you run find_games_3x3() and analyse_games_3x3() for games_per_c={games_per_c} yet?"
+                )
 
             # Load each game into an object
             for game_dict in games_list_loaded:
-                
                 # Create game
                 game = asy.Chance(
                     state_chances,
@@ -221,8 +217,7 @@ class GodfreySmith2013_1(Scatter):
             receiver_payoff_matrix = get_random_payoffs()
 
             # Check common interest
-            c = calculate_C(state_chances, sender_payoff_matrix,
-                            receiver_payoff_matrix)
+            c = calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix)
 
             # Skip 0 and 1/9 values in demo mode
             if f"{c:.3f}" == "0.000" or f"{c:.3f}" == "0.111":
@@ -240,7 +235,7 @@ class GodfreySmith2013_1(Scatter):
                 receiver_payoff_matrix,
                 messages,
             )
-            
+
             # ...and associate it with this value of C.
             self.games[f"{c:.3f}"].append(game)
 
@@ -248,7 +243,10 @@ class GodfreySmith2013_1(Scatter):
             games_added_to_count += 1
 
             # Report progress
-            if total_games_required > 100 and games_added_to_count % (np.floor(total_games_required / 100)) == 0:
+            if (
+                total_games_required > 100
+                and games_added_to_count % (np.floor(total_games_required / 100)) == 0
+            ):
                 print(
                     f"Surveyed {total_games_surveyed} games; added {games_added_to_count} of {total_games_required}"
                 )
@@ -275,7 +273,6 @@ class GodfreySmith2013_1(Scatter):
         for c_value, games_list in tqdm(self.games.items()):
             # Loop at games per C value...
             for game in tqdm(games_list, disable=True):
-               
                 # If this game's info transmission at its best equilibrium
                 # is greater than zero...
                 if game.has_info_using_equilibrium:
@@ -308,7 +305,7 @@ class GodfreySmith2013_2(Scatter):
     =====================
 
     You have two options to create this figure: demo mode and full mode.
-    
+
     + Demo mode omits hard-to-find classes and places an upper limit on <games_per_c>.
       This allows it to run in a reasonable amount of time.
     + Full mode requires an existing set of pickled classes.
@@ -316,10 +313,10 @@ class GodfreySmith2013_2(Scatter):
 
     The reason for demo mode is that the figure takes a VERY long time to create
     with the published parameter of games_per_c=1500.
-    
+
     Realistically we need to prepare by finding <games_per_c> games for each value of c,
     pickling them, and calling them at runtime to count the equilibria.
-    
+
     Demo mode omits games with c=0.000 and c=0.111 because they are especially hard to find.
 
     """
@@ -399,13 +396,14 @@ class GodfreySmith2013_2(Scatter):
             try:
                 with open(fpath_json, "r") as f:
                     games_list_loaded = json.load(f)
-            
+
             except FileNotFoundError:
-                raise ex.NoDataException(f"File {fpath_json} was not found. Have you run find_games_3x3() and analyse_games_3x3() for games_per_c={games_per_c} yet?")
+                raise ex.NoDataException(
+                    f"File {fpath_json} was not found. Have you run find_games_3x3() and analyse_games_3x3() for games_per_c={games_per_c} yet?"
+                )
 
             # Load each game into an object
             for game_dict in games_list_loaded:
-                
                 # Create game
                 game = asy.Chance(
                     state_chances,
@@ -457,8 +455,7 @@ class GodfreySmith2013_2(Scatter):
             receiver_payoff_matrix = get_random_payoffs()
 
             # Check common interest
-            c = calculate_C(state_chances, sender_payoff_matrix,
-                            receiver_payoff_matrix)
+            c = calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix)
 
             # Skip 0 and 1/9 values in demo mode
             if f"{c:.3f}" == "0.000" or f"{c:.3f}" == "0.111":
@@ -515,8 +512,7 @@ class GodfreySmith2013_2(Scatter):
             # Loop at games per C value...
             for game in tqdm(games_list, disable=True):
                 # Get this game's highest info-transmission.
-                results[c_value].append(
-                    game.max_mutual_info)
+                results[c_value].append(game.max_mutual_info)
 
         # Count the total number of info-using equilibria per level of C
         self.highest_mi = []
@@ -526,12 +522,14 @@ class GodfreySmith2013_2(Scatter):
 
 class GodfreySmith2013_3(Surface):
     """
-        See figure at https://doi.org/10.1371/journal.pcbi.1003282.g003
-        
-        See documentation for running in demo mode versus full mode.
+    See figure at https://doi.org/10.1371/journal.pcbi.1003282.g003
+
+    See documentation for running in demo mode versus full mode.
     """
-    
-    def __init__(self, games_per_c_and_k=150, k_indicator=None, demo=False, dir_games="../data/"):
+
+    def __init__(
+        self, games_per_c_and_k=150, k_indicator=None, demo=False, dir_games="../data/"
+    ):
         """
         Constructor for GodfreySmith2013_3 object.
 
@@ -545,18 +543,19 @@ class GodfreySmith2013_3(Surface):
             Indicates whether the plot is created for sender values of K or receiver values.
             The default is None, forcing the user to specify the value.
         demo : bool, optional
-            If True, runs in demo mode.    
+            If True, runs in demo mode.
             The default is False.
         dir_games : str, optional
             Directory for stored game data. The default is "../data/".
 
         """
 
-        if k_indicator: self.k_indicator = k_indicator
-        
+        if k_indicator:
+            self.k_indicator = k_indicator
+
         # Set attributes
         self.games_per_c_and_k = games_per_c_and_k
-        
+
         # Is it demo mode?
         if demo:
             # # Warn user of demo mode
@@ -564,20 +563,19 @@ class GodfreySmith2013_3(Surface):
 
             # # Set C values for demo mode
             # self.c_values = c_3x3_equiprobable_demo
-            
+
             # # K values
             # self.k_values = k_3x3
 
             # # Create games in demo mode
             # self.create_games_demo(games_per_c)
-            
+
             raise NotImplementedError("Demo mode not available for this figure yet!")
 
         else:
-            
             # Set C values for full mode
             self.c_values = c_3x3_equiprobable
-            
+
             # K values
             self.k_values = k_3x3
 
@@ -594,24 +592,26 @@ class GodfreySmith2013_3(Surface):
         # Set the data for the graph
         self.reset(
             x=self.c_values,
-            y=self.k_values / max(self.k_values), # Normalise
+            y=self.k_values / max(self.k_values),  # Normalise
             z=self.info_using_equilibria,
             xlabel="C",
             ylabel="K_S",
             zlabel="Proportion of games",
             xlim=[0, 1],
             ylim=[0, 1],
-            zlim=[0, 1]
+            zlim=[0, 1],
         )
 
         # Show the graph
         self.show()
-        
+
         # Warn user about impossible combinations
-        print("Note that the following combinations of C and K are impossible and have been artificially set to zero:")
+        print(
+            "Note that the following combinations of C and K are impossible and have been artificially set to zero:"
+        )
         for k_value in k_3x3_excluded_at_c_0:
             print(f"C={0:.3f}, K={k_value:.3f}")
-        
+
     def load_saved_games(self, dir_games):
         """
         Get sender and receiver matrices and load them into game objects.
@@ -631,24 +631,26 @@ class GodfreySmith2013_3(Surface):
         """
 
         # Game objects will be stored in a dictionary by C and K value.
-        self.games = {f"{c_value:.3f}_{k_value:.3f}": [] for c_value in self.c_values for k_value in self.k_values}
-        
+        self.games = {
+            f"{c_value:.3f}_{k_value:.3f}": []
+            for c_value in self.c_values
+            for k_value in self.k_values
+        }
+
         # Remove impossible combinations of C and K
         for k_value in k_3x3_excluded_at_c_0:
-            
             # Define the game that is to be excluded.
             combination_to_exclude = f"{0:.3f}_{k_value:.3f}"
-            
+
             # Delete that entry from <self.games>
             del self.games[combination_to_exclude]
-        
+
         # State chances and messages are always the same.
         # state_chances = np.array([1 / 3, 1 / 3, 1 / 3])
         # messages = 3
 
         # Loop at C values...
         for value_string, games_list in self.games.items():
-            
             # Get name of JSON file
             fpath_json = f"{dir_games}games_c{value_string[:5]}_{self.k_indicator}{value_string[6:]}_n{self.games_per_c_and_k}.json"
 
@@ -657,15 +659,14 @@ class GodfreySmith2013_3(Surface):
             try:
                 with open(fpath_json, "r") as f:
                     games_list_loaded = json.load(f)
-            
-            except FileNotFoundError:
-                raise ex.NoDataException(f"File {fpath_json} was not found. Have you run find_games_3x3() and analyse_games_3x3() for games_per_c_and_k={self.games_per_c_and_k} yet?")
 
+            except FileNotFoundError:
+                raise ex.NoDataException(
+                    f"File {fpath_json} was not found. Have you run find_games_3x3() and analyse_games_3x3() for games_per_c_and_k={self.games_per_c_and_k} yet?"
+                )
 
             # Load each game into an object
             for game_dict in games_list_loaded:
-                
-                
                 # # Create game
                 # game = asy.Chance(
                 #     state_chances,
@@ -679,14 +680,15 @@ class GodfreySmith2013_3(Surface):
 
                 # # Append this game to the figure object's game list.
                 # self.games[value_string].append(game)
-                
+
                 # To avoid creating the game object (takes a long time),
                 # just say whether there's an info-using equilibrium.
-                if game_dict["i"] > 0: self.games[value_string].append(True)
-                
-                if game_dict["i"] == 0: self.games[value_string].append(False)
-    
-    
+                if game_dict["i"] > 0:
+                    self.games[value_string].append(True)
+
+                if game_dict["i"] == 0:
+                    self.games[value_string].append(False)
+
     def calculate_results_per_c_and_k(self):
         """
 
@@ -701,25 +703,26 @@ class GodfreySmith2013_3(Surface):
 
         # 1. Initialize
         # TODO: get this from the keys of self.games.
-        results = {f"{c_value:.3f}_{k_value:.3f}": [] for c_value in self.c_values for k_value in self.k_values}
-        
+        results = {
+            f"{c_value:.3f}_{k_value:.3f}": []
+            for c_value in self.c_values
+            for k_value in self.k_values
+        }
+
         # Set dummy data for impossible combinations of C and K.
         # We'll warn the user that this data is artificially set to zero.
         for k_value in k_3x3_excluded_at_c_0:
-            
             # Define the game that is to be excluded.
             combination_to_dummy = f"{0:.3f}_{k_value:.3f}"
-            
+
             # Delete that entry from <self.games>
             results[combination_to_dummy] = np.zeros((self.games_per_c_and_k,)).tolist()
-        
+
         # Now get the real data.
         # 2. Loop at combinations...
         for value_string, games_list in tqdm(self.games.items()):
-            
             # Loop at games per combination...
             for game in tqdm(games_list, disable=True):
-                
                 # # If this game's info transmission at its best equilibrium
                 # # is greater than zero...
                 # if game.has_info_using_equilibrium:
@@ -729,53 +732,54 @@ class GodfreySmith2013_3(Surface):
                 # else:  # otherwise...
                 #     # Append False to the results list.
                 #     results[value_string].append(False)
-                
-                # Now we aren't creating the game, 
+
+                # Now we aren't creating the game,
                 # we just have True or False already stored in the games list.
                 results[value_string].append(game)
-                    
+
         # Count the total number of info-using equilibria per combination of C and K
         self.info_using_equilibria = []
-        
+
         # Loop helpers
         c_last = -1
         index = -1
-        
+
         for key in sorted(results):  # for each level of C...
-            
             # Is this a new value of C?
             # If so, we need to create a new row of the results matrix.
-            if float(key[:5]) > c_last: 
-                
+            if float(key[:5]) > c_last:
                 # New row
                 index += 1
                 c_last = float(key[:5])
                 self.info_using_equilibria.append([])
-            
+
             # Now <index> is the index of the appropriate row
             self.info_using_equilibria[index].append(
                 sum(results[key]) / len(results[key])
             )  # ...get the proportion of info-using equilibria.
-        
+
         # Transpose and array-ify
         self.info_using_equilibria = np.array(self.info_using_equilibria).T
 
+
 class GodfreySmith2013_3_sender(GodfreySmith2013_3):
-    def __init__(self,**kwargs):
-        self.k_indicator="ks"
+    def __init__(self, **kwargs):
+        self.k_indicator = "ks"
         super().__init__(**kwargs)
 
+
 class GodfreySmith2013_3_receiver(GodfreySmith2013_3):
-    def __init__(self,**kwargs):
-        self.k_indicator="kr"
+    def __init__(self, **kwargs):
+        self.k_indicator = "kr"
         super().__init__(**kwargs)
+
 
 """
     Shared methods
 """
 
 
-def calculate_D(payoff_matrix, state, act_1, act_2)->float:
+def calculate_D(payoff_matrix, state, act_1, act_2) -> float:
     """
     Calculate an agent's relative preference of acts <act_1> and <act_2>
     in state <state>.
@@ -801,10 +805,10 @@ def calculate_D(payoff_matrix, state, act_1, act_2)->float:
         1   if act 2 is preferred
 
     """
-    
+
     ## Sanity check
     assert act_1 != act_2
-    
+
     ## Get the sign of the difference, then convert the scale [-1, 0, 1] to [0, 0.5, 1]
     ##  by adding 1 and dividing by 2.
     return (np.sign(payoff_matrix[state][act_2] - payoff_matrix[state][act_1]) + 1) / 2
@@ -824,10 +828,10 @@ def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix) -> 
         PGS & MM's measure C.
 
     """
-    
+
     # It's only defined when the number of states is equal to the number of acts.
     assert len(state_chances) == len(sender_payoff_matrix[0])
-    
+
     n = len(state_chances)
 
     # 1. Initialise
@@ -835,37 +839,34 @@ def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix) -> 
 
     # Loop around states and pairs of acts
     for i in range(len(state_chances)):
-        
         # This will loop around acts, excluding the first act (with index 0)
         for j in range(1, len(sender_payoff_matrix[i])):
-            
             # This will loop around acts with a lower index than j
             for k in range(j):
-                
                 ## Calculate sender's d-component
-                d_sender_component = calculate_D(sender_payoff_matrix,i,j,k)
+                d_sender_component = calculate_D(sender_payoff_matrix, i, j, k)
 
                 # Calculate receiver's d-component
-                d_receiver_component = calculate_D(receiver_payoff_matrix,i,j,k)
+                d_receiver_component = calculate_D(receiver_payoff_matrix, i, j, k)
 
                 # Get this component of the sum
-                factor = np.floor(
-                    abs(d_sender_component - d_receiver_component))
+                factor = np.floor(abs(d_sender_component - d_receiver_component))
 
                 # Add this component to the total sum
                 sum_total += factor * state_chances[i]
 
-    subtractor = (2 * sum_total) / (n * (n-1))
+    subtractor = (2 * sum_total) / (n * (n - 1))
 
     c = 1 - subtractor
 
     return c
 
-def calculate_Ks_and_Kr(sender_payoff_matrix,receiver_payoff_matrix):
+
+def calculate_Ks_and_Kr(sender_payoff_matrix, receiver_payoff_matrix):
     """
     Calculate the extent to which an agent's preference ordering
     over receiver actions varies with the state of the world.
-    
+
     Defined as K_S and K_R in the supplement of Godfrey-Smith and Martínez (2013), page 2.
 
     Parameters
@@ -878,70 +879,72 @@ def calculate_Ks_and_Kr(sender_payoff_matrix,receiver_payoff_matrix):
     K : float
 
     """
-    
-    
+
     # It's only defined when the number of states is equal to the number of acts.
     assert len(sender_payoff_matrix) == len(sender_payoff_matrix[0])
-    
+
     n = len(sender_payoff_matrix)
-    
+
     # ## 1. Initialise
     sum_total_sender = 0
     sum_total_receiver = 0
 
     # Loop around pairs of states and pairs of acts
     # All states except the first (with index 0)
-    for i in range(1,len(sender_payoff_matrix)):
-        
+    for i in range(1, len(sender_payoff_matrix)):
         # All states with a lower index than i
         for j in range(i):
-        
             # All acts except the first (with index 0)
             for k in range(1, len(sender_payoff_matrix[i])):
-                
                 # All acts with a lower index than k
                 for l in range(k):
-                    
                     # Get the sender and receiver D-measures
-                    
+
                     # SENDER
-                    
+
                     # Calculate sender's d-components
-                    d_sender_component_1 = calculate_D(sender_payoff_matrix,i,k,l)
-                    d_sender_component_2 = calculate_D(sender_payoff_matrix,j,k,l)
-                    
+                    d_sender_component_1 = calculate_D(sender_payoff_matrix, i, k, l)
+                    d_sender_component_2 = calculate_D(sender_payoff_matrix, j, k, l)
+
                     # Get this component of the sum
                     factor_sender = np.floor(
-                        abs(d_sender_component_1 - d_sender_component_2))
-                    
+                        abs(d_sender_component_1 - d_sender_component_2)
+                    )
+
                     # Add to sender total
                     # The definition has the multiplication factor inside the sum.
                     # It doesn't really matter, but we'll put it here for consistency.
-                    sum_total_sender += (2 * factor_sender) / (n * (n-1))
-                    
+                    sum_total_sender += (2 * factor_sender) / (n * (n - 1))
+
                     # RECEIVER
 
                     # Calculate receiver's d-component
-                    d_receiver_component_1 = calculate_D(receiver_payoff_matrix,i,k,l)
-                    d_receiver_component_2 = calculate_D(receiver_payoff_matrix,j,k,l)
-                    
+                    d_receiver_component_1 = calculate_D(
+                        receiver_payoff_matrix, i, k, l
+                    )
+                    d_receiver_component_2 = calculate_D(
+                        receiver_payoff_matrix, j, k, l
+                    )
+
                     # Get this component of the sum
                     factor_receiver = np.floor(
-                        abs(d_receiver_component_1 - d_receiver_component_2))
-                    
+                        abs(d_receiver_component_1 - d_receiver_component_2)
+                    )
+
                     # Add to receiver total
                     # The definition has the multiplication factor inside the sum.
                     # It doesn't really matter, but we'll put it here for consistency.
-                    sum_total_receiver += (2 * factor_receiver) / (n * (n-1))
-                    
+                    sum_total_receiver += (2 * factor_receiver) / (n * (n - 1))
+
     # Return both
     # Note that these are NOT NORMALISED.
-    # For a range of values of K_S and K_R, you have to normalise them manually 
+    # For a range of values of K_S and K_R, you have to normalise them manually
     #  by finding the maximum value.
     return sum_total_sender, sum_total_receiver
-                    
 
-def calculate_Ks_and_Kr_from_game(game): return calculate_Ks_and_Kr(game.sender_payoff_matrix,game.receiver_payoff_matrix)
+
+def calculate_Ks_and_Kr_from_game(game):
+    return calculate_Ks_and_Kr(game.sender_payoff_matrix, game.receiver_payoff_matrix)
 
 
 def find_games_3x3(
@@ -1072,7 +1075,7 @@ def analyse_games_3x3(
         Since gambit sometimes has problems rounding, it generates values like 0.9999999999996.
         We want to report these as 1.0000, especially if we're dumping to a file.
         The default is 5.
-    
+
     Returns
     -------
     None
@@ -1103,7 +1106,7 @@ def analyse_games_3x3(
                 state_chances=state_chances,
                 sender_payoff_matrix=np.array(game_dict["s"]),
                 receiver_payoff_matrix=np.array(game_dict["r"]),
-                messages=messages
+                messages=messages,
             )
 
             # Is there an info-using equilibrium?
@@ -1117,17 +1120,19 @@ def analyse_games_3x3(
 """
     Find and analyse games by K value as well as by C value
 """
+
+
 def find_games_3x3_c_and_k(
-    games_per_c_and_k=1500, 
-    sender=True, 
-    c_values=c_3x3_equiprobable, 
-    k_values=k_3x3, 
-    dir_games="../data/"
-    ) -> None:
+    games_per_c_and_k=1500,
+    sender=True,
+    c_values=c_3x3_equiprobable,
+    k_values=k_3x3,
+    dir_games="../data/",
+) -> None:
     """
     Finds <games_per_c_and_k> 3x3 sender and receiver matrices
     and saves them as JSON files, storing them by C and K values in <dir_games>.
-    
+
     Note that it is EXTREMELY difficult to find games for some combinations
     of C and K, especially when C=0.
     Expect this to take a long time!
@@ -1155,24 +1160,29 @@ def find_games_3x3_c_and_k(
     None.
 
     """
-    
+
     # Initialise
     # Values of C in truncated string format
-    c_outstanding = {f"{c_value:.3f}":0 for c_value in c_values}
-    games_outstanding = {f"{c_value:.3f}_{k_value:.3f}" for c_value in c_values for k_value in k_values}
-    
+    c_outstanding = {f"{c_value:.3f}": 0 for c_value in c_values}
+    games_outstanding = {
+        f"{c_value:.3f}_{k_value:.3f}" for c_value in c_values for k_value in k_values
+    }
+
     # Dict to conveniently store the matrices before outputting.
-    results = {f"{c_value:.3f}_{k_value:.3f}": [] for c_value in c_values for k_value in k_values}
-    
+    results = {
+        f"{c_value:.3f}_{k_value:.3f}": []
+        for c_value in c_values
+        for k_value in k_values
+    }
+
     # Remove excluded combinations of C and K
     for k_value in k_3x3_excluded_at_c_0:
-        
         # Define the game that is to be excluded.
         combination_to_exclude = f"{0:.3f}_{k_value:.3f}"
-        
+
         # Delete that entry from <games_outstanding>
         games_outstanding.remove(combination_to_exclude)
-        
+
         # Delete that entry from <results>
         del results[combination_to_exclude]
 
@@ -1181,7 +1191,6 @@ def find_games_3x3_c_and_k(
 
     # While there are values of C and K that have not yet had all games found and saved...
     while len(games_outstanding) > 0:
-        
         # Create a game
         sender_payoff_matrix = get_random_payoffs()
         receiver_payoff_matrix = get_random_payoffs()
@@ -1193,16 +1202,16 @@ def find_games_3x3_c_and_k(
 
         # Does this value of C require saving?
         if f"{c_value:.3f}" in c_outstanding:
-            
             # If yes, calculate the k values.
-            k_sender, k_receiver = calculate_Ks_and_Kr(sender_payoff_matrix, receiver_payoff_matrix)
-            
+            k_sender, k_receiver = calculate_Ks_and_Kr(
+                sender_payoff_matrix, receiver_payoff_matrix
+            )
+
             # Which k-value are we using now?
             k_value = k_sender if sender else k_receiver
-            
+
             # Does this combination of C and K require saving?
             if f"{c_value:.3f}_{k_value:.3f}" in games_outstanding:
-            
                 # If yes, add to the output dict.
                 # Each value in the output dict is a list of dicts (i.e. a list of games)
                 # with this format:
@@ -1216,7 +1225,7 @@ def find_games_3x3_c_and_k(
                 ##
                 # The values for e and i will be left blank here.
                 # The function analyse_games_3x3_c_and_k() will fill them in.
-    
+
                 # Create game dict.
                 results[f"{c_value:.3f}_{k_value:.3f}"].append(
                     {
@@ -1224,53 +1233,63 @@ def find_games_3x3_c_and_k(
                         "r": receiver_payoff_matrix.tolist(),
                     }
                 )
-    
+
                 # Has this combination of C and K now had all its games found?
                 if len(results[f"{c_value:.3f}_{k_value:.3f}"]) >= games_per_c_and_k:
                     # If yes, save JSON file and remove this value of C from the "to-do" list.
                     fpath_indicator = "ks" if sender else "kr"
                     fpath_out = f"{dir_games}games_c{c_value:.3f}_{fpath_indicator}{k_value:.3f}_n{games_per_c_and_k}.json"
-    
+
                     with open(fpath_out, "w") as f:
                         json.dump(results[f"{c_value:.3f}_{k_value:.3f}"], f)
-    
+
                     # Remove this combination of C and K from the "to-do" list
                     games_outstanding.remove(f"{c_value:.3f}_{k_value:.3f}")
-                    
+
                     # Add these games to c_outstanding
                     c_outstanding[f"{c_value:.3f}"] += games_per_c_and_k
-                    
+
                     # Has this value of C now had all its games found?
                     # For C=0 some combinations are excluded.
                     # That's why the second disjunct is slightly more complicated.
-                    if (c_value>0 and c_outstanding[f"{c_value:.3f}"] >= games_per_c_and_k * len(k_values))\
-                    or (c_value==0 and c_outstanding[f"{c_value:.3f}"] >= games_per_c_and_k * (len(k_values)-len(k_3x3_excluded_at_c_0))):
-                        
+                    if (
+                        c_value > 0
+                        and c_outstanding[f"{c_value:.3f}"]
+                        >= games_per_c_and_k * len(k_values)
+                    ) or (
+                        c_value == 0
+                        and c_outstanding[f"{c_value:.3f}"]
+                        >= games_per_c_and_k
+                        * (len(k_values) - len(k_3x3_excluded_at_c_0))
+                    ):
                         # If yes, remove it
                         del c_outstanding[f"{c_value:.3f}"]
-        
+
                         # Are there any combinations of C and K left outstanding? If not, quit the while-loop.
                         if len(c_outstanding) == 0:
                             break
-    
+
                     # Otherwise, print remaining values
-                    print(f"C values found (out of {games_per_c_and_k * len(k_values)}): {c_outstanding}")
-            
-            
-    
+                    print(
+                        f"C values found (out of {games_per_c_and_k * len(k_values)}): {c_outstanding}"
+                    )
+
     # Warn the user of impossible combinations
-    print("Note that the following combinations of C and K are impossible and have been excluded:")
+    print(
+        "Note that the following combinations of C and K are impossible and have been excluded:"
+    )
     for k_value in k_3x3_excluded_at_c_0:
         print(f"C={0:.3f}, K={k_value:.3f}")
 
+
 def analyse_games_3x3_c_and_k(
-    games_per_c_and_k=1500, 
-    sender=True, 
-    c_values=c_3x3_equiprobable, 
-    k_values=k_3x3, 
+    games_per_c_and_k=1500,
+    sender=True,
+    c_values=c_3x3_equiprobable,
+    k_values=k_3x3,
     dir_games="../data/",
-    sigfig=5
-    ) -> None:
+    sigfig=5,
+) -> None:
     """
     Find information-using equilibria of 3x3 games
     and the mutual information between states and acts at those equilibria.
@@ -1310,27 +1329,28 @@ def analyse_games_3x3_c_and_k(
 
     """
 
-
     # Game objects will be stored in a dictionary by C value.
-    games = {f"{c_value:.3f}_{k_value:.3f}": [] for c_value in c_values for k_value in k_values}
-    
+    games = {
+        f"{c_value:.3f}_{k_value:.3f}": []
+        for c_value in c_values
+        for k_value in k_values
+    }
+
     # Exclude impossible combinations
     # Remove excluded combinations of C and K
     for k_value in k_3x3_excluded_at_c_0:
-        
         # Define the game that is to be excluded.
         combination_to_exclude = f"{0:.3f}_{k_value:.3f}"
-        
+
         # Delete that entry from <games>
         del games[combination_to_exclude]
-    
+
     # State chances and messages are always the same.
     state_chances = np.array([1 / 3, 1 / 3, 1 / 3])
     messages = 3
 
     # Loop at C values...
     for value_string, games_list in tqdm(games.items()):
-        
         # Get name of JSON file
         fpath_indicator = "ks" if sender else "kr"
         fpath_json = f"{dir_games}games_c{value_string[:5]}_{fpath_indicator}{value_string[6:]}_n{games_per_c_and_k}.json"
@@ -1347,7 +1367,7 @@ def analyse_games_3x3_c_and_k(
                 state_chances=state_chances,
                 sender_payoff_matrix=np.array(game_dict["s"]),
                 receiver_payoff_matrix=np.array(game_dict["r"]),
-                messages=messages
+                messages=messages,
             )
 
             # Is there an info-using equilibrium?
@@ -1359,41 +1379,42 @@ def analyse_games_3x3_c_and_k(
 
 
 # def hard_to_find_Cs_and_Ks():
-    
+
 #     # Initialise
 #     state_chances = np.array([1/3,1/3,1/3])
-    
+
 #     # First find a sender matrix so that Ks = 1
 #     while True:
 #         sender_payoff_matrix = get_random_payoffs()
 #         receiver_dummy = np.zeros((3,3))
-        
+
 #         # Get Ks
 #         Ks = calculate_Ks_and_Kr(sender_payoff_matrix, receiver_dummy)[0]
 #         print(f"Ks: {Ks}") # debug
-        
+
 #         if Ks == 1:
 #             break
-    
+
 #     # Now you know K_s = 1, so you can try and find a receiver matrix
 #     #  such that C = 0
 #     for _ in trange(10000):
 #         receiver_payoff_matrix = get_random_payoffs()
-        
+
 #         # Get C
 #         C = calculate_C(state_chances,sender_payoff_matrix,receiver_payoff_matrix)
 #         # print(f"C: {C}")
-        
+
 #         if C < 0.1:
 #             return sender_payoff_matrix, receiver_payoff_matrix
-        
+
 #     return sender_payoff_matrix
 
 """
     Helper functions specific to this script
 """
 
-def get_random_payoffs(states=3,acts=3,min_payoff=0,max_payoff=100):
+
+def get_random_payoffs(states=3, acts=3, min_payoff=0, max_payoff=100):
     """
     Generate a random payoff matrix.
 
@@ -1414,5 +1435,6 @@ def get_random_payoffs(states=3,acts=3,min_payoff=0,max_payoff=100):
         A random payoff matrix of shape (states,acts).
 
     """
-    
+
     return np.random.randint(min_payoff, max_payoff, (states, acts))
+
