@@ -485,8 +485,12 @@ class Skyrms2010_5_2(Scatter):
         -------
         None.
         """
+        
+        # Show the line along with the datapoints
+        self.show_line = True
 
-        super().show(True)
+        # Tell superclass method to show plot
+        super().show()
 
     def initialize_simulations(self, pr_state_2_list):
         """

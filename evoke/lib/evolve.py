@@ -78,12 +78,18 @@ class OnePop:
         ## Use the simple version if there is no assortment.
         if self.e == 0:
             return player @ self.avgpayoffs
-
+        
+        # Create a square array of copies of <player>
         meeting_probabilities = np.tile(
             player, (self.lps, 1)
-        )  # a square array of copies of <player>
+        )  
+        
+        # Modify meeting probabilities depending on level of assortment
         meeting_probabilities += self.e * (np.eye(self.lps) - meeting_probabilities)
+        
+        # Fancy vectorized sum to figure out the payoffs
         avg_payoffs = np.einsum("ij,ji->i", meeting_probabilities, self.avgpayoffs)
+        
         return avg_payoffs
 
     def replicator_dX_dt_odeint(self, X, t):
