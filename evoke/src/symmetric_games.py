@@ -4,11 +4,10 @@ module. For the time being, these are just games without a chance player
 (although there could be games with *two* chance players).
 """
 import itertools as it
-import sys
 
 import numpy as np
 
-import evoke.lib.exceptions as ex
+import evoke.src.exceptions as ex
 
 np.set_printoptions(precision=4)
 
@@ -23,11 +22,11 @@ class NoSignal:
         """
         Take a square numpy array with player payoffs
         """
-        
+
         # Check data is consistent
         if payoff_matrix.shape[0] != payoff_matrix.shape[1]:
             raise ex.InconsistentDataException("Payoff matrix should be square")
-            
+
         self.chance_node = False  # flag to know where the game comes from
         self.payoff_matrix = payoff_matrix
         self.states = payoff_matrix.shape[0]
@@ -74,15 +73,16 @@ class BothSignal:
         Take a square numpy array with the payoffs, and the number of available
         messages
         """
-        
+
         # Check data is consistent
         if payoff_matrix.shape[0] != payoff_matrix.shape[1]:
             raise ex.InconsistentDataException("Payoff matrix should be square")
-        
+
         if not isinstance(msgs, int) or msgs < 1:
-            raise ex.InconsistentDataException("The number of messages should be a positive integer")
-        
-        
+            raise ex.InconsistentDataException(
+                "The number of messages should be a positive integer"
+            )
+
         self.chance_node = False  # flag to know where the game comes from
         self.both_signal = True  # ... and another flag (this needs fixing)
         self.payoff_matrix = payoff_matrix

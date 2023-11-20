@@ -26,7 +26,7 @@ from ternary import figure  # from https://github.com/marcharper/python-ternary
 # from evoke.lib import symmetric_games as sym
 # from evoke.lib import evolve as ev
 # from evoke.lib.symmetric_games import NoSignal
-import evoke.lib.exceptions as ex
+import evoke.src.exceptions as ex
 
 
 class Figure(ABC):
@@ -35,17 +35,17 @@ class Figure(ABC):
     """
 
     def __init__(self, evo=None, game=None, **kwargs):  # Evolve object
-        
         # If there's an evolve object, set it as a class attribute
-        if evo is not None: self.evo = evo
-        
+        if evo is not None:
+            self.evo = evo
+
         # If there's a game object, set it as a class attribute
-        if game is not None: self.game = game
+        if game is not None:
+            self.game = game
 
         ## Set keyword arguments as class attributes.
         for k, v in kwargs.items():
             setattr(self, k, v)
-        
 
     @abstractmethod
     def show(self):
@@ -74,7 +74,7 @@ class Figure(ABC):
 
         """
         pass
-    
+
     @classmethod
     def demo_warning(cls):
         """
@@ -85,14 +85,16 @@ class Figure(ABC):
         None.
 
         """
-        
-        print(f"Note: figure will be created in demo mode. To create the full figure use {cls.__name__}(demo=False).")
-    
+
+        print(
+            f"Note: figure will be created in demo mode. To create the full figure use {cls.__name__}(demo=False)."
+        )
+
     @property
     def properties(self):
         """
         Get a dict of all the editable properties of the figure, with their current values.
-        
+
         Typically includes properties like plot color, axis labels, plot scale etc.
 
         Returns
@@ -101,45 +103,47 @@ class Figure(ABC):
             A list of the editable properties of the object.
 
         """
-        
+
         # Lazy instantiation of the property names
-        if not hasattr(self,"_list_of_properties"):
-        
+        if not hasattr(self, "_list_of_properties"):
             # Initialise
             self._list_of_properties = []
-            
+
             # We need to check properties defined by the class itself,
             # as well as all properties defined by its superclasses,
             # up to and including the Figure class.
-            
+
             # We need to find where the Figure class is in the hierarchy of superclasses.
             # First we need to create a list of class names in that hierarchy.
             superclass_list = [c.__name__ for c in type(self).__mro__]
-            
+
             # Then get the index of the string "Figure" in that list of names.
             figure_location = superclass_list.index("Figure")
-            
+
             # Now start from the base class and step through each superclass.
-            for i in range(figure_location+1):
-                
+            for i in range(figure_location + 1):
                 # Add this superclass's properties to the big list of properties.
                 # In future we might need to do further tweaking here
                 # to exclude properties that aren't in fact editable.
                 # For now I'm assuming all properties created with the @property decorator
                 # are intended as user-editable properties of the figure plot.
                 self._list_of_properties.extend(
-                    [k for k, v in vars(type(self).__mro__[i]).items() if isinstance(v, property)]
+                    [
+                        k
+                        for k, v in vars(type(self).__mro__[i]).items()
+                        if isinstance(v, property)
+                    ]
                 )
-            
+
             # Omit the "properties" property!
             self._list_of_properties.remove("properties")
-            
+
             self._list_of_properties = sorted(self._list_of_properties)
-        
+
         # Current property values
         # Create a dict from this list, including the current values.
-        dict_of_properties = {k:getattr(self, k) for k in self._list_of_properties}
-        
+        dict_of_properties = {k: getattr(self, k) for k in self._list_of_properties}
+
         return dict_of_properties
 
 
@@ -231,10 +235,12 @@ class Scatter(Figure):
         None.
 
         """
-        
+
         # Check data exists
-        if not hasattr(self,"x") or self.x is None: raise ex.NoDataException("Axis X has no data")
-        if not hasattr(self,"y") or self.y is None: raise ex.NoDataException("Axis Y has no data")
+        if not hasattr(self, "x") or self.x is None:
+            raise ex.NoDataException("Axis X has no data")
+        if not hasattr(self, "y") or self.y is None:
+            raise ex.NoDataException("Axis Y has no data")
 
         ## Data
         plt.scatter(x=self.x, y=self.y, s=self.s, c=self.c)
@@ -260,13 +266,14 @@ class Scatter(Figure):
 
         ## Show plot
         plt.show()
-        
+
         # If this is the first time this method has been called,
         # we want to allow the user to change cosmetic properties
         # and show the plot immediately when those properties are changed.
         # Therefore, if the show_immediately flag has not yet been created,
         # create it here and set it to True.
-        if not hasattr(self, "show_immediately"): self.show_immediately = True
+        if not hasattr(self, "show_immediately"):
+            self.show_immediately = True
 
     """
         SCATTER ATTRIBUTES AND ALIASES
@@ -282,8 +289,9 @@ class Scatter(Figure):
     @s.setter
     def s(self, inp):
         self._s = inp
-        
-        if hasattr(self,"show_immediately") and self.show_immediately: self.show()
+
+        if hasattr(self, "show_immediately") and self.show_immediately:
+            self.show()
 
     @s.deleter
     def s(self):
@@ -303,8 +311,9 @@ class Scatter(Figure):
     @c.setter
     def c(self, inp):
         self._c = inp
-        
-        if hasattr(self,"show_immediately") and self.show_immediately: self.show()
+
+        if hasattr(self, "show_immediately") and self.show_immediately:
+            self.show()
 
     @c.deleter
     def c(self):
@@ -312,27 +321,30 @@ class Scatter(Figure):
 
     # Alias
     marker_color = c
-    
+
     """
         Line connecting the markers
     """
+
     @property
     def show_line(self):
-        
         # Lazy instantiation: default is False
-        if not hasattr(self,"_show_line"): self._show_line = False
-        
+        if not hasattr(self, "_show_line"):
+            self._show_line = False
+
         return self._show_line
-    
+
     @show_line.setter
-    def show_line(self,inp):
+    def show_line(self, inp):
         self._show_line = inp
-        
-        if hasattr(self,"show_immediately") and self.show_immediately: self.show()
-    
+
+        if hasattr(self, "show_immediately") and self.show_immediately:
+            self.show()
+
     @show_line.deleter
     def show_line(self):
         del self._show_line
+
 
 class Quiver(Figure):
     """
@@ -341,82 +353,94 @@ class Quiver(Figure):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-    
+
     """ Property: marker color """
+
     @property
     def color(self):
-        
         # Lazy instantiation: default to black
-        if not hasattr(self,"_color"): self._color = "k"
-        
+        if not hasattr(self, "_color"):
+            self._color = "k"
+
         return self._color
-    
+
     @color.setter
-    def color(self,color):
+    def color(self, color):
         self._color = color
-        
+
         # Update automatically?
-        if hasattr(self,"show_immediately") and self.show_immediately: self.show()
-    
+        if hasattr(self, "show_immediately") and self.show_immediately:
+            self.show()
+
     @color.deleter
-    def color(self): del self._color
-    
+    def color(self):
+        del self._color
+
     """ Property: x-axis label """
+
     @property
     def xlabel(self):
-        
         # Lazy instantiation: default to None
-        if not hasattr(self,"_xlabel"): self._xlabel = None
-        
+        if not hasattr(self, "_xlabel"):
+            self._xlabel = None
+
         return self._xlabel
-    
+
     @xlabel.setter
-    def xlabel(self,xlabel):
+    def xlabel(self, xlabel):
         self._xlabel = xlabel
-        
+
         # Update automatically?
-        if hasattr(self,"show_immediately") and self.show_immediately: self.show()
-    
+        if hasattr(self, "show_immediately") and self.show_immediately:
+            self.show()
+
     @xlabel.deleter
-    def xlabel(self): del self._xlabel
-    
+    def xlabel(self):
+        del self._xlabel
+
     """ Property: y-axis label """
+
     @property
     def ylabel(self):
-        
         # Lazy instantiation: default to None
-        if not hasattr(self,"_ylabel"): self._ylabel = None
-        
+        if not hasattr(self, "_ylabel"):
+            self._ylabel = None
+
         return self._ylabel
-    
+
     @ylabel.setter
-    def ylabel(self,ylabel):
+    def ylabel(self, ylabel):
         self._ylabel = ylabel
-        
+
         # Update automatically?
-        if hasattr(self,"show_immediately") and self.show_immediately: self.show()
-    
+        if hasattr(self, "show_immediately") and self.show_immediately:
+            self.show()
+
     @ylabel.deleter
-    def ylabel(self): del self._ylabel
-    
+    def ylabel(self):
+        del self._ylabel
+
     """ Property: axis toggle """
+
     @property
     def noaxis(self):
-        
         # Lazy instantiation: default to None
-        if not hasattr(self,"_noaxis"): self._noaxis = None
-        
+        if not hasattr(self, "_noaxis"):
+            self._noaxis = None
+
         return self._noaxis
-    
+
     @noaxis.setter
-    def noaxis(self,noaxis):
+    def noaxis(self, noaxis):
         self._noaxis = noaxis
-        
+
         # Update automatically?
-        if hasattr(self,"show_immediately") and self.show_immediately: self.show()
-    
+        if hasattr(self, "show_immediately") and self.show_immediately:
+            self.show()
+
     @noaxis.deleter
-    def noaxis(self): del self._noaxis
+    def noaxis(self):
+        del self._noaxis
 
 
 class Quiver2D(Quiver):
@@ -429,14 +453,16 @@ class Quiver2D(Quiver):
 
         super().__init__(**kwargs)
 
-    def reset(self,color=None,xlabel=None,ylabel=None):
-        
+    def reset(self, color=None, xlabel=None, ylabel=None):
         # Set global attributes based on what was supplied
-        if color: self.color = color
-        
-        if xlabel: self.xlabel = xlabel
-        
-        if ylabel: self.ylabel = ylabel
+        if color:
+            self.color = color
+
+        if xlabel:
+            self.xlabel = xlabel
+
+        if ylabel:
+            self.ylabel = ylabel
 
     def show(self):
         """
@@ -452,13 +478,17 @@ class Quiver2D(Quiver):
         None.
 
         """
-        
+
         # Check data exists
-        if not hasattr(self,"X") or self.X is None: raise ex.NoDataException("Axis X has no data")
-        if not hasattr(self,"Y") or self.Y is None: raise ex.NoDataException("Axis Y has no data")
-        if not hasattr(self,"U") or self.U is None: raise ex.NoDataException("Velocities U do not exist")
-        if not hasattr(self,"V") or self.V is None: raise ex.NoDataException("Velocities V do not exist")
-        
+        if not hasattr(self, "X") or self.X is None:
+            raise ex.NoDataException("Axis X has no data")
+        if not hasattr(self, "Y") or self.Y is None:
+            raise ex.NoDataException("Axis Y has no data")
+        if not hasattr(self, "U") or self.U is None:
+            raise ex.NoDataException("Velocities U do not exist")
+        if not hasattr(self, "V") or self.V is None:
+            raise ex.NoDataException("Velocities V do not exist")
+
         ## Create the figure
         fig, ax = plt.subplots()
 
@@ -476,22 +506,26 @@ class Quiver2D(Quiver):
             scale=self.scale,
             color=self.color,
         )
-        
+
         # Axis labels
-        if self.xlabel: ax.set_xlabel(self.xlabel)
-        if self.ylabel: ax.set_ylabel(self.ylabel)
-        
+        if self.xlabel:
+            ax.set_xlabel(self.xlabel)
+        if self.ylabel:
+            ax.set_ylabel(self.ylabel)
+
         # Include axis?
-        if self.noaxis: ax.set_axis_off()
+        if self.noaxis:
+            ax.set_axis_off()
 
         plt.show()
-        
+
         # If this is the first time this method has been called,
         # we want to allow the user to change cosmetic properties
         # and show the plot immediately when those properties are changed.
         # Therefore, if the show_immediately flag has not yet been created,
         # create it here and set it to True.
-        if not hasattr(self, "show_immediately"): self.show_immediately = True
+        if not hasattr(self, "show_immediately"):
+            self.show_immediately = True
 
     def uv_from_xy(self, x, y):
         """
@@ -518,8 +552,8 @@ class Quiver2D(Quiver):
         )
         new_senders, new_receivers = self.evo.vector_to_populations(new_pop_vector)
         return (1 - x) - new_senders[1], (1 - y) - new_receivers[1]
-    
-    
+
+
 class Quiver3D(Quiver):
     """
     Plot a 3D quiver plot.
@@ -559,15 +593,21 @@ class Quiver3D(Quiver):
         None.
 
         """
-        
+
         # Check data exists
-        if not hasattr(self,"X") or self.X is None: raise ex.NoDataException("Axis X has no data")
-        if not hasattr(self,"Y") or self.Y is None: raise ex.NoDataException("Axis Y has no data")
-        if not hasattr(self,"Z") or self.Z is None: raise ex.NoDataException("Axis Z has no data")
-        if not hasattr(self,"U") or self.U is None: raise ex.NoDataException("Velocities U do not exist")
-        if not hasattr(self,"V") or self.V is None: raise ex.NoDataException("Velocities V do not exist")
-        if not hasattr(self,"W") or self.W is None: raise ex.NoDataException("Velocities W do not exist")
-        
+        if not hasattr(self, "X") or self.X is None:
+            raise ex.NoDataException("Axis X has no data")
+        if not hasattr(self, "Y") or self.Y is None:
+            raise ex.NoDataException("Axis Y has no data")
+        if not hasattr(self, "Z") or self.Z is None:
+            raise ex.NoDataException("Axis Z has no data")
+        if not hasattr(self, "U") or self.U is None:
+            raise ex.NoDataException("Velocities U do not exist")
+        if not hasattr(self, "V") or self.V is None:
+            raise ex.NoDataException("Velocities V do not exist")
+        if not hasattr(self, "W") or self.W is None:
+            raise ex.NoDataException("Velocities W do not exist")
+
         ## Create figure
         fig = plt.figure()
         ax = fig.add_subplot(111, projection="3d")
@@ -590,22 +630,24 @@ class Quiver3D(Quiver):
         ax.set_xlim([-0.05, 2.1])  # TODO: determine from self.vertices
         ax.set_ylim([-0.05, 3.05])  # TODO: determine from self.vertices
         ax.set_zlim([-0.05, 3.05])  # TODO: determine from self.vertices
-        
-        
+
         # Display axis?
         if hasattr(self, "noaxis") and self.noaxis:
             ax.set_axis_off()
-            
+
             # Camera distance. TODO make this a property of the Quiver3D object.
             ax.dist = 10
-            
+
         else:
             # There are axes. Are there axis labels?
             # Axis labels
-            if hasattr(self,"xlabel"): ax.set_xlabel(self.xlabel)
-            if hasattr(self,"ylabel"): ax.set_ylabel(self.ylabel)
-            if hasattr(self,"zlabel"): ax.set_zlabel(self.zlabel)
-            
+            if hasattr(self, "xlabel"):
+                ax.set_xlabel(self.xlabel)
+            if hasattr(self, "ylabel"):
+                ax.set_ylabel(self.ylabel)
+            if hasattr(self, "zlabel"):
+                ax.set_zlabel(self.zlabel)
+
             # Camera distance. TODO make this a property of the Quiver3D object.
             ax.dist = 13
 
@@ -624,24 +666,24 @@ class Quiver3D(Quiver):
             ax.plot3D(
                 line[0], line[1], line[2], c="0", linestyle=linestyle, linewidth=0.8
             )
-        
+
         # # TODO make these editable properties!
         # self.elev=25.
         # self.azim=245
-        # self.dist=12 
-        
+        # self.dist=12
+
         # # Camera angle. TODO make these properties of the Quiver3D object.
         # if self.elev and self.azim: ax.view_init(elev=self.elev, azim=self.azim)
-        
 
         plt.show()
-        
+
         # If this is the first time this method has been called,
         # we want to allow the user to change cosmetic properties
         # and show the plot immediately when those properties are changed.
         # Therefore, if the show_immediately flag has not yet been created,
         # create it here and set it to True.
-        if not hasattr(self, "show_immediately"): self.show_immediately = True
+        if not hasattr(self, "show_immediately"):
+            self.show_immediately = True
 
     def vector_to_barycentric(self, vector):
         """
@@ -668,26 +710,28 @@ class Quiver3D(Quiver):
         barycentric_location = u @ self.vertices
 
         return barycentric_location
-    
+
     """ Property: z-axis label """
+
     @property
     def zlabel(self):
-        
         # Lazy instantiation: default to None
-        if not hasattr(self,"_zlabel"): self._zlabel = None
-        
+        if not hasattr(self, "_zlabel"):
+            self._zlabel = None
+
         return self._zlabel
-    
+
     @zlabel.setter
-    def zlabel(self,zlabel):
+    def zlabel(self, zlabel):
         self._zlabel = zlabel
-        
+
         # Update automatically?
-        if hasattr(self,"show_immediately") and self.show_immediately: self.show()
-    
+        if hasattr(self, "show_immediately") and self.show_immediately:
+            self.show()
+
     @zlabel.deleter
-    def zlabel(self): del self._zlabel
-    
+    def zlabel(self):
+        del self._zlabel
 
 
 class Bar(Figure):
@@ -750,12 +794,13 @@ class Bar(Figure):
         None.
 
         """
-        
-        
+
         # Check data exists
-        if not hasattr(self,"x") or self.x is None: raise ex.NoDataException("Axis X has no data")
-        if not hasattr(self,"y") or self.y is None: raise ex.NoDataException("Axis Y has no data")
-        
+        if not hasattr(self, "x") or self.x is None:
+            raise ex.NoDataException("Axis X has no data")
+        if not hasattr(self, "y") or self.y is None:
+            raise ex.NoDataException("Axis Y has no data")
+
         ## Data
         plt.bar(x=self.x, height=self.y, color=self.c, edgecolor="k")
 
@@ -775,13 +820,14 @@ class Bar(Figure):
 
         ## Show plot
         plt.show()
-        
+
         # If this is the first time this method has been called,
         # we want to allow the user to change cosmetic properties
         # and show the plot immediately when those properties are changed.
         # Therefore, if the show_immediately flag has not yet been created,
         # create it here and set it to True.
-        if not hasattr(self, "show_immediately"): self.show_immediately = True
+        if not hasattr(self, "show_immediately"):
+            self.show_immediately = True
 
     """
         BAR ATTRIBUTES AND ALIASES
@@ -798,8 +844,9 @@ class Bar(Figure):
     @c.setter
     def c(self, inp):
         self._c = inp
-        
-        if hasattr(self,"show_immediately") and self.show_immediately: self.show()
+
+        if hasattr(self, "show_immediately") and self.show_immediately:
+            self.show()
 
     @c.deleter
     def c(self):
@@ -840,11 +887,11 @@ class Ternary(Figure):
         None.
 
         """
-        
+
         # Check data exists
-        if not hasattr(self,"xyzs") or self.xyzs is None: raise ex.NoDataException("Ternary axis values not supplied.")
-        
-        
+        if not hasattr(self, "xyzs") or self.xyzs is None:
+            raise ex.NoDataException("Ternary axis values not supplied.")
+
         # self.xyzs is a list of arrays of dimensions nx3, such that each row is a
         # 3-dimensional stochastic vector.  That is to say, for now, a collection
         # of orbits
@@ -874,35 +921,36 @@ class Ternary(Figure):
 
 class Surface(Figure):
     """
-        Superclass for 3D surface plots (e.g. colormap).
-        Uses ax.plot_surface().
+    Superclass for 3D surface plots (e.g. colormap).
+    Uses ax.plot_surface().
     """
-    
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        
+
         # Data parameters
         self.x = None
         self.y = None
         self.z = None
-    
-    def reset(self,
-              x=None,
-              y=None,
-              z=None,
-              xlabel=None,
-              ylabel=None,
-              zlabel=None,
-              xlim = None,
-              ylim = None,
-              zlim = None,
-              cmap=cm.coolwarm,
-              linewidth=1,
-              antialiased=False,
-              elev=25.,
-              azim=245,
-              dist=12 
-        )->None:
+
+    def reset(
+        self,
+        x=None,
+        y=None,
+        z=None,
+        xlabel=None,
+        ylabel=None,
+        zlabel=None,
+        xlim=None,
+        ylim=None,
+        zlim=None,
+        cmap=cm.coolwarm,
+        linewidth=1,
+        antialiased=False,
+        elev=25.0,
+        azim=245,
+        dist=12,
+    ) -> None:
         """
         Update figure parameters, which can then be plotted with self.show().
 
@@ -938,36 +986,45 @@ class Surface(Figure):
         None.
 
         """
-        
+
         # Data. Only update if supplied.
-        if x is not None: self.x = np.array(x)
-        if y is not None: self.y = np.array(y)
-        if z is not None: self.z = np.array(z)
-        
+        if x is not None:
+            self.x = np.array(x)
+        if y is not None:
+            self.y = np.array(y)
+        if z is not None:
+            self.z = np.array(z)
+
         # Need to meshgrid it
         self.x, self.y = np.meshgrid(self.x, self.y)
-        
+
         # Axis labels
-        if xlabel: self.xlabel = xlabel
-        if ylabel: self.ylabel = ylabel
-        if zlabel: self.zlabel = zlabel
-        
+        if xlabel:
+            self.xlabel = xlabel
+        if ylabel:
+            self.ylabel = ylabel
+        if zlabel:
+            self.zlabel = zlabel
+
         # Axis limits
-        if xlim is not None: self.xlim = xlim
-        if ylim is not None: self.ylim = ylim
-        if zlim is not None: self.zlim = zlim
-        
+        if xlim is not None:
+            self.xlim = xlim
+        if ylim is not None:
+            self.ylim = ylim
+        if zlim is not None:
+            self.zlim = zlim
+
         # Cosmetic
         self.cmap = cmap
         self.linewidth = linewidth
         self.antialiased = antialiased
-        
+
         # Camera angle
         self.elev = elev
         self.azim = azim
         self.dist = dist
-    
-    def show(self)->None:
+
+    def show(self) -> None:
         """
         Show figure with current parameters.
 
@@ -976,48 +1033,60 @@ class Surface(Figure):
         None.
 
         """
-        
+
         # Check data exists
-        if not hasattr(self,"x") or self.x is None: raise ex.NoDataException("Axis X has no data.")
-        if not hasattr(self,"y") or self.y is None: raise ex.NoDataException("Axis Y has no data.")
-        if not hasattr(self,"z") or self.z is None: raise ex.NoDataException("Axis Z has no data.")
-        
+        if not hasattr(self, "x") or self.x is None:
+            raise ex.NoDataException("Axis X has no data.")
+        if not hasattr(self, "y") or self.y is None:
+            raise ex.NoDataException("Axis Y has no data.")
+        if not hasattr(self, "z") or self.z is None:
+            raise ex.NoDataException("Axis Z has no data.")
+
         # Create 3D projection
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-        
+
         # Plot the surface.
-        surf = ax.plot_surface(self.x, 
-                               self.y, 
-                               self.z, 
-                               cmap=self.cmap,
-                               linewidth=self.linewidth, 
-                               antialiased=self.antialiased)
-        
+        surf = ax.plot_surface(
+            self.x,
+            self.y,
+            self.z,
+            cmap=self.cmap,
+            linewidth=self.linewidth,
+            antialiased=self.antialiased,
+        )
+
         # Axis labels
-        if hasattr(self,"xlabel"): ax.set_xlabel(self.xlabel)
-        if hasattr(self,"ylabel"): ax.set_ylabel(self.ylabel)
-        if hasattr(self,"zlabel"): ax.set_zlabel(self.zlabel)
-        
+        if hasattr(self, "xlabel"):
+            ax.set_xlabel(self.xlabel)
+        if hasattr(self, "ylabel"):
+            ax.set_ylabel(self.ylabel)
+        if hasattr(self, "zlabel"):
+            ax.set_zlabel(self.zlabel)
+
         # Axis limits
-        if hasattr(self,"xlim"): ax.set_xlim(self.xlim)
-        if hasattr(self,"ylim"): ax.set_ylim(self.ylim)
-        if hasattr(self,"zlim"): ax.set_zlim(self.zlim)
-        
+        if hasattr(self, "xlim"):
+            ax.set_xlim(self.xlim)
+        if hasattr(self, "ylim"):
+            ax.set_ylim(self.ylim)
+        if hasattr(self, "zlim"):
+            ax.set_zlim(self.zlim)
+
         # Add a color bar which maps values to colors.
         fig.colorbar(surf, shrink=0.5, aspect=5)
-        
+
         # Camera angle
-        if self.elev and self.azim: ax.view_init(elev=self.elev, azim=self.azim)
-        
+        if self.elev and self.azim:
+            ax.view_init(elev=self.elev, azim=self.azim)
+
         # Camera distance
         ax.dist = self.dist
-        
+
         plt.show()
-        
+
         # If this is the first time this method has been called,
         # we want to allow the user to change cosmetic properties
         # and show the plot immediately when those properties are changed.
         # Therefore, if the show_immediately flag has not yet been created,
         # create it here and set it to True.
-        if not hasattr(self, "show_immediately"): self.show_immediately = True
-        
+        if not hasattr(self, "show_immediately"):
+            self.show_immediately = True

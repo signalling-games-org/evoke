@@ -22,11 +22,11 @@ import numpy as np
 from tqdm import trange
 
 
-from evoke.lib.figure import Scatter, Bar, Quiver2D, Quiver3D, Ternary
-from evoke.lib import asymmetric_games as asy
-from evoke.lib import symmetric_games as sym
-from evoke.lib import evolve as ev
-from evoke.lib.symmetric_games import NoSignal
+from evoke.src.figure import Scatter, Bar, Quiver2D, Quiver3D, Ternary
+from evoke.src import asymmetric_games as asy
+from evoke.src import symmetric_games as sym
+from evoke.src import evolve as ev
+from evoke.src.symmetric_games import NoSignal
 
 
 class Skyrms2010_1_1(Quiver2D):
@@ -40,7 +40,7 @@ class Skyrms2010_1_1(Quiver2D):
         evo = self.run_simulation()
 
         super().__init__(evo=evo)
-        
+
         self.show()
 
     def initialize_simulation(self):
@@ -102,7 +102,7 @@ class Skyrms2010_1_2(Quiver3D):
         evo = self.run_simulation()
 
         super().__init__(evo=evo, noaxis=True)
-        
+
         self.show()
 
     def initialize_simulation(self):
@@ -313,7 +313,7 @@ class Skyrms2010_3_4(Scatter):
 
         ## Get info attribute
         y = evo.statistics["prob_success"]
-        
+
         # Create superclass
         super().__init__(evo=evo)
 
@@ -733,10 +733,10 @@ class Skyrms2010_8_2(Scatter):
 
         NB It looks as though Skyrms's graph was generated with the equivalent of
         the following parameters:
-        
+
         + trials = 1000
         + iterations = int(1e5)
-        
+
         But this will take A VERY LONG TIME TO RUN as things are now.
 
         Even with iterations at int(1e4), it's looking like 12 mins per weight,
@@ -760,16 +760,16 @@ class Skyrms2010_8_2(Scatter):
         None.
 
         """
-        
+
         # Set parameters for simulations
         self.initialize_simulation()
-        
+
         # Run the simluations
         self.run_simulation(trials, iterations)
 
         # Create the figure superclass
         super().__init__()
-        
+
         # Set parameters for the figure
         self.reset(
             x=self.initial_weights,
@@ -780,7 +780,7 @@ class Skyrms2010_8_2(Scatter):
             marker_size=5,
             xscale="log",
         )
-        
+
         # Show the figure
         self.show()
 
@@ -1060,7 +1060,7 @@ class Skyrms2010_10_5(Bar):
 
         ## Y-axis limits
         ylim = [0, max(y_axis) + 0.1 * max(y_axis)]
-        
+
         # Create superclass
         super().__init__()
 
@@ -1112,4 +1112,3 @@ class Skyrms2010_10_5(Bar):
                 self.signal_frequencies[n_signals_int] += 1
             else:
                 self.signal_frequencies[n_signals_int] = 1
-
