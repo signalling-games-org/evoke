@@ -6,7 +6,7 @@ discrete or continuous time
 """
 
 ## Built-in
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 import numpy as np
 from scipy.integrate import ode
 from scipy.integrate import odeint
@@ -15,8 +15,7 @@ from scipy.integrate import odeint
 from tqdm import trange
 
 ## evoke
-from evoke.lib.asymmetric_games import Chance, NonChance, ChanceSIR
-from evoke.lib.info import Information, entropy
+from evoke.src.info import Information
 
 
 class OnePop:
@@ -78,35 +77,18 @@ class OnePop:
         ## Use the simple version if there is no assortment.
         if self.e == 0:
             return player @ self.avgpayoffs
-
-        avg_payoffs = []
-
-        ## Otherwise, loop and specify the assortment-weighted probabilities.
-        ## This can probably be vectorised.
-        i = 0
-        for p_i in player:
-            meeting_probabilities = []
-
-            j = 0
-            for p_j in player:
-                if i == j:
-                    ## p_i is the proportion of individuals of type i.
-                    meeting_probabilities.append(p_i + self.e * (1 - p_i))
-
-                else:
-                    ## p_j are all the others
-                    meeting_probabilities.append(p_j - self.e * p_j)
-
-                j += 1
-
-            meeting_probabilities = np.array(meeting_probabilities)
-
-            payoff_i = (meeting_probabilities @ self.avgpayoffs)[i]
-
-            avg_payoffs.append(payoff_i)
-
-            i += 1
-
+        
+        # Create a square array of copies of <player>
+        meeting_probabilities = np.tile(
+            player, (self.lps, 1)
+        )  
+        
+        # Modify meeting probabilities depending on level of assortment
+        meeting_probabilities += self.e * (np.eye(self.lps) - meeting_probabilities)
+        
+        # Fancy vectorized sum to figure out the payoffs
+        avg_payoffs = np.einsum("ij,ji->i", meeting_probabilities, self.avgpayoffs)
+        
         return avg_payoffs
 
     def replicator_dX_dt_odeint(self, X, t):

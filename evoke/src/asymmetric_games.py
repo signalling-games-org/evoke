@@ -7,13 +7,12 @@ module.  There are two main classes here:
 - ``NonChance``: Games without a chance player
 """
 import itertools as it
-import sys
 
 import numpy as np
 import pygambit
 
-from evoke.lib import info
-from evoke.lib import exceptions as ex
+from evoke.src import info
+from evoke.src import exceptions as ex
 
 np.set_printoptions(precision=4)
 
@@ -37,22 +36,28 @@ class Chance:
         a mxo numpy array with the sender payoffs, a mxo numpy array with
         receiver payoffs, and the number of available messages
         """
-        
+
         # Check data is consistent
         if any(
             state_chances.shape[0] != row
             for row in [sender_payoff_matrix.shape[0], receiver_payoff_matrix.shape[0]]
         ):
-            exception_message = "The number of rows in sender and receiver payoffs should "+\
-                                "be the same as the number of states"
+            exception_message = (
+                "The number of rows in sender and receiver payoffs should "
+                + "be the same as the number of states"
+            )
             raise ex.InconsistentDataException(exception_message)
-        
+
         if sender_payoff_matrix.shape != receiver_payoff_matrix.shape:
-            raise ex.InconsistentDataException("Sender and receiver payoff arrays should have the same shape")
-        
+            raise ex.InconsistentDataException(
+                "Sender and receiver payoff arrays should have the same shape"
+            )
+
         if not isinstance(messages, int) or messages < 1:
-            raise ex.InconsistentDataException("The number of messages should be a positive integer")
-        
+            raise ex.InconsistentDataException(
+                "The number of messages should be a positive integer"
+            )
+
         self.state_chances = state_chances
         self.sender_payoff_matrix = sender_payoff_matrix
         self.receiver_payoff_matrix = receiver_payoff_matrix
@@ -256,9 +261,9 @@ class Chance:
         return g
 
     @property
-    def has_info_using_equilibrium(self)->bool:
+    def has_info_using_equilibrium(self) -> bool:
         """
-        
+
         Does this game have an information-using equilibrium?
 
 
@@ -270,7 +275,7 @@ class Chance:
             We want to report these as 1.0000, especially if we're dumping to a file.
             The default is 5.
 
-        
+
         Returns
         -------
         bool
@@ -278,24 +283,23 @@ class Chance:
             If False, the game does not have an information-using equilibrium.
 
         """
-        
+
         # Lazy instantiation
-        if hasattr(self,"_has_info_using_equilibrium"): return self._has_info_using_equilibrium
-        
+        if hasattr(self, "_has_info_using_equilibrium"):
+            return self._has_info_using_equilibrium
+
         # Is there an info-using equilibrium?
         # First get the gambit game object
         gambit_game = self.create_gambit_game()
 
         # Now get the equilibria
-        equilibria_gambit = pygambit.nash.lcp_solve(
-            gambit_game, rational=False)
+        equilibria_gambit = pygambit.nash.lcp_solve(gambit_game, rational=False)
 
         # Convert to python list
         equilibria = eval(str(equilibria_gambit))
 
         # Now for each equilibrium, check whether it is info-using
         for equilibrium in equilibria:
-
             # Figure out whether the strategies at this equilibrium
             # lead to an information-using situation.
 
@@ -310,16 +314,16 @@ class Chance:
             # Get the mutual information between states and acts at this equilibrium.
             # If it's greater than zero, we've got what we need and can return.
             # Otherwise the loop will continue checking subsequent equilibria.
-            if info_object.mutual_info_states_acts() > 0: 
+            if info_object.mutual_info_states_acts() > 0:
                 self._has_info_using_equilibrium = True
                 return self._has_info_using_equilibrium
-       
+
         # No information-using equilibria were found.
         self._has_info_using_equilibrium = False
         return self._has_info_using_equilibrium
 
     @has_info_using_equilibrium.setter
-    def has_info_using_equilibrium(self,has_info_using_equilibrium)->None:
+    def has_info_using_equilibrium(self, has_info_using_equilibrium) -> None:
         """
         Manually set the boolean whether this game has an information-using equilibrium.
         Useful when you are loading the game from a file and don't want to have to
@@ -336,16 +340,16 @@ class Chance:
         None.
 
         """
-        
+
         self._has_info_using_equilibrium = has_info_using_equilibrium
 
     @property
-    def highest_info_using_equilibrium(self)->tuple:
+    def highest_info_using_equilibrium(self) -> tuple:
         """
         Get the mutual information between states and acts at the
         equilibrium with the highest such value.
         Also get the strategies at this equilibrium
-        
+
         Note that if the game has no information-using equilibria,
         the value of mutual information will be 0.
         The strategies returned will then be an arbitrary equilibrium.
@@ -365,17 +369,16 @@ class Chance:
             Second element is the mutual information between states and acts given these strategies.
 
         """
-        
+
         # Lazy instantiation
-        if hasattr(self,"_best_strategies") and hasattr(self,"_max_mutual_info"):
+        if hasattr(self, "_best_strategies") and hasattr(self, "_max_mutual_info"):
             return self._best_strategies, self._max_mutual_info
-        
+
         # First get the gambit game object
         gambit_game = self.create_gambit_game()
 
         # Now get the equilibria
-        equilibria_gambit = pygambit.nash.lcp_solve(
-            gambit_game, rational=False)
+        equilibria_gambit = pygambit.nash.lcp_solve(gambit_game, rational=False)
 
         # Convert to python list
         equilibria = eval(str(equilibria_gambit))
@@ -385,7 +388,6 @@ class Chance:
 
         # Now for each equilibrium, check if it is info-using
         for equilibrium in equilibria:
-
             # Figure out whether the strategies at this equilibrium
             # lead to an information-using situation.
 
@@ -402,30 +404,31 @@ class Chance:
             current_mutual_info = abs(info_object.mutual_info_states_acts())
 
             if current_mutual_info >= current_highest_info_at_equilibrium:
-
                 # Update game details
                 # The equilibrium is just the current sender strategy
                 # followed by the current receiver strategy.
                 current_best_strategies = [
-                    sender_strategy.tolist(), receiver_strategy.tolist()]
+                    sender_strategy.tolist(),
+                    receiver_strategy.tolist(),
+                ]
 
                 # The mutual information is the current mutual info at this equilibrium.
                 current_highest_info_at_equilibrium = round(current_mutual_info, SIGFIG)
-        
+
         # Return the best strategies and highest info found
         self._best_strategies = current_best_strategies
         self._max_mutual_info = current_highest_info_at_equilibrium
-        
+
         # If it's non-zero, set the relevant boolean attribute
         if self._max_mutual_info > 0:
             self.has_info_using_equilibrium = True
         else:
             self.has_info_using_equilibrium = False
-        
+
         return self._best_strategies, self._max_mutual_info
-    
+
     @highest_info_using_equilibrium.setter
-    def highest_info_using_equilibrium(self,equilibrium_data)->None:
+    def highest_info_using_equilibrium(self, equilibrium_data) -> None:
         """
         Manually set the best strategy and amount of mutual information between
         states and acts at the highest information-using equilibrium.
@@ -446,25 +449,26 @@ class Chance:
         None
 
         """
-        
+
         try:
             best_strategies, max_mutual_info = equilibrium_data
         except ValueError:
-            exception_message = "This function needs an iterable as input. "+\
-                                "The first element should be a list [sender_strategy, receiver_strategy]. "+\
-                                "The second element should be a float."
+            exception_message = (
+                "This function needs an iterable as input. "
+                + "The first element should be a list [sender_strategy, receiver_strategy]. "
+                + "The second element should be a float."
+            )
             raise ValueError(exception_message)
-        
+
         self._best_strategies = best_strategies
         self.max_mutual_info = max_mutual_info
-        
+
         # If the highest info is greater than zero, also set the relevant boolean attribute.
         if self.max_mutual_info > 0:
             self.has_info_using_equilibrium = True
         else:
             self.has_info_using_equilibrium = False
-    
-    
+
     @property
     def max_mutual_info(self):
         """
@@ -549,9 +553,9 @@ class Chance:
             )
 
         return self._max_mutual_info
-    
+
     @max_mutual_info.setter
-    def max_mutual_info(self,max_mutual_info):
+    def max_mutual_info(self, max_mutual_info):
         """
         Set the maximum mutual information at equilibrium for this game.
 
@@ -567,9 +571,9 @@ class Chance:
         None.
 
         """
-        
+
         self._max_mutual_info = max_mutual_info
-    
+
     @max_mutual_info.deleter
     def max_mutual_info(self):
         """
@@ -623,24 +627,39 @@ class ChanceSIR:
         None.
 
         """
-        
+
         # Check data is consistent
         if any(
             state_chances.shape[0] != row
-            for row in [sender_payoff_matrix.shape[0], intermediary_payoff_matrix.shape[0], receiver_payoff_matrix.shape[0]]
+            for row in [
+                sender_payoff_matrix.shape[0],
+                intermediary_payoff_matrix.shape[0],
+                receiver_payoff_matrix.shape[0],
+            ]
         ):
-            exception_message = "The number of rows in sender, intermediary and receiver payoffs should "+\
-                                "be the same as the number of states"
+            exception_message = (
+                "The number of rows in sender, intermediary and receiver payoffs should "
+                + "be the same as the number of states"
+            )
             raise ex.InconsistentDataException(exception_message)
-        
-        if sender_payoff_matrix.shape != receiver_payoff_matrix.shape or sender_payoff_matrix.shape != intermediary_payoff_matrix.shape:
-            raise ex.InconsistentDataException("All agents' payoff arrays should have the same shape")
-        
+
+        if (
+            sender_payoff_matrix.shape != receiver_payoff_matrix.shape
+            or sender_payoff_matrix.shape != intermediary_payoff_matrix.shape
+        ):
+            raise ex.InconsistentDataException(
+                "All agents' payoff arrays should have the same shape"
+            )
+
         if not isinstance(messages_sender, int) or messages_sender < 1:
-            raise ex.InconsistentDataException("The number of sender messages should be a positive integer")
-        
+            raise ex.InconsistentDataException(
+                "The number of sender messages should be a positive integer"
+            )
+
         if not isinstance(messages_intermediary, int) or messages_intermediary < 1:
-            raise ex.InconsistentDataException("The number of intermediary messages should be a positive integer")
+            raise ex.InconsistentDataException(
+                "The number of intermediary messages should be a positive integer"
+            )
 
         self.state_chances = state_chances
         self.sender_payoff_matrix = sender_payoff_matrix
@@ -796,15 +815,18 @@ class NonChance:
         Take a mxo numpy array with the sender payoffs, a mxo numpy array
         with receiver payoffs, and the number of available messages
         """
-        
+
         # Check data is consistent
         if sender_payoff_matrix.shape != receiver_payoff_matrix.shape:
-            raise ex.InconsistentDataException("Sender and receiver payoff arrays should have the same shape")
-        
+            raise ex.InconsistentDataException(
+                "Sender and receiver payoff arrays should have the same shape"
+            )
+
         if not isinstance(messages, int) or messages < 1:
-            raise ex.InconsistentDataException("The number of messages should be a positive integer")
-        
-        
+            raise ex.InconsistentDataException(
+                "The number of messages should be a positive integer"
+            )
+
         self.chance_node = False  # flag to know where the game comes from
         self.sender_payoff_matrix = sender_payoff_matrix
         self.receiver_payoff_matrix = receiver_payoff_matrix
