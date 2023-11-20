@@ -743,14 +743,14 @@ def conditional_entropy(conds, unconds):
     probabilities of the row r. v.. Calculate the conditional entropy of
     column r. v. on row r. v. That is:
     Input:
-        
+
     >>> [[P(B1|A1), ...., P(Bn|A1)],..., [P(B1|Am),...,P(Bn|Am)]]
     >>> [P(A1), ..., P(Am)]
-    
+
     Output:
-        
+
     >>> H(B|A)
-    
+
     """
     return unconds.dot(np.apply_along_axis(entropy, 1, conds))
 

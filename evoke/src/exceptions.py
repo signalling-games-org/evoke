@@ -11,14 +11,16 @@ class ChanceNodeError(Exception):
 
     pass
 
+
 class NoDataException(Exception):
     """
     Error to raise when the user tries to show a plot but the figure object
     doesn't have the required data.
     Also raised when the user tries to load data from disk that is not found.
     """
-    
+
     pass
+
 
 class InconsistentDataException(Exception):
     """
@@ -26,5 +28,5 @@ class InconsistentDataException(Exception):
     e.g. payoff matrices that do not have a shape corresponding to
     the set of states or set of acts.
     """
-    
+
     pass
