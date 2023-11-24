@@ -838,8 +838,8 @@ def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix):
     # Vectorized version
 
     pairs = list(combinations(range(n), r=2))
-    sender_pairs = sender_payoff_matrix[pairs]
-    receiver_pairs = receiver_payoff_matrix[pairs]
+    sender_pairs = sender_payoff_matrix.T[pairs]
+    receiver_pairs = receiver_payoff_matrix.T[pairs]
     sender_sign = np.sign(sender_pairs[:, 0] - sender_pairs[:, 1])
     receiver_sign = np.sign(receiver_pairs[:, 0] - receiver_pairs[:, 1])
     sum_total = np.sum(
