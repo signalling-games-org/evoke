@@ -29,6 +29,7 @@ Full run, minimal parameters:
 import numpy as np
 from tqdm import tqdm
 import json
+from itertools import combinations
 
 # Custom library
 from evoke.src.figure import Scatter, Surface
@@ -814,7 +815,7 @@ def calculate_D(payoff_matrix, state, act_1, act_2) -> float:
     return (np.sign(payoff_matrix[state][act_2] - payoff_matrix[state][act_1]) + 1) / 2
 
 
-def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix) -> float:
+def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix):
     """
 
     Calculate C as per Godfrey-Smith and Martínez's definition.
@@ -833,6 +834,19 @@ def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix) -> 
     assert len(state_chances) == len(sender_payoff_matrix[0])
 
     n = len(state_chances)
+
+    # Vectorized version
+
+    pairs = list(combinations(range(n), r=2))
+    sender_pairs = sender_payoff_matrix[pairs]
+    receiver_pairs = receiver_payoff_matrix[pairs]
+    sender_sign = np.sign(sender_pairs[:, 0] - sender_pairs[:, 1])
+    receiver_sign = np.sign(receiver_pairs[:, 0] - receiver_pairs[:, 1])
+    sum_total = np.sum(
+        np.array(state_chances) * (np.abs(sender_sign - receiver_sign) == 2)
+    )
+    subtractor = (2 * sum_total) / (n * (n - 1))
+    c_vector = 1 - subtractor
 
     # 1. Initialise
     sum_total = 0
@@ -859,7 +873,7 @@ def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix) -> 
 
     c = 1 - subtractor
 
-    return c
+    return c, c_vector
 
 
 def calculate_Ks_and_Kr(sender_payoff_matrix, receiver_payoff_matrix):
@@ -1437,4 +1451,3 @@ def get_random_payoffs(states=3, acts=3, min_payoff=0, max_payoff=100):
     """
 
     return np.random.randint(min_payoff, max_payoff, (states, acts))
-
