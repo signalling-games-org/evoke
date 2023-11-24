@@ -815,7 +815,7 @@ def calculate_D(payoff_matrix, state, act_1, act_2) -> float:
     return (np.sign(payoff_matrix[state][act_2] - payoff_matrix[state][act_1]) + 1) / 2
 
 
-def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix):
+def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix) -> float:
     """
 
     Calculate C as per Godfrey-Smith and Martínez's definition.
@@ -834,9 +834,6 @@ def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix):
     assert len(state_chances) == len(sender_payoff_matrix[0])
 
     n = len(state_chances)
-
-    # Vectorized version
-
     pairs = list(combinations(range(n), r=2))
     sender_pairs = sender_payoff_matrix.T[pairs]
     receiver_pairs = receiver_payoff_matrix.T[pairs]
@@ -846,34 +843,8 @@ def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix):
         np.array(state_chances) * (np.abs(sender_sign - receiver_sign) == 2)
     )
     subtractor = (2 * sum_total) / (n * (n - 1))
-    c_vector = 1 - subtractor
-
-    # 1. Initialise
-    sum_total = 0
-
-    # Loop around states and pairs of acts
-    for i in range(len(state_chances)):
-        # This will loop around acts, excluding the first act (with index 0)
-        for j in range(1, len(sender_payoff_matrix[i])):
-            # This will loop around acts with a lower index than j
-            for k in range(j):
-                ## Calculate sender's d-component
-                d_sender_component = calculate_D(sender_payoff_matrix, i, j, k)
-
-                # Calculate receiver's d-component
-                d_receiver_component = calculate_D(receiver_payoff_matrix, i, j, k)
-
-                # Get this component of the sum
-                factor = np.floor(abs(d_sender_component - d_receiver_component))
-
-                # Add this component to the total sum
-                sum_total += factor * state_chances[i]
-
-    subtractor = (2 * sum_total) / (n * (n - 1))
-
     c = 1 - subtractor
-
-    return c, c_vector
+    return c
 
 
 def calculate_Ks_and_Kr(sender_payoff_matrix, receiver_payoff_matrix):
