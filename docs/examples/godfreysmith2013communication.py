@@ -29,6 +29,7 @@ Full run, minimal parameters:
 import numpy as np
 from tqdm import tqdm
 import json
+from itertools import combinations
 
 # Custom library
 from evoke.src.figure import Scatter, Surface
@@ -833,32 +834,16 @@ def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix) -> 
     assert len(state_chances) == len(sender_payoff_matrix[0])
 
     n = len(state_chances)
-
-    # 1. Initialise
-    sum_total = 0
-
-    # Loop around states and pairs of acts
-    for i in range(len(state_chances)):
-        # This will loop around acts, excluding the first act (with index 0)
-        for j in range(1, len(sender_payoff_matrix[i])):
-            # This will loop around acts with a lower index than j
-            for k in range(j):
-                ## Calculate sender's d-component
-                d_sender_component = calculate_D(sender_payoff_matrix, i, j, k)
-
-                # Calculate receiver's d-component
-                d_receiver_component = calculate_D(receiver_payoff_matrix, i, j, k)
-
-                # Get this component of the sum
-                factor = np.floor(abs(d_sender_component - d_receiver_component))
-
-                # Add this component to the total sum
-                sum_total += factor * state_chances[i]
-
+    pairs = list(combinations(range(n), r=2))
+    sender_pairs = sender_payoff_matrix.T[pairs]
+    receiver_pairs = receiver_payoff_matrix.T[pairs]
+    sender_sign = np.sign(sender_pairs[:, 0] - sender_pairs[:, 1])
+    receiver_sign = np.sign(receiver_pairs[:, 0] - receiver_pairs[:, 1])
+    sum_total = np.sum(
+        np.array(state_chances) * (np.abs(sender_sign - receiver_sign) == 2)
+    )
     subtractor = (2 * sum_total) / (n * (n - 1))
-
     c = 1 - subtractor
-
     return c
 
 
@@ -1437,4 +1422,3 @@ def get_random_payoffs(states=3, acts=3, min_payoff=0, max_payoff=100):
     """
 
     return np.random.randint(min_payoff, max_payoff, (states, acts))
-
