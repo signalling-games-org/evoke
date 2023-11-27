@@ -789,8 +789,8 @@ def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix) -> 
     # Get a 3D matrix where each COLUMN is a state,
     # there are always two ROWS comparing a pair of acts in that state,
     # and each AISLE/TUBE/SLICE iterates through pairs.
-    sender_pairs = sender_payoff_matrix.T[pairs]
-    receiver_pairs = receiver_payoff_matrix.T[pairs]
+    sender_pairs = sender_payoff_matrix.T[np.array(pairs)]
+    receiver_pairs = receiver_payoff_matrix.T[np.array(pairs)]
     
     # Now we say: for each pair of acts in a given state,
     # which act has the higher payoff?
