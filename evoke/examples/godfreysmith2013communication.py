@@ -5,6 +5,7 @@ evoke library examples from:
     
 Godfrey-Smith, P., & Martínez, M. (2013). Communication and Common Interest. 
 *PLOS Computational Biology*, 9(11), e1003282. https://doi.org/10.1371/journal.pcbi.1003282
+Supporting information (including important definitions): https://doi.org/10.1371/journal.pcbi.1003282.s001
 
 ======================
 HOW TO USE THIS SCRIPT
@@ -820,8 +821,8 @@ def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix) -> 
 
     Calculate C as per Godfrey-Smith and Martínez's definition.
 
-    (It's not clear whether common_interest.tau_per_rows() is doing what it should be,
-    so we will calculate C explicitly here instead.)
+    See page 2 of the supporting information at 
+    https://doi.org/10.1371/journal.pcbi.1003282.s001
 
     Returns
     -------
@@ -832,18 +833,42 @@ def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix) -> 
 
     # It's only defined when the number of states is equal to the number of acts.
     assert len(state_chances) == len(sender_payoff_matrix[0])
-
+    
+    # Get the number of states
     n = len(state_chances)
+    
+    # Get the (j,k) pairs as defined in the supplement.
     pairs = list(combinations(range(n), r=2))
+    
+    # Get a 3D matrix where each COLUMN is a state,
+    # there are always two ROWS comparing a pair of acts in that state,
+    # and each AISLE/TUBE/SLICE iterates through pairs.
     sender_pairs = sender_payoff_matrix.T[pairs]
     receiver_pairs = receiver_payoff_matrix.T[pairs]
+    
+    # Now we say: for each pair of acts in a given state,
+    # which act has the higher payoff?
+    # The sign tells us which is higher, and it's 0 if there's a tie.
     sender_sign = np.sign(sender_pairs[:, 0] - sender_pairs[:, 1])
     receiver_sign = np.sign(receiver_pairs[:, 0] - receiver_pairs[:, 1])
+    
+    # Here we're doing two things at once.
+    # First is np.abs(sender_sign - receiver_sign).
+    # That's asking whether sender and receiver agree about
+    # which act of a given pair is best in each state.
+    # If they totally disagree, this value will be 2 (because the raw value is either +2 or -2).
+    # So with the comparator "== 2" we get the value TRUE in entries corresponding to
+    # pairs for which sender and receiver disagree on which is best.
+    # Treating these TRUEs as numeric value 1, we multiply each by that state's probability.
+    # Then we just do a big sum of them all.
     sum_total = np.sum(
         np.array(state_chances) * (np.abs(sender_sign - receiver_sign) == 2)
     )
+    
+    # Finally, we scale and convert the sum as per the definition in the supplement.
     subtractor = (2 * sum_total) / (n * (n - 1))
     c = 1 - subtractor
+    
     return c
 
 
