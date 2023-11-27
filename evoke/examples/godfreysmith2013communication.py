@@ -5,6 +5,7 @@ evoke library examples from:
     
 Godfrey-Smith, P., & Martínez, M. (2013). Communication and Common Interest. 
 *PLOS Computational Biology*, 9(11), e1003282. https://doi.org/10.1371/journal.pcbi.1003282
+Supporting information (including important definitions): https://doi.org/10.1371/journal.pcbi.1003282.s001
 
 ======================
 HOW TO USE THIS SCRIPT
@@ -145,10 +146,6 @@ class GodfreySmith2013_1(Scatter):
         # Game objects will be stored in a dictionary by C value.
         self.games = {f"{k:.3f}": [] for k in self.c_values}
 
-        # State chances and messages are always the same.
-        state_chances = np.array([1 / 3, 1 / 3, 1 / 3])
-        messages = 3
-
         # Loop at C values...
         for c_value, games_list in self.games.items():
             # Get name of JSON file
@@ -165,25 +162,9 @@ class GodfreySmith2013_1(Scatter):
                     f"File {fpath_json} was not found. Have you run find_games_3x3() and analyse_games_3x3() for games_per_c={games_per_c} yet?"
                 )
 
-            # Load each game into an object
-            for game_dict in games_list_loaded:
-                # Create game
-                game = asy.Chance(
-                    state_chances,
-                    np.array(game_dict["s"]),  # sender payoff matrix
-                    np.array(game_dict["r"]),  # receiver payoff matrix
-                    messages,
-                )
-
-                # Append information-using equilibria as game object attribute.
-                # This setter method sets three private attributes:
-                # game._best_strategies
-                # game._max_mutual_info
-                # game._has_info_using_equilibrium
-                game.highest_info_using_equilibrium = (game_dict["e"], game_dict["i"])
-
-                # Append this game to the figure object's game list.
-                self.games[c_value].append(game)
+            # Append these game to the figure object's game list.
+            self.games[c_value] = games_list_loaded
+            
 
     def create_games_demo(self, games_per_c):
         """
@@ -234,11 +215,25 @@ class GodfreySmith2013_1(Scatter):
                 state_chances,
                 sender_payoff_matrix,
                 receiver_payoff_matrix,
-                messages,
+                messages
             )
 
             # ...and associate it with this value of C.
-            self.games[f"{c:.3f}"].append(game)
+            # We are just storing a dict with the key features of the game.
+            # That's what calculate_results_per_c() expects.
+            
+            # Get the highest info-using equilibrium
+            # and the mutual info between states and acts at that point.
+            e,i = game.highest_info_using_equilibrium
+            
+            # Build the game dict and add it to self.games.
+            game_dict = {
+                "s": sender_payoff_matrix,
+                "r": receiver_payoff_matrix,
+                "e": e,
+                "i": i
+                }
+            self.games[f"{c:.3f}"].append(game_dict)
 
             # Do we have all the required games yet?
             games_added_to_count += 1
@@ -268,28 +263,19 @@ class GodfreySmith2013_1(Scatter):
         """
 
         # 1. Initialize
-        results = {f"{k:.3f}": [] for k in self.c_values}
-
-        # 2. Loop at C values...
-        for c_value, games_list in tqdm(self.games.items()):
-            # Loop at games per C value...
-            for game in tqdm(games_list, disable=True):
-                # If this game's info transmission at its best equilibrium
-                # is greater than zero...
-                if game.has_info_using_equilibrium:
-                    # Append True to the results list.
-                    results[c_value].append(True)
-
-                else:  # otherwise...
-                    # Append False to the results list.
-                    results[c_value].append(False)
-
-        # Count the total number of info-using equilibria per level of C
+        # results = {f"{k:.3f}": [] for k in self.c_values}
         self.info_using_equilibria = []
-        for key in sorted(results):  # for each level of C...
-            self.info_using_equilibria.append(
-                sum(results[key]) / len(results[key])
-            )  # ...get the proportion of info-using equilibria.
+
+        # 2. Loop at sorted C values...
+        for c_value, games_list in tqdm(sorted(self.games.items())):
+            
+            # games_list is a list of dicts.
+            # Get the highest info-using equilibrium per game.
+            i_values = np.array([game['i'] for game in games_list])
+            
+            # Now count how many of these are greater than 0,
+            # and get the proportion relative to the total number of games.
+            self.info_using_equilibria.append((i_values >0).sum()/len(i_values))
 
 
 class GodfreySmith2013_2(Scatter):
@@ -383,10 +369,6 @@ class GodfreySmith2013_2(Scatter):
         # Game objects will be stored in a dictionary by C value.
         self.games = {f"{k:.3f}": [] for k in self.c_values}
 
-        # State chances and messages are always the same.
-        state_chances = np.array([1 / 3, 1 / 3, 1 / 3])
-        messages = 3
-
         # Loop at C values...
         for c_value, games_list in self.games.items():
             # Get name of JSON file
@@ -403,25 +385,8 @@ class GodfreySmith2013_2(Scatter):
                     f"File {fpath_json} was not found. Have you run find_games_3x3() and analyse_games_3x3() for games_per_c={games_per_c} yet?"
                 )
 
-            # Load each game into an object
-            for game_dict in games_list_loaded:
-                # Create game
-                game = asy.Chance(
-                    state_chances,
-                    np.array(game_dict["s"]),  # sender payoff matrix
-                    np.array(game_dict["r"]),  # receiver payoff matrix
-                    messages,
-                )
-
-                # Append information-using equilibria as game object attributes.
-                # This setter method sets three private attributes:
-                # game._best_strategies
-                # game._max_mutual_info
-                # game._has_info_using_equilibrium
-                game.highest_info_using_equilibrium = (game_dict["e"], game_dict["i"])
-
-                # Append this game to the figure object's game list.
-                self.games[c_value].append(game)
+            # Append these game to the figure object's game list.
+            self.games[c_value] = games_list_loaded
 
     def create_games_demo(self, games_per_c):
         """
@@ -467,14 +432,29 @@ class GodfreySmith2013_2(Scatter):
                 continue
 
             # This value of C still needs games.
-            self.games[f"{c:.3f}"].append(
-                asy.Chance(
-                    state_chances,
-                    sender_payoff_matrix,
-                    receiver_payoff_matrix,
-                    messages,
-                )
+            game = asy.Chance(
+                state_chances,
+                sender_payoff_matrix,
+                receiver_payoff_matrix,
+                messages,
             )
+            
+            # ...and associate it with this value of C.
+            # We are just storing a dict with the key features of the game.
+            # That's what calculate_results_per_c() expects.
+            
+            # Get the highest info-using equilibrium
+            # and the mutual info between states and acts at that point.
+            e,i = game.highest_info_using_equilibrium
+            
+            # Build the game dict and add it to self.games.
+            game_dict = {
+                "s": sender_payoff_matrix,
+                "r": receiver_payoff_matrix,
+                "e": e,
+                "i": i
+                }
+            self.games[f"{c:.3f}"].append(game_dict)
 
             # Do we have all the required games yet?
             games_added_to_count += 1
@@ -506,19 +486,13 @@ class GodfreySmith2013_2(Scatter):
         """
 
         # 1. Initialize
-        results = {f"{k:.3f}": [] for k in self.c_values}
-
-        # 2. Loop at C values...
-        for c_value, games_list in tqdm(self.games.items()):
-            # Loop at games per C value...
-            for game in tqdm(games_list, disable=True):
-                # Get this game's highest info-transmission.
-                results[c_value].append(game.max_mutual_info)
-
-        # Count the total number of info-using equilibria per level of C
         self.highest_mi = []
-        for key in sorted(results):
-            self.highest_mi.append(max(results[key]))
+
+        # 2. Loop at sorted C values...
+        for c_value, games_list in tqdm(sorted(self.games.items())):
+            
+            # Get max mutual info at equilibrium
+            self.highest_mi.append(max([game["i"] for game in games_list]))
 
 
 class GodfreySmith2013_3(Surface):
@@ -646,10 +620,6 @@ class GodfreySmith2013_3(Surface):
             # Delete that entry from <self.games>
             del self.games[combination_to_exclude]
 
-        # State chances and messages are always the same.
-        # state_chances = np.array([1 / 3, 1 / 3, 1 / 3])
-        # messages = 3
-
         # Loop at C values...
         for value_string, games_list in self.games.items():
             # Get name of JSON file
@@ -668,19 +638,6 @@ class GodfreySmith2013_3(Surface):
 
             # Load each game into an object
             for game_dict in games_list_loaded:
-                # # Create game
-                # game = asy.Chance(
-                #     state_chances,
-                #     np.array(game_dict["s"]),  # sender payoff matrix
-                #     np.array(game_dict["r"]),  # receiver payoff matrix
-                #     messages,
-                # )
-
-                # # Append information-using equilibria as game object attribute
-                # game.highest_info_at_equilibrium = (game_dict["e"], game_dict["i"])
-
-                # # Append this game to the figure object's game list.
-                # self.games[value_string].append(game)
 
                 # To avoid creating the game object (takes a long time),
                 # just say whether there's an info-using equilibrium.
@@ -712,7 +669,10 @@ class GodfreySmith2013_3(Surface):
 
         # Set dummy data for impossible combinations of C and K.
         # We'll warn the user that this data is artificially set to zero.
+        # Because of the need for this dummy data,
+        # it's easier to use an intermediate dictionary <results>.
         for k_value in k_3x3_excluded_at_c_0:
+            
             # Define the game that is to be excluded.
             combination_to_dummy = f"{0:.3f}_{k_value:.3f}"
 
@@ -722,21 +682,8 @@ class GodfreySmith2013_3(Surface):
         # Now get the real data.
         # 2. Loop at combinations...
         for value_string, games_list in tqdm(self.games.items()):
-            # Loop at games per combination...
-            for game in tqdm(games_list, disable=True):
-                # # If this game's info transmission at its best equilibrium
-                # # is greater than zero...
-                # if game.has_info_using_equilibrium:
-                #     # Append True to the results list.
-                #     results[value_string].append(True)
-
-                # else:  # otherwise...
-                #     # Append False to the results list.
-                #     results[value_string].append(False)
-
-                # Now we aren't creating the game,
-                # we just have True or False already stored in the games list.
-                results[value_string].append(game)
+            
+            results[value_string] = games_list
 
         # Count the total number of info-using equilibria per combination of C and K
         self.info_using_equilibria = []
@@ -744,7 +691,7 @@ class GodfreySmith2013_3(Surface):
         # Loop helpers
         c_last = -1
         index = -1
-
+        
         for key in sorted(results):  # for each level of C...
             # Is this a new value of C?
             # If so, we need to create a new row of the results matrix.
@@ -820,8 +767,8 @@ def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix) -> 
 
     Calculate C as per Godfrey-Smith and Martínez's definition.
 
-    (It's not clear whether common_interest.tau_per_rows() is doing what it should be,
-    so we will calculate C explicitly here instead.)
+    See page 2 of the supporting information at 
+    https://doi.org/10.1371/journal.pcbi.1003282.s001
 
     Returns
     -------
@@ -832,18 +779,42 @@ def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix) -> 
 
     # It's only defined when the number of states is equal to the number of acts.
     assert len(state_chances) == len(sender_payoff_matrix[0])
-
+    
+    # Get the number of states
     n = len(state_chances)
+    
+    # Get the (j,k) pairs as defined in the supplement.
     pairs = list(combinations(range(n), r=2))
+    
+    # Get a 3D matrix where each COLUMN is a state,
+    # there are always two ROWS comparing a pair of acts in that state,
+    # and each AISLE/TUBE/SLICE iterates through pairs.
     sender_pairs = sender_payoff_matrix.T[pairs]
     receiver_pairs = receiver_payoff_matrix.T[pairs]
+    
+    # Now we say: for each pair of acts in a given state,
+    # which act has the higher payoff?
+    # The sign tells us which is higher, and it's 0 if there's a tie.
     sender_sign = np.sign(sender_pairs[:, 0] - sender_pairs[:, 1])
     receiver_sign = np.sign(receiver_pairs[:, 0] - receiver_pairs[:, 1])
+    
+    # Here we're doing two things at once.
+    # First is np.abs(sender_sign - receiver_sign).
+    # That's asking whether sender and receiver agree about
+    # which act of a given pair is best in each state.
+    # If they totally disagree, this value will be 2 (because the raw value is either +2 or -2).
+    # So with the comparator "== 2" we get the value TRUE in entries corresponding to
+    # pairs for which sender and receiver disagree on which is best.
+    # Treating these TRUEs as numeric value 1, we multiply each by that state's probability.
+    # Then we just do a big sum of them all.
     sum_total = np.sum(
         np.array(state_chances) * (np.abs(sender_sign - receiver_sign) == 2)
     )
+    
+    # Finally, we scale and convert the sum as per the definition in the supplement.
     subtractor = (2 * sum_total) / (n * (n - 1))
     c = 1 - subtractor
+    
     return c
 
 
