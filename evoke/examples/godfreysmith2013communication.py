@@ -147,8 +147,8 @@ class GodfreySmith2013_1(Scatter):
         self.games = {f"{k:.3f}": [] for k in self.c_values}
 
         # State chances and messages are always the same.
-        state_chances = np.array([1 / 3, 1 / 3, 1 / 3])
-        messages = 3
+        # state_chances = np.array([1 / 3, 1 / 3, 1 / 3])
+        # messages = 3
 
         # Loop at C values...
         for c_value, games_list in self.games.items():
@@ -166,25 +166,9 @@ class GodfreySmith2013_1(Scatter):
                     f"File {fpath_json} was not found. Have you run find_games_3x3() and analyse_games_3x3() for games_per_c={games_per_c} yet?"
                 )
 
-            # Load each game into an object
-            for game_dict in games_list_loaded:
-                # Create game
-                game = asy.Chance(
-                    state_chances,
-                    np.array(game_dict["s"]),  # sender payoff matrix
-                    np.array(game_dict["r"]),  # receiver payoff matrix
-                    messages,
-                )
-
-                # Append information-using equilibria as game object attribute.
-                # This setter method sets three private attributes:
-                # game._best_strategies
-                # game._max_mutual_info
-                # game._has_info_using_equilibrium
-                game.highest_info_using_equilibrium = (game_dict["e"], game_dict["i"])
-
-                # Append this game to the figure object's game list.
-                self.games[c_value].append(game)
+            # Append these game to the figure object's game list.
+            self.games[c_value] = games_list_loaded
+            
 
     def create_games_demo(self, games_per_c):
         """
@@ -235,11 +219,20 @@ class GodfreySmith2013_1(Scatter):
                 state_chances,
                 sender_payoff_matrix,
                 receiver_payoff_matrix,
-                messages,
+                messages
             )
 
             # ...and associate it with this value of C.
-            self.games[f"{c:.3f}"].append(game)
+            # We are just storing a dict with the key features of the game.
+            # That's what calculate_results_per_c() expects.
+            e,i = game.highest_info_using_equilibrium
+            game_dict = {
+                "s": sender_payoff_matrix,
+                "r": receiver_payoff_matrix,
+                "e": e,
+                "i": i
+                }
+            self.games[f"{c:.3f}"].append(game_dict)
 
             # Do we have all the required games yet?
             games_added_to_count += 1
@@ -269,28 +262,19 @@ class GodfreySmith2013_1(Scatter):
         """
 
         # 1. Initialize
-        results = {f"{k:.3f}": [] for k in self.c_values}
-
-        # 2. Loop at C values...
-        for c_value, games_list in tqdm(self.games.items()):
-            # Loop at games per C value...
-            for game in tqdm(games_list, disable=True):
-                # If this game's info transmission at its best equilibrium
-                # is greater than zero...
-                if game.has_info_using_equilibrium:
-                    # Append True to the results list.
-                    results[c_value].append(True)
-
-                else:  # otherwise...
-                    # Append False to the results list.
-                    results[c_value].append(False)
-
-        # Count the total number of info-using equilibria per level of C
+        # results = {f"{k:.3f}": [] for k in self.c_values}
         self.info_using_equilibria = []
-        for key in sorted(results):  # for each level of C...
-            self.info_using_equilibria.append(
-                sum(results[key]) / len(results[key])
-            )  # ...get the proportion of info-using equilibria.
+
+        # 2. Loop at sorted C values...
+        for c_value, games_list in tqdm(sorted(self.games.items())):
+            
+            # games_list is a list of dicts.
+            # Get the highest info-using equilibrium per game.
+            i_values = np.array([game['i'] for game in games_list])
+            
+            # Now count how many of these are greater than 0,
+            # and get the proportion relative to the total number of games.
+            self.info_using_equilibria.append((i_values >0).sum()/len(i_values))
 
 
 class GodfreySmith2013_2(Scatter):
