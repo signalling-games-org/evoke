@@ -620,10 +620,6 @@ class GodfreySmith2013_3(Surface):
             # Delete that entry from <self.games>
             del self.games[combination_to_exclude]
 
-        # State chances and messages are always the same.
-        # state_chances = np.array([1 / 3, 1 / 3, 1 / 3])
-        # messages = 3
-
         # Loop at C values...
         for value_string, games_list in self.games.items():
             # Get name of JSON file
@@ -642,19 +638,6 @@ class GodfreySmith2013_3(Surface):
 
             # Load each game into an object
             for game_dict in games_list_loaded:
-                # # Create game
-                # game = asy.Chance(
-                #     state_chances,
-                #     np.array(game_dict["s"]),  # sender payoff matrix
-                #     np.array(game_dict["r"]),  # receiver payoff matrix
-                #     messages,
-                # )
-
-                # # Append information-using equilibria as game object attribute
-                # game.highest_info_at_equilibrium = (game_dict["e"], game_dict["i"])
-
-                # # Append this game to the figure object's game list.
-                # self.games[value_string].append(game)
 
                 # To avoid creating the game object (takes a long time),
                 # just say whether there's an info-using equilibrium.
@@ -686,7 +669,10 @@ class GodfreySmith2013_3(Surface):
 
         # Set dummy data for impossible combinations of C and K.
         # We'll warn the user that this data is artificially set to zero.
+        # Because of the need for this dummy data,
+        # it's easier to use an intermediate dictionary <results>.
         for k_value in k_3x3_excluded_at_c_0:
+            
             # Define the game that is to be excluded.
             combination_to_dummy = f"{0:.3f}_{k_value:.3f}"
 
@@ -696,21 +682,8 @@ class GodfreySmith2013_3(Surface):
         # Now get the real data.
         # 2. Loop at combinations...
         for value_string, games_list in tqdm(self.games.items()):
-            # Loop at games per combination...
-            for game in tqdm(games_list, disable=True):
-                # # If this game's info transmission at its best equilibrium
-                # # is greater than zero...
-                # if game.has_info_using_equilibrium:
-                #     # Append True to the results list.
-                #     results[value_string].append(True)
-
-                # else:  # otherwise...
-                #     # Append False to the results list.
-                #     results[value_string].append(False)
-
-                # Now we aren't creating the game,
-                # we just have True or False already stored in the games list.
-                results[value_string].append(game)
+            
+            results[value_string] = games_list
 
         # Count the total number of info-using equilibria per combination of C and K
         self.info_using_equilibria = []
@@ -718,7 +691,7 @@ class GodfreySmith2013_3(Surface):
         # Loop helpers
         c_last = -1
         index = -1
-
+        
         for key in sorted(results):  # for each level of C...
             # Is this a new value of C?
             # If so, we need to create a new row of the results matrix.
