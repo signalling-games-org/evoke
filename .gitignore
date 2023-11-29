@@ -6,6 +6,7 @@ evoke/data/
 *.egg-info/
 
 docs/build/
+docs/paper/paper.pdf
 
 tutorials/jupyter/.ipynb_checkpoints/
 
