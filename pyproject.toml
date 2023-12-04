@@ -1,5 +1,8 @@
 [tool.poetry]
-name = "evoke"
+name = "evoke-signals"
+packages = [
+    { include="evoke", from="." },
+]
 version = "0.1.0"
 description = "Signalling games in python"
 authors = [
@@ -13,6 +16,10 @@ license = "GPL-3.0-or-later"
 python = ">3.8,<3.12"
 numpy = ">1.20"
 scipy = "^1.10.1"
+tqdm = ">4.50.1"
+matplotlib = ">3.7.1"
+python-ternary = ">1.0.0"
+pygambit = ">16.1.0"
 
 [build-system]
 requires = ["poetry-core"]

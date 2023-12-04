@@ -23,7 +23,7 @@ from evoke.examples.skyrms2010signals import Skyrms2010_1_1
 fig1_1 = Skyrms2010_1_1()
 ```
 
-![Example of Skyrms 2010 Figure 1.1](docs/tutorials/figures/skyrms2010_1_1.png)
+![Example of Skyrms 2010 Figure 1.1](https://github.com/signalling-games-org/evoke/blob/main/docs/tutorials/figures/skyrms2010_1_1.png?raw=true)
 
 Certain figures allow you to specify your own parameters:
 
@@ -32,6 +32,6 @@ from evoke.examples.skyrms2010signals import Skyrms2010_3_3
 fig3_3 = Skyrms2010_3_3(iterations=1000)
 ````
 
-![Example of Skyrms 2010 Figure 3.3](docs/tutorials/figures/skyrms2010_3_3.png)
+![Example of Skyrms 2010 Figure 3.3](https://github.com/signalling-games-org/evoke/blob/main/docs/tutorials/figures/skyrms2010_3_3.png?raw=true)
 
 See the `examples/` directory for a collection of available figures.

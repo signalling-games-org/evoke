@@ -5,7 +5,7 @@ setup(
     name="evoke",
     version="0.1",
     install_requires=["numpy", "scipy"],
-    description="Dynamic analysis of signaling games",
+    description="Signalling games in python",
     author="Stephen Mann, Manolo Martínez",
     author_email="mail@manolomartinez.net",
     url="https://github.com/signalling-games-org/evoke",
