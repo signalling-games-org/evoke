@@ -10,9 +10,7 @@ See the interactive tutorial on [Google Colab](https://colab.research.google.com
 
 ## Installation
 
-Clone into a local repository and run `pip install -e evoke`.
-
-We are working on adding evoke to PyPi so you can install with pip -- watch this space!
+Install with pip: `pip install evoke_signals`.
 
 ## Basic usage
 
