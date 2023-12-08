@@ -6,8 +6,8 @@
 
 # Include paths to modules so autodoc can grab the docstrings and signatures
 import sys
-sys.path.insert(0,'../evoke/src')
-sys.path.insert(0,'../evoke/examples')
+sys.path.insert(0,'../../evoke/src')
+sys.path.insert(0,'../../evoke/examples')
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
