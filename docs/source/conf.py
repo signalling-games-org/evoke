@@ -15,6 +15,7 @@ sys.path.insert(0,'../../evoke/examples')
 project = 'evoke'
 copyright = '2023, Manolo Martínez & Stephen Mann'
 author = 'Manolo Martínez & Stephen Mann'
+version = '0.1'
 release = '0.1.1'
 
 # -- General configuration ---------------------------------------------------
