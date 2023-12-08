@@ -6,7 +6,7 @@
 
 # Include paths to modules so autodoc can grab the docstrings and signatures
 import sys
-sys.path.insert(0,'../evoke/lib')
+sys.path.insert(0,'../evoke/src')
 sys.path.insert(0,'../evoke/examples')
 
 # -- Project information -----------------------------------------------------
@@ -15,7 +15,7 @@ sys.path.insert(0,'../evoke/examples')
 project = 'evoke'
 copyright = '2023, Manolo Martínez & Stephen Mann'
 author = 'Manolo Martínez & Stephen Mann'
-release = '0.1.0'
+release = '0.1.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
