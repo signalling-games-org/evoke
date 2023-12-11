@@ -30,3 +30,10 @@ class InconsistentDataException(Exception):
     """
 
     pass
+
+class ModuleNotInstalledException(Exception):
+    """
+    Error to raise when a method requires a module that is not yet installed.
+    """
+    
+    pass

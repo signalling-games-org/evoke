@@ -3,7 +3,7 @@ name = "evoke-signals"
 packages = [
     { include="evoke", from="." },
 ]
-version = "0.1.1"
+version = "0.1.2"
 description = "Signalling games in python"
 authors = [
 		"Stephen Mann <stephenfmann@gmail.com>", 
@@ -19,7 +19,6 @@ scipy = "^1.10.1"
 tqdm = ">4.50.1"
 matplotlib = ">3.7.1"
 python-ternary = ">1.0.0"
-pygambit = ">=16.1.0"
 
 [build-system]
 requires = ["poetry-core"]
