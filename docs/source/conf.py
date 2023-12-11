@@ -16,7 +16,7 @@ project = 'evoke'
 copyright = '2023, Manolo Martínez & Stephen Mann'
 author = 'Manolo Martínez & Stephen Mann'
 version = '0.1'
-release = '0.1.1'
+release = '0.1.2'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
