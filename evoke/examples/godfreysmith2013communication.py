@@ -86,6 +86,7 @@ class GodfreySmith2013_1(Scatter):
     """
 
     def __init__(self, games_per_c=50, demo=True, dir_games="../data/"):
+        
         # Is it demo mode?
         if demo:
             # Warn user of demo mode
@@ -95,7 +96,11 @@ class GodfreySmith2013_1(Scatter):
             self.c_values = c_3x3_equiprobable_demo
 
             # Create games in demo mode
-            self.create_games_demo(games_per_c)
+            try:
+                self.create_games_demo(games_per_c)
+            except ex.ModuleNotInstalledException as e:
+                print(e)
+                return
 
         else:
             # Set C values for full mode
@@ -318,7 +323,11 @@ class GodfreySmith2013_2(Scatter):
             self.c_values = c_3x3_equiprobable_demo
 
             # Create games in demo mode
-            self.create_games_demo(games_per_c)
+            try:
+                self.create_games_demo(games_per_c)
+            except ex.ModuleNotInstalledException as e:
+                print(e)
+                return
 
         else:
             # Set C values for full mode
@@ -1066,7 +1075,11 @@ def analyse_games_3x3(
             )
 
             # Is there an info-using equilibrium?
-            game_dict["e"], game_dict["i"] = game.highest_info_using_equilibrium
+            try:
+                game_dict["e"], game_dict["i"] = game.highest_info_using_equilibrium
+            except ex.ModuleNotInstalledException as e:
+                print(e)
+                return
 
         # Dump this updated game file
         with open(fpath_json, "w") as f:
@@ -1327,7 +1340,11 @@ def analyse_games_3x3_c_and_k(
             )
 
             # Is there an info-using equilibrium?
-            game_dict["e"], game_dict["i"] = game.highest_info_using_equilibrium
+            try:
+                game_dict["e"], game_dict["i"] = game.highest_info_using_equilibrium
+            except ex.ModuleNotInstalledException as e:
+                print(e)
+                return
 
         # Dump this updated game file
         with open(fpath_json, "w") as f:

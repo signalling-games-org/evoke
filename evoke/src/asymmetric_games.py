@@ -9,7 +9,14 @@ module.  There are two main classes here:
 import itertools as it
 
 import numpy as np
-import pygambit
+# import pygambit
+
+# Optional modules
+try:
+    import pygambit
+    PYGAMBIT_EXISTS = True
+except ModuleNotFoundError:
+    PYGAMBIT_EXISTS = False
 
 from evoke.src import info
 from evoke.src import exceptions as ex
@@ -148,7 +155,9 @@ class Chance:
         """
         Create a gambit object based on this game.
 
-        [SFM: For guidance creating this method I followed the tutorial at
+        [SFM: UPDATE: this method has changed significantly 
+         to comply with pygambit 16.1.0.
+        Original note: For guidance creating this method I followed the tutorial at
         https://nbviewer.org/github/gambitproject/gambit/blob/master/contrib/samples/sendrecv.ipynb
         and adapted as appropriate.]
 
@@ -156,6 +165,10 @@ class Chance:
         -------
         g: Game() object from pygambit package.
         """
+        
+        # pygambit must exist
+        if not PYGAMBIT_EXISTS:
+            raise ex.ModuleNotInstalledException("ERROR: This method requires pygambit 16.1.0 or higher, which is not installed on this system.")
 
         ## Initialize.
         ## Game.new_tree() creates a new, trivial extensive game,
@@ -163,60 +176,72 @@ class Chance:
         g = pygambit.Game.new_tree()
 
         ## Game title
-        g.title = (
-            f"Chance Sender-Receiver game {self.states}x{self.messages}x{self.acts}"
-        )
+        g.title = f"Chance Sender-Receiver game {self.states}x{self.messages}x{self.acts}"
 
         ## Players: Sender and Receiver
         ## There is already a built-in chance player at game_gambit.players.chance
-        sender = g.players.add("Sender")
-        receiver = g.players.add("Receiver")
+        sender = g.add_player("Sender")
+        receiver = g.add_player("Receiver")
 
         ## Add Nature's initial move
-        move_nature = g.root.append_move(g.players.chance, self.states)
+        # move_nature = g.root.append_move(g.players.chance, self.states)
+        g.append_move(
+            node = g.root,
+            player = g.players.chance,
+            actions = np.arange(self.states).astype(str).tolist()
+        )
+        move_nature = g.root.children
 
         ## STRATEGIES
         ## Label Nature's possible actions, and add the sender's response.
         moves_receiver = []
         for i in range(self.states):
             ## Label the state from its index.
-            state_label = move_nature.actions[i].label = str(i)
+            move_nature[i].label = str(i)
 
-            ## For each state, the sender has {self.messages} actions.
-            ## From the tutorial: "We add these actions at different information sets
-            ##  as the sender has perfect information about the state of the world".
-            move_sender = g.root.children[i].append_move(sender, self.messages)
-
-            ## Label the sender's choice node at this point
-            move_sender.label = f"s{state_label}"
+            # For each state, the sender has {self.messages} actions.
+            g.append_move(  node    = move_nature[i],
+                            player  = sender,
+                            actions = np.arange(self.messages).astype(str).tolist()
+                            )
+            
+            # The sender's move is the list of its actions
+            move_sender = move_nature[i].children
 
             ## Label each signal with its index, and add the receiver's response.
             for j in range(self.messages):
-                ## Label the signal from its index.
-                signal_label = move_sender.actions[j].label = str(j)
-
-                ## For each signal, the receiver has {self.acts} actions.
-                ## After the first state, the moves should be appended to
-                ##  the existing infoset.
-                ## That's because the receiver doesn't know anything beyond
-                ##  which signal it received.
+                
                 if i == 0:
-                    moves_receiver.append(
-                        g.root.children[i].children[j].append_move(receiver, self.acts)
-                    )
-
-                    ## Label the receiver's choice node at this point.
-                    ## All it knows about is the signal.
-                    moves_receiver[j].label = f"r{signal_label}"
-
-                    ## Label each act with its index.
+                
+                    move_sender[j].label = str(j)
+                    
+                    g.append_move(node       = move_sender[j],
+                              player     = receiver,
+                              actions    = np.arange(self.acts).astype(str).tolist())
+                    
+                    # moves_receiver will be a list of lists.
+                    # The j'th list contains the receiver's actions after the j'th message.
+                    moves_receiver.append(move_sender[j].children)
+                    
                     for k in range(self.acts):
-                        moves_receiver[j].actions[k].label = str(k)
-
+                        
+                        # Set the move label
+                        moves_receiver[j][k].label = str(k)
+                        
+                        # Set the infoset label
+                        # We'll append further receiver acts to this infoset.
+                        # i.e. for the same value of j (messages) but different values of i (states).
+                        # That's because the receiver only knows about the message, not the state.
+                        moves_receiver[j][k].prior_action.infoset.label = str(k)
+                    
                 else:
-                    ## We are in a state > 0, so we have already defined the receiver's possible moves.
-                    ## Append the existing move here, corresponding to the signal j.
-                    g.root.children[i].children[j].append_move(moves_receiver[j])
+                    
+                    # The j'th entry of <moves_receiver> is a list
+                    # containing the receiver's actions after the j'th message.
+                    # Therefore, we append <moves_receiver[j]> to <move_sender[j]>.
+                    g.append_infoset(
+                        node    = move_sender[j],
+                        infoset = moves_receiver[j][0].prior_action.infoset)
 
         ## OUTCOMES
         ## The size of the payoff matrices, which should be states x acts,
@@ -224,7 +249,7 @@ class Chance:
         for row_index in range(len(self.sender_payoff_matrix)):
             for col_index in range(len(self.sender_payoff_matrix[row_index])):
                 ## Create the outcome.
-                outcome = g.outcomes.add(f"payoff_{row_index}_{col_index}")
+                outcome_label = f"payoff_{row_index}_{col_index}"
 
                 ## Sender's payoff at this outcome.
                 ## Gambit only accepts integer payoffs!!!
@@ -235,8 +260,9 @@ class Chance:
                     print(
                         f"Warning: converting payoff {self.sender_payoff_matrix[row_index][col_index]} to integer"
                     )
-
-                outcome[0] = int(self.sender_payoff_matrix[row_index][col_index])
+                
+                # get sender's payoff at this outcome, as an integer
+                sender_payoff_outcome = int(self.sender_payoff_matrix[row_index][col_index])
 
                 ## Receiver's payoff at this outcome
                 ## Gambit only accepts integer payoffs!!!
@@ -247,15 +273,21 @@ class Chance:
                     print(
                         f"Warning: converting payoff {self.receiver_payoff_matrix[row_index][col_index]} to integer"
                     )
-
-                outcome[1] = int(self.receiver_payoff_matrix[row_index][col_index])
-
+                
+                # get receiver's payoff at this outcome, as an integer
+                receiver_payoff_outcome = int(self.receiver_payoff_matrix[row_index][col_index])
+                
+                # Create outcome
+                outcome = g.add_outcome(
+                    [sender_payoff_outcome,receiver_payoff_outcome],
+                    label = outcome_label)
+                
                 ## Append this outcome to the game across all the different
                 ##  possible signals that could lead to it.
                 for j in range(self.messages):
-                    g.root.children[row_index].children[j].children[
-                        col_index
-                    ].outcome = outcome
+                    g.set_outcome(
+                        node = g.root.children[row_index].children[j].children[col_index],
+                        outcome = outcome)
 
         ## Return the game object.
         return g
@@ -910,7 +942,9 @@ class NonChance:
         """
         Create a gambit object based on this game.
 
-        [SFM: For guidance creating this method I followed the tutorial at
+        [SFM: UPDATE: this method has changed significantly 
+         to comply with pygambit 16.1.0.
+        Original note: For guidance creating this method I followed the tutorial at
         https://nbviewer.org/github/gambitproject/gambit/blob/master/contrib/samples/sendrecv.ipynb
         and adapted as appropriate.]
 
@@ -919,6 +953,10 @@ class NonChance:
         g: Game() object from pygambit package.
 
         """
+        
+        # pygambit must exist
+        if not PYGAMBIT_EXISTS:
+            raise ex.ModuleNotInstalledException("ERROR: This method requires pygambit 16.1.0 or higher, which is not installed on this system.")
 
         ## Initialize.
         ## Game.new_tree() creates a new, trivial extensive game,
@@ -929,37 +967,57 @@ class NonChance:
         g.title = f"Non-Chance Sender-Receiver game {self.messages}x{self.acts}"
 
         ## Players: Sender and Receiver
-        ## There is already a built-in chance player at game_gambit.players.chance
-        sender = g.players.add("Sender")
-        receiver = g.players.add("Receiver")
+        sender = g.add_player("Sender")
+        receiver = g.add_player("Receiver")
+        # sender = g.players.add("Sender")
+        # receiver = g.players.add("Receiver")
 
         ## Add the Sender's initial move
-        move_sender = g.root.append_move(sender, self.messages)
+        g.append_move(
+            node = g.root,
+            player = sender,
+            actions = np.arange(self.messages).astype(str).tolist()
+        )
+        move_sender = g.root.children
+        # move_sender = g.root.append_move(sender, self.messages)
 
         ## Receiver
         ## Label each signal with its index, and add the receiver's response.
         for j in range(self.messages):
-            ## Label the signal from its index.
-            signal_label = move_sender.actions[j].label = str(j)
+            
+            # Label the signal from its index.
+            move_sender[j].label = str(j)
+            # signal_label = move_sender.actions[j].label = str(j)
 
             ## For each signal, the receiver has {self.acts} actions.
-            move_receiver = g.root.children[j].append_move(receiver, self.acts)
+            g.append_move(
+                node    = move_sender[j],
+                player  = receiver,
+                actions = np.arange(self.acts).astype(str).tolist())
+            
+            move_receiver = move_sender[j].children
+            # move_receiver = g.root.children[j].append_move(receiver, self.acts)
 
             ## Label the receiver's choice node at this point.
             ## All it knows about is the signal.
-            move_receiver.label = f"r{signal_label}"
+            # move_receiver.label = f"r{signal_label}"
 
             ## Label each act with its index.
             for k in range(self.acts):
-                move_receiver.actions[k].label = str(k)
+                
+                move_receiver[k].label = str(k)
+                # move_receiver.actions[k].label = str(k)
 
         ## OUTCOMES
-        ## The size of the payoff matrices, which should be signals x acts,
+        ## The size of the payoff matrices, which should be messages x acts,
         ##  determines the number of outcomes.
         for row_index in range(len(self.sender_payoff_matrix)):
             for col_index in range(len(self.sender_payoff_matrix[row_index])):
-                ## Create the outcome.
-                outcome = g.outcomes.add(f"payoff_{row_index}_{col_index}")
+                
+                # Initialise payoff list
+                outcome_payoffs = [0,0]
+                outcome_label   = f"payoff_{row_index}_{col_index}"
+                # outcome = g.outcomes.add(f"payoff_{row_index}_{col_index}")
 
                 ## Sender's payoff at this outcome.
                 ## Gambit only accepts integer payoffs!!!
@@ -970,8 +1028,10 @@ class NonChance:
                     print(
                         f"Warning: converting payoff {self.sender_payoff_matrix[row_index][col_index]} to integer"
                     )
-
-                outcome[0] = int(self.sender_payoff_matrix[row_index][col_index])
+                
+                # The first entry in the outcome list
+                # is the sender's payoff.
+                outcome_payoffs[0] = int(self.sender_payoff_matrix[row_index][col_index])
 
                 ## Receiver's payoff at this outcome
                 ## Gambit only accepts integer payoffs!!!
@@ -982,15 +1042,28 @@ class NonChance:
                     print(
                         f"Warning: converting payoff {self.receiver_payoff_matrix[row_index][col_index]} to integer"
                     )
+                    
+                # The second entry in the outcome list
+                # is the receiver's payoff.
+                outcome_payoffs[1] = int(self.receiver_payoff_matrix[row_index][col_index])
 
-                outcome[1] = int(self.receiver_payoff_matrix[row_index][col_index])
+                ## Create the outcome.
+                outcome = g.add_outcome(
+                    payoffs = outcome_payoffs,
+                    label   = outcome_label
+                    )
 
-                ## Append this outcome to the game across all the different
-                ##  possible signals that could lead to it.
-                for j in range(self.messages):
-                    g.root.children[row_index].children[j].children[
-                        col_index
-                    ].outcome = outcome
+                # Append this outcome to the game.
+                # Payoffs are per message and act, right?
+                g.set_outcome(
+                    node    = g.root.children[row_index].children[col_index],
+                    outcome = outcome
+                    )
+                # for j in range(self.messages):
+                    
+                    # g.root.children[row_index].children[j].children[
+                    #     col_index
+                    # ].outcome = outcome
 
         ## Return the game object.
         return g
@@ -1049,7 +1122,11 @@ def gambit_example(n=2, export=False, fpath="tester.efg"):
     game = lewis_square(n=n)
 
     ## Create the gambit game object
-    g = game.create_gambit_game()
+    try:
+        g = game.create_gambit_game()
+    except ex.ModuleNotInstalledException as e:
+        print(e)
+        return
 
     ## Export .efg file
     if export:
