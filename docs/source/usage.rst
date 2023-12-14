@@ -9,7 +9,7 @@ To use evoke, first install it using pip:
 
 .. code-block:: console
 
-   (.venv) $ pip install evoke
+   (.venv) $ pip install evoke_signals
 
 
 Tutorial
