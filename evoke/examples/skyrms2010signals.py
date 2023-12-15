@@ -31,10 +31,22 @@ from evoke.src.symmetric_games import NoSignal
 
 class Skyrms2010_1_1(Quiver2D):
     """
-    Run the Skyrms (2010) Figure 1 simulation and plot.
+    Figure 1.1, page 11, of Skyrms (2010).
+    The figure depicts the replicator dynamics of a population
+    repeatedly playing a two-player cooperative game
+    where each agent in the population either always plays sender
+    or always plays receiver.
+    Senders observe one of two randomly chosen states of the world and produce one of two signals.
+    Receivers observe the signal and produce one of two acts.
+    If the act matches the state, both players gain a payoff.
     """
 
     def __init__(self):
+        """
+        This class creates a fixed figure.
+        It does not allow input parameters.
+        """
+
         self.initialize_simulation()
 
         evo = self.run_simulation()
@@ -43,13 +55,29 @@ class Skyrms2010_1_1(Quiver2D):
 
         self.show()
 
-    def initialize_simulation(self):
+    def initialize_simulation(self) -> None:
+        """
+        Sets the figure parameters as class attributes.
+        """
+
         self.states = np.array([0.5, 0.5])
         self.sender_payoff_matrix = np.eye(2)
         self.receiver_payoff_matrix = np.eye(2)
         self.messages = 2
 
     def run_simulation(self):
+        """
+        Technically this figure does not require a simulation.
+        It describes how a population of two types would evolve
+        if it were playing a cooperative game.
+
+        Returns
+        -------
+        evo : an instance of evolve.TwoPops.
+            The evolutionary scenario is represented by an object from the module evolve.
+
+        """
+
         ## Create the game
         lewis22 = asy.Chance(
             self.states,
@@ -93,10 +121,18 @@ class Skyrms2010_1_1(Quiver2D):
 
 class Skyrms2010_1_2(Quiver3D):
     """
-    Run the Skyrms (2010) Figure 2 simulation and plot.
+    Figure 1.2, page 12, of Skyrms (2010).
+    The figure depicts the replicator dynamics of a population
+    repeatedly playing a two-player cooperative game
+    where each agent in the population can switch between playing sender or receiver.
     """
 
     def __init__(self):
+        """
+        This class creates a fixed figure.
+        It does not allow input parameters.
+        """
+
         self.initialize_simulation()
 
         evo = self.run_simulation()
@@ -105,7 +141,11 @@ class Skyrms2010_1_2(Quiver3D):
 
         self.show()
 
-    def initialize_simulation(self):
+    def initialize_simulation(self) -> None:
+        """
+        Sets the figure parameters as class attributes.
+        """
+
         ## Create interaction payoff matrix
         self.payoffs = np.array(
             [
@@ -158,6 +198,18 @@ class Skyrms2010_1_2(Quiver3D):
         )
 
     def run_simulation(self):
+        """
+        Technically this figure does not require a simulation.
+        It describes how a population of one type would evolve
+        if it were playing a cooperative game.
+
+        Returns
+        -------
+        evo : an instance of evolve.OnePop.
+            The evolutionary scenario is represented by an object from the module evolve.
+
+        """
+
         ## Create the game...
         game = NoSignal(self.payoffs)
 
@@ -212,10 +264,34 @@ class Skyrms2010_1_2(Quiver3D):
 
 class Skyrms2010_3_3(Scatter):
     """
-    Figure 3.3, page 40, of Skyrms 2010
+    Figure 3.3, page 40, of Skyrms (2010).
+    The figure depicts the mutual information between signal and state
+    over successive trials of a two-player cooperative game
+    in which agents learn via reinforcement.
+    Typically the mutual information will increase over time as the agents learn
+    to use specific signals as indicators of specific states.
+    However, the stochastic nature of the simulation means that the figure will look different
+    each time it is run.
     """
 
     def __init__(self, iterations=100):
+        """
+        Run the simulation and create the figure, specifying the number of iterations
+        i.e. the number of times the game is played.
+        More iterations means a greater chance of positive reinforcement,
+        leading to a greater chance of increased mutual information between signal and state.
+
+        Parameters
+        ----------
+        iterations : int, optional
+            Number of steps to run the game for. The default is 100.
+
+        Returns
+        -------
+        None.
+
+        """
+
         self.initialize_simulation()
 
         evo = self.run_simulation(iterations)
@@ -229,14 +305,9 @@ class Skyrms2010_3_3(Scatter):
 
         self.show()
 
-    def initialize_simulation(self):
+    def initialize_simulation(self) -> None:
         """
-        Set the parameter values for this simulation.
-
-        Returns
-        -------
-        None.
-
+        Sets the figure parameters as class attributes.
         """
 
         self.state_chances = np.array([0.5, 0.5])
@@ -247,7 +318,7 @@ class Skyrms2010_3_3(Scatter):
     def run_simulation(self, iterations):
         """
         Create a game object and an evolution object,
-         and run the game <iterations> times.
+        and run the game <iterations> times.
 
         Parameters
         ----------
@@ -284,27 +355,29 @@ class Skyrms2010_3_3(Scatter):
 
 class Skyrms2010_3_4(Scatter):
     """
-    Figure 3.4, page 46, of Skyrms 2010.
+    Figure 3.4, page 46, of Skyrms (2010).
+    The figure depicts the change over time of the average probability of success
+    in a cooperative signalling chain game.
+    In this game there is a sender, an intermediary, and a receiver.
+    There are two signals, between the sender and intermediary and between the
+    intermediary and receiver.
+    It takes a lot longer for signalling to become established in this game.
+    The original figure uses one million iterations (1e6); however,
+    the probability of success often reaches 1 after just one hundred thousand iterations (1e5).
     """
 
     def __init__(self, iterations=int(1e2)):
         """
         Create object.
-
         NB change iterations to int(1e6) to run the same number of iterations
-         as in the original figure. Warning: this takes a while.
-         You should still get convergence often at 1e5.
+        as in the original figure. Warning: this takes a while.
+        You should still get convergence often at 1e5.
 
         Parameters
         ----------
         iterations : int, optional
             Number of timesteps in the simulation i.e. number of repetitions of the game.
             The default is 100.
-
-        Returns
-        -------
-        None.
-
         """
 
         self.initialize_simulation()
@@ -329,14 +402,9 @@ class Skyrms2010_3_4(Scatter):
 
         self.show()
 
-    def initialize_simulation(self):
+    def initialize_simulation(self) -> None:
         """
-        Set the parameter values for this simulation.
-
-        Returns
-        -------
-        None.
-
+        Sets the figure parameters as class attributes.
         """
 
         self.state_chances = np.array([0.5, 0.5])
@@ -349,7 +417,7 @@ class Skyrms2010_3_4(Scatter):
     def run_simulation(self, iterations):
         """
         Create a game object and an evolution object,
-         and run the game <iterations> times.
+        and run the game <iterations> times.
 
         Parameters
         ----------
@@ -391,17 +459,14 @@ class Skyrms2010_3_4(Scatter):
 
 class Skyrms2010_4_1(Ternary):
     """
-    Figure 4.1, page 59, of Skyrms 2010
+    Figure 4.1, page 59, of Skyrms (2010).
+    The figure depicts cycles in the replicator dynamics of a rock-paper-scissors game.
     """
 
     def __init__(self):
         """
-        Parameters
-        ----------
-        None
-        Returns
-        -------
-        None
+        This class creates a fixed figure.
+        It does not allow input parameters.
         """
 
         self.initialize_simulation()
@@ -414,48 +479,79 @@ class Skyrms2010_4_1(Ternary):
 
         self.show()
 
-    def show(self):
-        super().show()  # draw the line by default
-
     def initialize_simulation(self) -> None:
+        """
+        Sets the figure parameters as class attributes.
+        """
+
         self.initplayer1 = np.array([0.8, 0.1, 0.1])
         self.initplayer2 = np.array([0.6, 0.2, 0.2])
         self.initplayer3 = np.array([0.4, 0.3, 0.3])
         self.rps_payoff_matrix = np.array([[1, 2, 0], [0, 1, 2], [2, 0, 1]])
 
     def run_orbits(self):
-        ## Create game
+        """
+        Generate the cycles in the replicator dynamics.
+
+        The cycles are stored as class attribute self.xyzs.
+        This is used by the superclass Ternary in the method self.show().
+
+        Returns
+        -------
+        evo : evolve.OnePop
+            The evolve object for a one-population game.
+
+        """
+
+        # Create game
         game = sym.NoSignal(self.rps_payoff_matrix)
+
+        # Create evolve object
         evo = ev.OnePop(game, game.pure_strats())
+
+        # Find the cycles
         self.xyzs = [
             evo.replicator_odeint(initplayer, np.linspace(0, 100, num=1000))
             for initplayer in [self.initplayer1, self.initplayer2, self.initplayer3]
         ]
+
         return evo
 
 
 class Skyrms2010_5_2(Scatter):
     """
-    Figure 5.2, page 72, of Skyrms 2010.
+    Figure 5.2, page 72, of Skyrms (2010).
+    The figure shows the value of assortment that is required to destabilise pooling
+    in a 2x2x2 cooperative signalling game.
+    *Assortment* is defined as the probability of meeting another player in the population
+    who is the same type as you.
+    *Pooling* is any strategy that produces the same signal for more than one state.
+
+    Skyrms describes this model on page 71:
+
+    "Here we consider a one-population model, in which
+    nature assigns roles of sender or receiver on flip of a fair coin. We
+    focus on four strategies, written as a vector whose components are:
+    signal sent in state 1, signal sent in state 2, act done after signal 1, act
+    done after signal 2.
+
+    s1 = <1, 2, 1, 2>
+
+    s2 = <2, 1, 2, 1>
+
+    s3 = <1, 1, 2, 2>
+
+    s4 = <2, 2, 2, 2>"
+
     """
 
-    def __init__(self, pr_state_2_list=np.linspace(0.5, 1, 10)):
+    def __init__(self):
         """
-        Create object.
-
-        Parameters
-        ----------
-        pr_state_2_list : array-like, optional
-            x-axis values.
-            The default is np.linspace(0.5, 1, 10).
-
-        Returns
-        -------
-        None.
-
+        This class creates a fixed figure.
+        It does not allow input parameters.
         """
 
-        self.initialize_simulations(pr_state_2_list)
+        self.initialize_simulations()
 
         y_axis = self.run_simulations()
 
@@ -464,11 +560,11 @@ class Skyrms2010_5_2(Scatter):
 
         ## Set data for the graph.
         self.reset(
-            x=pr_state_2_list,
+            x=self.pr_state_2_list,
             y=y_axis,
             xlabel="Pr State 2",
             ylabel="Value of Assortment to Destabilize Pooling e",
-            xlim=[min(pr_state_2_list), max(pr_state_2_list)],
+            xlim=[min(self.pr_state_2_list), max(self.pr_state_2_list)],
             ylim=[0, 1],
         )
 
@@ -479,34 +575,22 @@ class Skyrms2010_5_2(Scatter):
         Show the figure.
 
         We call the superclass method and tell it to show the line
-         along with the datapoints.
+        along with the datapoints.
 
-        Returns
-        -------
-        None.
         """
-        
+
         # Show the line along with the datapoints
         self.show_line = True
 
         # Tell superclass method to show plot
         super().show()
 
-    def initialize_simulations(self, pr_state_2_list):
+    def initialize_simulations(self) -> None:
         """
-        Set the parameter values for this simulation.
-
-        Parameters
-        ----------
-        pr_state_2_list : array-like
-            x-axis values.
-
-        Returns
-        -------
-        None.
-
+        Sets the figure parameters as class attributes.
         """
-        self.pr_state_2_list = pr_state_2_list
+
+        self.pr_state_2_list = np.linspace(0.5, 1, 10)
         self.sender_payoff_matrix = np.eye(2)
         self.receiver_payoff_matrix = np.eye(2)
         self.messages = 2
@@ -515,28 +599,13 @@ class Skyrms2010_5_2(Scatter):
         """
         Create games and run simulations.
 
-        Details taken from Skyrms (2010:71):
-            "Here we consider a one-population model, in which
-                nature assigns roles of sender or receiver on flip of a fair coin. We
-                focus on four strategies, written as a vector whose components are:
-                signal sent in state 1, signal sent in state 2, act done after signal 1, act
-                done after signal 2.
-
-            s1 = <1, 2, 1, 2>
-            s2 = <2, 1, 2, 1>
-            s3 = <1, 1, 2, 2>
-            s4 = <2, 2, 2, 2>"
-
-        Together these define the playertypes payoffs.
+        The vectors s1-s4 defined on page 71 of Skyrms (2010)
+        define the playertypes payoffs.
 
         Returns
         -------
-        evo : evolve.OnePop
-            The most recent evolve object.
         y_axis : list
             Results; the required assortment level for each value of pr_state_2.
-            See Skyrms text for details.
-
         """
 
         y_axis = []
@@ -624,7 +693,9 @@ class Skyrms2010_5_2(Scatter):
 
 class Skyrms2010_8_1(Scatter):
     """
-    Figure 8.1, page 95, of Skyrms 2010
+    Figure 8.1, page 95, of Skyrms (2010).
+    The figure depicts the change over time of the probability of success
+    in a two-player cooperative game where the agents learn by reinforcement.
     """
 
     def __init__(self, iterations=int(1e3)):
@@ -635,10 +706,6 @@ class Skyrms2010_8_1(Scatter):
         ----------
         iterations : int, optional
             Number of timesteps in the simulation. The default is int(1e3).
-
-        Returns
-        -------
-        None.
 
         """
         self.initialize_simulation()
@@ -666,24 +733,22 @@ class Skyrms2010_8_1(Scatter):
         Show the figure.
 
         We call the superclass method and tell it to show the line
-         along with the datapoints.
+        along with the datapoints.
 
         Returns
         -------
         None.
         """
 
-        super().show(True)
+        self.show_line = True
 
-    def initialize_simulation(self):
+        super().show()
+
+    def initialize_simulation(self) -> None:
         """
-        Set parameter values for this simulation.
-
-        Returns
-        -------
-        None.
-
+        Sets the figure parameters as class attributes.
         """
+
         self.state_chances = np.array([0.5, 0.5])
         self.sender_payoff_matrix = np.eye(2)
         self.receiver_payoff_matrix = np.eye(2)
@@ -728,27 +793,31 @@ class Skyrms2010_8_1(Scatter):
 
 class Skyrms2010_8_2(Scatter):
     """
-    Figure 8.2, page 97, of Skyrms 2010
+    Figure 8.2, page 97, of Skyrms (2010).
+    The figure depicts the probability of pooling in a signalling game with
+    reinforcement learning for different initial weights.
+    Initial weights determine how difficult it is to learn something new:
+    large initial weights mean that learning is slower.
+
+    Skyrms does not explicitly state the number of trials or number of iterations
+    used to generate his figure.
+    We suspect the parameter values are something like
+    `trials=int(1e3)` and `iterations=int(1e5)`.
+    However, attempting to generate this figure with those values
+    will take an exceptionally long time.
+
+    Even with `iterations=int(1e4)`, it's looking like 12 minutes per weight,
+    so about an hour overall.
+
+    This, combined with the difficulty of figuring out exactly how Skyrms is
+    identifying pooling equilibria, leads to us overestimating
+    the probability of pooling.
+    You are warned!
     """
 
     def __init__(self, trials=100, iterations=int(1e3)):
         """
         Create object.
-
-        NB It looks as though Skyrms's graph was generated with the equivalent of
-        the following parameters:
-
-        + trials = 1000
-        + iterations = int(1e5)
-
-        But this will take A VERY LONG TIME TO RUN as things are now.
-
-        Even with iterations at int(1e4), it's looking like 12 mins per weight,
-        so about an hour overall.
-
-        This, combined with the difficulty of figuring out exactly how Skyrms is
-        identifying pooling equilibria, leads to us overestimating
-        the probability of pooling.
 
         Parameters
         ----------
@@ -758,10 +827,6 @@ class Skyrms2010_8_2(Scatter):
         iterations : int, optional
             Number of timesteps in each simulation.
             The default is int(1e3).
-
-        Returns
-        -------
-        None.
 
         """
 
@@ -788,28 +853,21 @@ class Skyrms2010_8_2(Scatter):
         # Show the figure
         self.show()
 
-    def show(self):
+    def show(self) -> None:
         """
         Show the figure.
 
         We call the superclass method and tell it to show the line
-         along with the datapoints.
-
-        Returns
-        -------
-        None.
+        along with the datapoints.
         """
 
-        super().show(True)
+        self.show_line = True
 
-    def initialize_simulation(self):
+        super().show()
+
+    def initialize_simulation(self) -> None:
         """
-        Set parameter values for this simulation.
-
-        Returns
-        -------
-        None.
-
+        Sets the figure parameters as class attributes.
         """
         self.state_chances = np.array([0.9, 0.1])
         self.sender_payoff_matrix = np.eye(2)
@@ -818,7 +876,7 @@ class Skyrms2010_8_2(Scatter):
 
         self.initial_weights = np.array([0.0001, 0.001, 0.01, 0.1, 1, 10])
 
-    def run_simulation(self, trials, iterations):
+    def run_simulation(self, trials, iterations) -> None:
         """
         Create game and run simulations.
 
@@ -830,12 +888,6 @@ class Skyrms2010_8_2(Scatter):
         iterations : int, optional
             Number of timesteps in each simulation.
             The default is int(1e3).
-
-        Returns
-        -------
-        evo : evolve.MatchingSR
-            The last simulation object.
-
         """
         ## Create game
         game = asy.Chance(
@@ -888,7 +940,17 @@ class Skyrms2010_8_2(Scatter):
 
 class Skyrms2010_8_3(Scatter):
     """
-    Figure 8.3, page 98, of Skyrms 2010
+    Figure 8.3, page 98, of Skyrms (2010).
+    The figure depicts the probability of signalling for different
+    values of the learning parameter in a Bush–Mosteller reinforcement scenario.
+
+    Our recreation of this figure is clearly undercounting signalling.
+    That's because we are defining signalling as "not pooling",
+    and we are overcounting pooling (see the docstring for class Skyrms2010_8_2).
+
+    In future, we need to try and count both pooling and signaling
+    more accurately; this is difficult, since we don't know exactly
+    how Skyrms defines them for the purposes of his figures.
     """
 
     def __init__(
@@ -923,7 +985,7 @@ class Skyrms2010_8_3(Scatter):
 
         self.initialize_simulation(learning_params)
 
-        evo = self.run_simulation(trials, iterations)
+        self.run_simulation(trials, iterations)
 
         ## Set graph data and display parameters
         self.reset(
@@ -935,24 +997,20 @@ class Skyrms2010_8_3(Scatter):
             marker_size=5,
         )
 
-        ## Superclass wants an evo object. Just pass it whatever we got from run_simulations().
-        super().__init__(evo)
+        super().__init__()
 
-        self.show(True)
+        self.show_line = True
 
-    def initialize_simulation(self, learning_params):
+        self.show()
+
+    def initialize_simulation(self, learning_params) -> None:
         """
-        Set parameters for the simulations in self.run_simulation().
+        Sets the figure parameters as class attributes.
 
         Parameters
         ----------
         learning_params : array-like, optional
             Learning parameters to run simulations for.
-
-        Returns
-        -------
-        None.
-
         """
 
         ## Fixed parameters
@@ -964,7 +1022,7 @@ class Skyrms2010_8_3(Scatter):
         ## User-supplied parameters
         self.learning_params = learning_params
 
-    def run_simulation(self, trials, iterations):
+    def run_simulation(self, trials, iterations) -> None:
         """
         Create game and run simulations.
 
@@ -1027,12 +1085,14 @@ class Skyrms2010_8_3(Scatter):
             ##        that led to partial pooling.
             self.prob_of_signalling.append(count_signalling / trials)
 
-        return evo
-
 
 class Skyrms2010_10_5(Bar):
     """
-    Figure 10.5, page 130, of Skyrms 2010
+    Figure 10.5, page 130, of Skyrms (2010).
+    The figure depicts the number of signals at the end of reinforcement
+    for a cooperative game in which senders can invent new signals.
+
+    NB Skyrms uses trials=1000 and iterations=int(1e5) but this will take a very long time.
     """
 
     def __init__(self, trials=1000, iterations=int(1e4)):
@@ -1041,16 +1101,13 @@ class Skyrms2010_10_5(Bar):
 
         Parameters
         ----------
-        trials : TYPE, optional
-            DESCRIPTION. The default is 1000
+        trials : int, optional
+            The number of simulations to run.
+            The default is 1000.
 
         iterations : int
-            default is int(1e4).
-
-        Returns
-        -------
-        None.
-
+            The number of iterations per trial.
+            The default is int(1e4).
         """
 
         self.initialize_simulation()
@@ -1078,13 +1135,28 @@ class Skyrms2010_10_5(Bar):
 
         self.show()
 
-    def initialize_simulation(self):
+    def initialize_simulation(self) -> None:
+        """
+        Sets the figure parameters as class attributes.
+        """
+
         self.state_chances = np.array([1 / 3, 1 / 3, 1 / 3])
         self.sender_payoff_matrix = np.eye(3)
         self.receiver_payoff_matrix = np.eye(3)
         self.messages = 1  # Skyrms says zero, but the first message is a "phantom".
 
-    def run_simulation(self, trials, iterations):
+    def run_simulation(self, trials, iterations) -> None:
+        """
+        Run <trials> trials with <iterations> iterations each.
+
+        Parameters
+        ----------
+        trials : int
+            Number of simulations.
+        iterations : int
+            Number of iterations per trial.
+        """
+
         ## Initialise data dict: keys will be x-axis, values will be y-axis.
         self.signal_frequencies = {s: 0 for s in range(1, 30)}
 

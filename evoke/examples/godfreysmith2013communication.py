@@ -3,26 +3,48 @@
 
 evoke library examples from:
     
-Godfrey-Smith, P., & Martínez, M. (2013). Communication and Common Interest. 
-*PLOS Computational Biology*, 9(11), e1003282. https://doi.org/10.1371/journal.pcbi.1003282
-Supporting information (including important definitions): https://doi.org/10.1371/journal.pcbi.1003282.s001
+    Godfrey-Smith, P., & Martínez, M. (2013). Communication and Common Interest. 
+    *PLOS Computational Biology*, 9(11), e1003282. https://doi.org/10.1371/journal.pcbi.1003282
+
+The supporting information (including important definitions)
+can be found at https://doi.org/10.1371/journal.pcbi.1003282.s001
 
 ======================
-HOW TO USE THIS SCRIPT
+How to use this script
 ======================
 
-Quick run: Create figure objects with demo=True.
+Quick run: Create figure objects with `demo=True`.
 
-Full run, minimal parameters:
+Figures 1 and 2, full run, minimal parameters:
     
-1. Decide how many games per value of C you want to analyse, <games_per_c>. 
-   Godfrey-Smith and Martínez use 1500.
-2. Run find_games_3x3(<games_per_c>). 
-   This will generate <games_per_c> games per value of C and store them in a local directory.
-3. Run analyse_games_3x3(<games_per_c>). This will calculate values required to create figures 1 and 2. 
-   This can take a long time! 1500 games takes about 30 minutes.
-4. Run GodfreySmith2013_1(<games_per_c>, demo=False) to create Figure 1.
-5. Run GodfreySmith2013_2(<games_per_c>, demo=False) to create Figure 2.
+    1. Decide how many games per value of C you want to analyse, `games_per_c`. 
+       Godfrey-Smith and Martínez use 1500.
+    2. Run `find_games_3x3(games_per_c)`. 
+       This will generate `games_per_c` games per value of C and store them in a local directory.
+    3. Run `analyse_games_3x3(games_per_c)`. This will calculate values required to create figures 1 and 2. 
+       This can take a long time! 1500 games takes about 30 minutes.
+    4. Run `GodfreySmith2013_1(games_per_c, demo=False)` to create Figure 1.
+    5. Run `GodfreySmith2013_2(games_per_c, demo=False)` to create Figure 2.
+
+Figure 3a (sender), full run, minimal parameters:
+    
+    1. Decide how many games per value of C and K you want to analyse, `games_per_c_and_k`. 
+       Godfrey-Smith and Martínez use 1500.
+    2. Run `find_games_3x3_c_and_k(games_per_c_and_k,sender=True)`.
+       This will generate `games_per_c_and_k` games per pair of values C and K and store them locally.
+    3. Run `analyse_games_3x3_c_and_k(games_per_c_and_k,sender=True)`. This will calculate values required to create figure 3.
+       This can take a long time!
+    4. Run `GodfreySmith2013_3_sender(games_per_c_and_k,demo=False)` to create Figure 3a.
+
+Figure 3b (receiver), full run, minimal parameters:
+    
+    1. Decide how many games per value of C and K you want to analyse, `games_per_c_and_k`. 
+       Godfrey-Smith and Martínez use 1500.
+    2. Run `find_games_3x3_c_and_k(games_per_c_and_k,sender=False)`.
+       This will generate `games_per_c_and_k` games per pair of values C and K and store them locally.
+    3. Run `analyse_games_3x3_c_and_k(games_per_c_and_k,sender=False)`. This will calculate values required to create figure 3.
+       This can take a long time!
+    4. Run `GodfreySmith2013_3_receiver(games_per_c_and_k,demo=False)` to create Figure 3a.
 
 """
 
@@ -72,21 +94,36 @@ class GodfreySmith2013_1(Scatter):
 
     You have two options to create this figure: demo mode and full mode.
 
-    + Demo mode omits hard-to-find classes and places an upper limit on <games_per_c>.
+    + Demo mode omits hard-to-find classes and places an upper limit on `games_per_c`.
       This allows it to run in a reasonable amount of time.
-    + Full mode requires an existing set of pickled classes.
-      These can be created via the class GodfreySmith2013_1_prep.
+    + Full mode requires an existing set of game data stored in JSON files.
+      These can be created via the functions `find_games_3x3()` and `analyse_games_3x3()`.
 
     The reason for demo mode is that the figure takes a VERY long time to create
-    with the published parameter of games_per_c=1500.
-    Realistically we need to prepare by finding <games_per_c> games for each value of c,
-    pickling them, and calling them at runtime to count the equilibria.
-    Demo mode omits games with c=0.000 and c=0.111 because they are especially hard to find.
+    with the published parameter of `games_per_c=1500`.
+    Realistically we need to prepare by finding `games_per_c` games for each value of C,
+    storing them in a local JSON file, and calling them at runtime to count the equilibria.
+    Demo mode omits games with `c=0.000` and `c=0.111` because they are especially hard to find.
 
     """
 
-    def __init__(self, games_per_c=50, demo=True, dir_games="../data/"):
-        
+    def __init__(self, games_per_c=50, demo=True, dir_games="../data/") -> None:
+        """
+        Create an instance of the class.
+
+        Parameters
+        ----------
+        games_per_c : int, optional
+            Number of games per value of C to create. The default is 50.
+        demo : bool, optional
+            Whether to create the figure in demo mode or not.
+            The default is True.
+        dir_games : str, optional
+            Directory path to find stored JSON game data.
+            Only used if `demo=False`.
+            The default is "../data/".
+        """
+
         # Is it demo mode?
         if demo:
             # Warn user of demo mode
@@ -130,14 +167,14 @@ class GodfreySmith2013_1(Scatter):
         self.show_line = True
         self.show()
 
-    def load_saved_games(self, dir_games, games_per_c):
+    def load_saved_games(self, dir_games, games_per_c) -> None:
         """
         Get sender and receiver matrices and load them into game objects.
         Put them into dictionary self.games.
 
         The games should already exist in dir_games with filenames of the form:
 
-        - f"{dir_games}games_c{c_value:.3f}_n{games_per_c}.json"
+        `f"{dir_games}games_c{c_value:.3f}_n{games_per_c}.json"`
 
         Parameters
         ----------
@@ -169,9 +206,8 @@ class GodfreySmith2013_1(Scatter):
 
             # Append these game to the figure object's game list.
             self.games[c_value] = games_list_loaded
-            
 
-    def create_games_demo(self, games_per_c):
+    def create_games_demo(self, games_per_c) -> None:
         """
         Create game objects in demo mode.
 
@@ -217,27 +253,24 @@ class GodfreySmith2013_1(Scatter):
             # This value of C still needs games.
             # Create the game...
             game = asy.Chance(
-                state_chances,
-                sender_payoff_matrix,
-                receiver_payoff_matrix,
-                messages
+                state_chances, sender_payoff_matrix, receiver_payoff_matrix, messages
             )
 
             # ...and associate it with this value of C.
             # We are just storing a dict with the key features of the game.
             # That's what calculate_results_per_c() expects.
-            
+
             # Get the highest info-using equilibrium
             # and the mutual info between states and acts at that point.
-            e,i = game.highest_info_using_equilibrium
-            
+            e, i = game.highest_info_using_equilibrium
+
             # Build the game dict and add it to self.games.
             game_dict = {
                 "s": sender_payoff_matrix,
                 "r": receiver_payoff_matrix,
                 "e": e,
-                "i": i
-                }
+                "i": i,
+            }
             self.games[f"{c:.3f}"].append(game_dict)
 
             # Do we have all the required games yet?
@@ -255,16 +288,10 @@ class GodfreySmith2013_1(Scatter):
             if games_added_to_count == total_games_required:
                 break
 
-    def calculate_results_per_c(self):
+    def calculate_results_per_c(self) -> None:
         """
-
         For each value of <self.c_values>, count how many games
         have info-using equilibria.
-
-        Returns
-        -------
-        None.
-
         """
 
         # 1. Initialize
@@ -273,14 +300,13 @@ class GodfreySmith2013_1(Scatter):
 
         # 2. Loop at sorted C values...
         for c_value, games_list in tqdm(sorted(self.games.items())):
-            
             # games_list is a list of dicts.
             # Get the highest info-using equilibrium per game.
-            i_values = np.array([game['i'] for game in games_list])
-            
+            i_values = np.array([game["i"] for game in games_list])
+
             # Now count how many of these are greater than 0,
             # and get the proportion relative to the total number of games.
-            self.info_using_equilibria.append((i_values >0).sum()/len(i_values))
+            self.info_using_equilibria.append((i_values > 0).sum() / len(i_values))
 
 
 class GodfreySmith2013_2(Scatter):
@@ -298,22 +324,36 @@ class GodfreySmith2013_2(Scatter):
 
     You have two options to create this figure: demo mode and full mode.
 
-    + Demo mode omits hard-to-find classes and places an upper limit on <games_per_c>.
+    + Demo mode omits hard-to-find classes and places an upper limit on `games_per_c`.
       This allows it to run in a reasonable amount of time.
-    + Full mode requires an existing set of pickled classes.
-      These can be created via the class GodfreySmith2013_2_prep.
+    + Full mode requires an existing set of game data stored in JSON files.
+      These can be created via the functions `find_games_3x3()` and `analyse_games_3x3()`.
 
     The reason for demo mode is that the figure takes a VERY long time to create
-    with the published parameter of games_per_c=1500.
-
-    Realistically we need to prepare by finding <games_per_c> games for each value of c,
-    pickling them, and calling them at runtime to count the equilibria.
-
-    Demo mode omits games with c=0.000 and c=0.111 because they are especially hard to find.
+    with the published parameter of `games_per_c=1500`.
+    Realistically we need to prepare by finding `games_per_c` games for each value of C,
+    storing them in a local JSON file, and calling them at runtime to count the equilibria.
+    Demo mode omits games with `c=0.000` and `c=0.111` because they are especially hard to find.
 
     """
 
-    def __init__(self, games_per_c=50, demo=True, dir_games="../data/"):
+    def __init__(self, games_per_c=50, demo=True, dir_games="../data/") -> None:
+        """
+        Create an instance of the class.
+
+        Parameters
+        ----------
+        games_per_c : int, optional
+            Number of games per value of C to create. The default is 50.
+        demo : bool, optional
+            Whether to create the figure in demo mode or not.
+            The default is True.
+        dir_games : str, optional
+            Directory path to find stored JSON game data.
+            Only used if `demo=False`.
+            The default is "../data/".
+        """
+
         # Is it demo mode?
         if demo:
             # Warn user of demo mode
@@ -357,14 +397,14 @@ class GodfreySmith2013_2(Scatter):
         self.show_line = True
         self.show()
 
-    def load_saved_games(self, dir_games, games_per_c):
+    def load_saved_games(self, dir_games, games_per_c) -> None:
         """
         Get sender and receiver matrices and load them into game objects.
         Put them into dictionary self.games.
 
         The games should already exist in dir_games with filenames of the form:
 
-        - f"{dir_games}games_c{c_value:.3f}_n{games_per_c}.json"
+        `f"{dir_games}games_c{c_value:.3f}_n{games_per_c}.json"`
 
         Parameters
         ----------
@@ -397,7 +437,7 @@ class GodfreySmith2013_2(Scatter):
             # Append these game to the figure object's game list.
             self.games[c_value] = games_list_loaded
 
-    def create_games_demo(self, games_per_c):
+    def create_games_demo(self, games_per_c) -> None:
         """
         Create game objects in demo mode.
 
@@ -447,22 +487,22 @@ class GodfreySmith2013_2(Scatter):
                 receiver_payoff_matrix,
                 messages,
             )
-            
+
             # ...and associate it with this value of C.
             # We are just storing a dict with the key features of the game.
             # That's what calculate_results_per_c() expects.
-            
+
             # Get the highest info-using equilibrium
             # and the mutual info between states and acts at that point.
-            e,i = game.highest_info_using_equilibrium
-            
+            e, i = game.highest_info_using_equilibrium
+
             # Build the game dict and add it to self.games.
             game_dict = {
                 "s": sender_payoff_matrix,
                 "r": receiver_payoff_matrix,
                 "e": e,
-                "i": i
-                }
+                "i": i,
+            }
             self.games[f"{c:.3f}"].append(game_dict)
 
             # Do we have all the required games yet?
@@ -477,9 +517,8 @@ class GodfreySmith2013_2(Scatter):
             if games_added_to_count == total_games_required:
                 break
 
-    def calculate_results_per_c(self, games_per_c):
+    def calculate_results_per_c(self, games_per_c) -> None:
         """
-
         For each value of <self.c_values>, count how many out of <games_per_c> games
         have info-using equilibria.
 
@@ -487,11 +526,6 @@ class GodfreySmith2013_2(Scatter):
         ----------
         games_per_c : int
             Number of games to generate per level of common interest.
-
-        Returns
-        -------
-        None.
-
         """
 
         # 1. Initialize
@@ -499,7 +533,6 @@ class GodfreySmith2013_2(Scatter):
 
         # 2. Loop at sorted C values...
         for c_value, games_list in tqdm(sorted(self.games.items())):
-            
             # Get max mutual info at equilibrium
             self.highest_mi.append(max([game["i"] for game in games_list]))
 
@@ -508,12 +541,17 @@ class GodfreySmith2013_3(Surface):
     """
     See figure at https://doi.org/10.1371/journal.pcbi.1003282.g003
 
-    See documentation for running in demo mode versus full mode.
+    This object requires an existing set of game data stored in JSON files.
+    These can be created with `find_games_3x3_c_and_k()` and
+    `analyse_games_3x3_c_and_k()`.
+    See the section **How to use this script** for more.
+
+    Demo mode is not yet available for this figure.
     """
 
     def __init__(
         self, games_per_c_and_k=150, k_indicator=None, demo=False, dir_games="../data/"
-    ):
+    ) -> None:
         """
         Constructor for GodfreySmith2013_3 object.
 
@@ -596,21 +634,19 @@ class GodfreySmith2013_3(Surface):
         for k_value in k_3x3_excluded_at_c_0:
             print(f"C={0:.3f}, K={k_value:.3f}")
 
-    def load_saved_games(self, dir_games):
+    def load_saved_games(self, dir_games) -> None:
         """
         Get sender and receiver matrices and load them into game objects.
         Put them into dictionary self.games.
 
         The games should already exist in dir_games with filenames of the form:
 
-        - f"{dir_games}games_c{c_value:.3f}_{ks or kr}{k_value:.3f}_n{games_per_c_and_k}.json"
+        `f"{dir_games}games_c{c_value:.3f}_{ks or kr}{k_value:.3f}_n{games_per_c_and_k}.json"`
 
         Parameters
         ----------
         dir_games : str
             Directory containing JSON files with sender and receiver matrices.
-        games_per_c_and_k : int
-            Number of games per combination of C and K.
 
         """
 
@@ -647,7 +683,6 @@ class GodfreySmith2013_3(Surface):
 
             # Load each game into an object
             for game_dict in games_list_loaded:
-
                 # To avoid creating the game object (takes a long time),
                 # just say whether there's an info-using equilibrium.
                 if game_dict["i"] > 0:
@@ -656,16 +691,10 @@ class GodfreySmith2013_3(Surface):
                 if game_dict["i"] == 0:
                     self.games[value_string].append(False)
 
-    def calculate_results_per_c_and_k(self):
+    def calculate_results_per_c_and_k(self) -> None:
         """
-
-        For each value of <self.c_values>, count how many games
+        For each pair of `self.c_values` and `self.k_values`, count how many games
         have info-using equilibria.
-
-        Returns
-        -------
-        None.
-
         """
 
         # 1. Initialize
@@ -681,7 +710,6 @@ class GodfreySmith2013_3(Surface):
         # Because of the need for this dummy data,
         # it's easier to use an intermediate dictionary <results>.
         for k_value in k_3x3_excluded_at_c_0:
-            
             # Define the game that is to be excluded.
             combination_to_dummy = f"{0:.3f}_{k_value:.3f}"
 
@@ -691,7 +719,6 @@ class GodfreySmith2013_3(Surface):
         # Now get the real data.
         # 2. Loop at combinations...
         for value_string, games_list in tqdm(self.games.items()):
-            
             results[value_string] = games_list
 
         # Count the total number of info-using equilibria per combination of C and K
@@ -700,7 +727,7 @@ class GodfreySmith2013_3(Surface):
         # Loop helpers
         c_last = -1
         index = -1
-        
+
         for key in sorted(results):  # for each level of C...
             # Is this a new value of C?
             # If so, we need to create a new row of the results matrix.
@@ -720,12 +747,24 @@ class GodfreySmith2013_3(Surface):
 
 
 class GodfreySmith2013_3_sender(GodfreySmith2013_3):
+    """
+    Wrapper for GodfreySmith2013_3(),
+    calling with parameter `self.k_indicator = "ks"`
+    to create figure 3a.
+    """
+
     def __init__(self, **kwargs):
         self.k_indicator = "ks"
         super().__init__(**kwargs)
 
 
 class GodfreySmith2013_3_receiver(GodfreySmith2013_3):
+    """
+    Wrapper for GodfreySmith2013_3(),
+    calling with parameter `self.k_indicator = "kr"`
+    to create figure 3b.
+    """
+
     def __init__(self, **kwargs):
         self.k_indicator = "kr"
         super().__init__(**kwargs)
@@ -738,15 +777,15 @@ class GodfreySmith2013_3_receiver(GodfreySmith2013_3):
 
 def calculate_D(payoff_matrix, state, act_1, act_2) -> float:
     """
-    Calculate an agent's relative preference of acts <act_1> and <act_2>
-    in state <state>.
+    Calculate an agent's relative preference of acts `act_1` and `act_2`
+    in state `state`.
 
     The measure is defined in the supplement of Godfrey-Smith and Martínez (2013), page 1.
 
     Parameters
     ----------
     payoff_matrix : array-like
-        DESCRIPTION.
+        The agent's payoff matrix.
     state : int
         Index of the state.
     act_1 : int
@@ -757,9 +796,11 @@ def calculate_D(payoff_matrix, state, act_1, act_2) -> float:
     Returns
     -------
     D : float
-        0   if act 1 is preferred
-        0.5 if the payoffs are equal
-        1   if act 2 is preferred
+        Godfrey-Smith and Martínez's measure D.   
+        
+        + 0   if act 1 is preferred
+        + 0.5 if the payoffs are equal
+        + 1   if act 2 is preferred
 
     """
 
@@ -776,7 +817,7 @@ def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix) -> 
 
     Calculate C as per Godfrey-Smith and Martínez's definition.
 
-    See page 2 of the supporting information at 
+    See page 2 of the supporting information at
     https://doi.org/10.1371/journal.pcbi.1003282.s001
 
     Returns
@@ -788,25 +829,25 @@ def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix) -> 
 
     # It's only defined when the number of states is equal to the number of acts.
     assert len(state_chances) == len(sender_payoff_matrix[0])
-    
+
     # Get the number of states
     n = len(state_chances)
-    
+
     # Get the (j,k) pairs as defined in the supplement.
     pairs = list(combinations(range(n), r=2))
-    
+
     # Get a 3D matrix where each COLUMN is a state,
     # there are always two ROWS comparing a pair of acts in that state,
     # and each AISLE/TUBE/SLICE iterates through pairs.
     sender_pairs = sender_payoff_matrix.T[np.array(pairs)]
     receiver_pairs = receiver_payoff_matrix.T[np.array(pairs)]
-    
+
     # Now we say: for each pair of acts in a given state,
     # which act has the higher payoff?
     # The sign tells us which is higher, and it's 0 if there's a tie.
     sender_sign = np.sign(sender_pairs[:, 0] - sender_pairs[:, 1])
     receiver_sign = np.sign(receiver_pairs[:, 0] - receiver_pairs[:, 1])
-    
+
     # Here we're doing two things at once.
     # First is np.abs(sender_sign - receiver_sign).
     # That's asking whether sender and receiver agree about
@@ -819,11 +860,11 @@ def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix) -> 
     sum_total = np.sum(
         np.array(state_chances) * (np.abs(sender_sign - receiver_sign) == 2)
     )
-    
+
     # Finally, we scale and convert the sum as per the definition in the supplement.
     subtractor = (2 * sum_total) / (n * (n - 1))
     c = 1 - subtractor
-    
+
     return c
 
 
@@ -832,7 +873,7 @@ def calculate_Ks_and_Kr(sender_payoff_matrix, receiver_payoff_matrix):
     Calculate the extent to which an agent's preference ordering
     over receiver actions varies with the state of the world.
 
-    Defined as K_S and K_R in the supplement of Godfrey-Smith and Martínez (2013), page 2.
+    Defined as `K_S` and `K_R` in the supplement of Godfrey-Smith and Martínez (2013), page 2.
 
     Parameters
     ----------
@@ -916,8 +957,8 @@ def find_games_3x3(
     games_per_c=1500, c_values=c_3x3_equiprobable, dir_games="../data/"
 ) -> None:
     """
-    Finds <games_per_c> 3x3 sender and receiver matrices
-    and saves them as JSON files, storing them by C value in <dir_games>.
+    Finds `games_per_c` 3x3 sender and receiver matrices
+    and saves them as JSON files, storing them by C value in `dir_games`.
 
     Since it's hard to find games for certain values of C, we'll save each
     JSON file individually once we've found it.
@@ -1011,9 +1052,9 @@ def analyse_games_3x3(
     Find information-using equilibria of 3x3 games
     and the mutual information between states and acts at those equilibria.
 
-    The games should already exist in dir_games with filenames of the form:
+    The games should already exist in `dir_games` with filenames of the form:
 
-    - f"{dir_games}games_c{c_value:.3f}_n{games_per_c}.json"
+    ``f"{dir_games}games_c{c_value:.3f}_n{games_per_c}.json"``
 
     Each file should be a list of dicts. Each dict corresponds to a game:
 
@@ -1024,7 +1065,7 @@ def analyse_games_3x3(
     "i": <mutual information between states and acts at this equilibrium>
     }``
 
-    s and r already exist; this function fills in e and i.
+    ``s`` and ``r`` already exist; this function fills in ``e`` and ``i``.
 
     Parameters
     ----------
@@ -1040,11 +1081,6 @@ def analyse_games_3x3(
         Since gambit sometimes has problems rounding, it generates values like 0.9999999999996.
         We want to report these as 1.0000, especially if we're dumping to a file.
         The default is 5.
-
-    Returns
-    -------
-    None
-
     """
 
     # Game objects will be stored in a dictionary by C value.
@@ -1099,8 +1135,8 @@ def find_games_3x3_c_and_k(
     dir_games="../data/",
 ) -> None:
     """
-    Finds <games_per_c_and_k> 3x3 sender and receiver matrices
-    and saves them as JSON files, storing them by C and K values in <dir_games>.
+    Finds ``games_per_c_and_k`` 3x3 sender and receiver matrices
+    and saves them as JSON files, storing them by C and K values in ``dir_games``.
 
     Note that it is EXTREMELY difficult to find games for some combinations
     of C and K, especially when C=0.
@@ -1121,13 +1157,11 @@ def find_games_3x3_c_and_k(
     c_values : array-like
         List of C values to find games for.
         The default is the global variable c_3x3_equiprobable.
+    k_values : array-like
+        List of K values to find games for.
+        The default is the global variable k_3x3.
     dir_games : str
         Directory to place JSON files
-
-    Returns
-    -------
-    None.
-
     """
 
     # Initialise
@@ -1265,7 +1299,7 @@ def analyse_games_3x3_c_and_k(
 
     The games should already exist in dir_games with filenames of the form:
 
-    - f"{dir_games}games_c{c_value:.3f}_{ks or kr}{k_value:.3f}_n{games_per_c}.json"
+    ``f"{dir_games}games_c{c_value:.3f}_{ks or kr}{k_value:.3f}_n{games_per_c}.json"``
 
     Each file should be a list of dicts. Each dict corresponds to a game:
 
@@ -1280,22 +1314,24 @@ def analyse_games_3x3_c_and_k(
 
     Parameters
     ----------
-    games_per_c_and_k : TYPE, optional
-        DESCRIPTION. The default is 1500.
-    sender : TYPE, optional
-        DESCRIPTION. The default is True.
-    c_values : TYPE, optional
-        DESCRIPTION. The default is c_3x3_equiprobable.
-    k_values : TYPE, optional
-        DESCRIPTION. The default is k_3x3.
-    dir_games : TYPE, optional
-        DESCRIPTION. The default is "../data/".
-
-    Returns
-    -------
-    None
-        DESCRIPTION.
-
+    games_per_c_and_k : int, optional
+        Number of games to analyse per pair of c and k. The default is 1500.
+    sender: bool
+        If True, the operative value of K is the sender's K_S
+        If False, the operative value of K is the receiver's K_R
+    c_values : array-like
+        List of C values to analyse games for.
+        The default is the global variable c_3x3_equiprobable.
+    k_values : array-like
+        List of K values to analyse games for.
+        The default is the global variable k_3x3.
+    dir_games : str
+        Directory to find and update JSON files
+    sigfig : int, optional.
+        The number of significant figures to report values in.
+        Since gambit sometimes has problems rounding, it generates values like 0.9999999999996.
+        We want to report these as 1.0000, especially if we're dumping to a file.
+        The default is 5.
     """
 
     # Game objects will be stored in a dictionary by C value.
@@ -1350,37 +1386,6 @@ def analyse_games_3x3_c_and_k(
         with open(fpath_json, "w") as f:
             json.dump(games_list_loaded, f)
 
-
-# def hard_to_find_Cs_and_Ks():
-
-#     # Initialise
-#     state_chances = np.array([1/3,1/3,1/3])
-
-#     # First find a sender matrix so that Ks = 1
-#     while True:
-#         sender_payoff_matrix = get_random_payoffs()
-#         receiver_dummy = np.zeros((3,3))
-
-#         # Get Ks
-#         Ks = calculate_Ks_and_Kr(sender_payoff_matrix, receiver_dummy)[0]
-#         print(f"Ks: {Ks}") # debug
-
-#         if Ks == 1:
-#             break
-
-#     # Now you know K_s = 1, so you can try and find a receiver matrix
-#     #  such that C = 0
-#     for _ in trange(10000):
-#         receiver_payoff_matrix = get_random_payoffs()
-
-#         # Get C
-#         C = calculate_C(state_chances,sender_payoff_matrix,receiver_payoff_matrix)
-#         # print(f"C: {C}")
-
-#         if C < 0.1:
-#             return sender_payoff_matrix, receiver_payoff_matrix
-
-#     return sender_payoff_matrix
 
 """
     Helper functions specific to this script

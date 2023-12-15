@@ -1,5 +1,10 @@
 # Overview
 
++ [Tutorial](https://colab.research.google.com/drive/1AwUCP05lpITAP7_EZD7loGv3unhnwvhM#forceEdit=true&sandboxMode=true) | *Google Colab*
++ [Documentation](https://evoke.readthedocs.io/en/latest/) | *ReadTheDocs*
++ [Package](https://pypi.org/project/evoke-signals/) | *PyPI*
++ [Source code](https://github.com/signalling-games-org/evoke) | *GitHub*
+
 evoke enables users to recreate signalling game simulations from the academic literature.
 
 It comprises a library of methods from **evolutionary game theory** `evoke/src/` and an ever-growing collection of **user-friendly examples** `evoke/examples/`.
