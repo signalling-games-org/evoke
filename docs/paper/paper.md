@@ -21,19 +21,26 @@ affiliations:
     index: 1
   - name: Max Planck Institute for Evolutionary Anthropology, Leipzig, Germany
     index: 2
-date: 29 November 2023
+date: 23 January 2024
 bibliography: paper.bib
 ---
 
 # Summary
 
-TODO
+**evoke** is a Python library for evolutionary simulations of signalling games.
+It is particularly oriented towards reproducing results and figures from the literature, and offers a simple and intuitive API.
 
-Examples include @skyrms2010signals and @godfrey-smith2013communication.
+The easiest thing to do with evoke is recreate a figure from the signalling game literature.
+Examples provided with evoke include figures from @skyrms2010signals and @godfrey-smith2013communication.
 
 # Statement of need
 
-TODO
+In the evolutionary game theory literature, models and results are often developed with proprietary software.
+Evaluating and re-running models can be difficult for readers, because custom-made software is often not created with other users in mind.
+
+It would be preferable to have a common framework that different users can share.
+When new results are presented in a research article, readers of that article could run the model and check the results for themselves.
+Readers could also vary the parameters to obtain results that were not reported in the original article, lending an air of interactivity to published papers.
 
 # Figures
 
@@ -48,6 +55,6 @@ Figure sizes can be customized by adding an optional second parameter:
 
 # Acknowledgements
 
-TODO
+This work was supported by Juan de la Cierva grant FJC2020-044240-I and María de Maeztu grant CEX2021-001169-M funded by MCIN/AEI/10.13039/501100011033.
 
 # References
