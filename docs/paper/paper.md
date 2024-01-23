@@ -32,26 +32,21 @@ It is particularly oriented towards reproducing results and figures from the lit
 
 The easiest thing to do with evoke is recreate a figure from the signalling game literature.
 Examples provided with evoke include figures from @skyrms2010signals and @godfrey-smith2013communication.
+More examples from well-known books and papers will be added to the built-in library, and users are also able to create both reconstructions of models from the literature and their own models and results.
 
 # Statement of need
 
-In the evolutionary game theory literature, models and results are often developed with proprietary software.
-Evaluating and re-running models can be difficult for readers, because custom-made software is often not created with other users in mind.
+In the evolutionary game theory literature, models and results are often developed with proprietary code.
+Evaluating and re-running models can be difficult for readers, because custom-made software is often not developed with other users in mind.
+Sometimes the model code is not available at all.
 
 It would be preferable to have a common framework that different users can share.
 When new results are presented in a research article, readers of that article could run the model and check the results for themselves.
 Readers could also vary the parameters to obtain results that were not reported in the original article, lending an air of interactivity to published papers.
 
-# Figures
-
-TODO
-
-Figures can be included like this:
-![Caption for example figure.\label{fig:example}](figure.png)
-and referenced from text using \autoref{fig:example}.
-
-Figure sizes can be customized by adding an optional second parameter:
-![Caption for example figure.](figure.png){ width=20% }
+Built-in examples already shipped with evoke include figures from @skyrms2010signals.
+These examples allow the user to change some of the input parameters to Skyrms's figures to see how different parameter values yield different results.
+In a small way, this makes the book "interactive": in addition to the static figures on the page, the user can play with the models in order to get a sense of the range of outcomes each model can generate.
 
 # Acknowledgements
 
