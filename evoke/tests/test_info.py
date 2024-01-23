@@ -2,9 +2,9 @@
 """
 Created on Fri Nov 17 13:21:11 2023
 
-@author: ste_m
+@author: stephenfmann
 
-Unit tests for evoke/lib/info.py
+Unit tests for evoke/src/info.py
 """
 
 import unittest
