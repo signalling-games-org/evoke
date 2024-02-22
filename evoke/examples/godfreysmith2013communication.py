@@ -509,7 +509,7 @@ class GodfreySmith2013_2(Scatter):
             games_added_to_count += 1
 
             # Report progress
-            if games_added_to_count % (np.floor(total_games_required / 100)) == 0:
+            if total_games_required>100 and games_added_to_count % (np.floor(total_games_required / 100)) == 0:
                 print(
                     f"Surveyed {total_games_surveyed} games; added {games_added_to_count} of {total_games_required}"
                 )
