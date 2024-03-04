@@ -142,6 +142,142 @@ class TestEvolve(unittest.TestCase):
         # Check is instance
         self.assertIsInstance(evo, evolve.TwoPops)
 
+    def test_MatchingSR(self):
+        """
+        Test evolve.MatchingSR class
+
+        Returns
+        -------
+        None.
+
+        """
+
+        # Copy parameters from Skyrms example
+        p1_random = np.round(np.random.random(), 4)
+        state_chances = np.array([p1_random, 1 - p1_random])
+        sender_payoff_matrix = np.eye(2)
+        receiver_payoff_matrix = np.eye(2)
+        messages = 2
+
+        # Create game
+        game = asy.Chance(
+            state_chances=state_chances,
+            sender_payoff_matrix=sender_payoff_matrix,
+            receiver_payoff_matrix=receiver_payoff_matrix,
+            messages=messages,
+        )
+
+        # Define strategies
+        sender_strategies = np.ones((2, 2))
+        receiver_strategies = np.ones((2, 2))
+
+        # Create simulation
+        evo = evolve.MatchingSR(game, sender_strategies, receiver_strategies)
+
+        # Check initial stats
+        evo.calculate_stats()
+
+        # Run for 10 iterations
+        evo.run(10, calculate_stats="end")
+
+        # Check other methods
+        evo.is_pooling()
+
+        # Check is instance
+        self.assertIsInstance(evo, evolve.MatchingSR)
+
+    def test_MatchingSRInvention(self):
+        """
+        Test MatchingSRInvention class
+
+        Returns
+        -------
+        None.
+
+        """
+
+        # Copy parameters from Skyrms example
+        p1_random = np.round(np.random.random(), 4)
+        state_chances = np.array([p1_random, 1 - p1_random])
+        sender_payoff_matrix = np.eye(2)
+        receiver_payoff_matrix = np.eye(2)
+        messages = 1
+
+        # Create game
+        game = asy.Chance(
+            state_chances=state_chances,
+            sender_payoff_matrix=sender_payoff_matrix,
+            receiver_payoff_matrix=receiver_payoff_matrix,
+            messages=messages,
+        )
+
+        # Players start with only 1 "phantom" signal available.
+        sender_strategies = np.ones((2, 1))
+        receiver_strategies = np.ones((1, 2))
+
+        # Create simulation
+        evo = evolve.MatchingSRInvention(game, sender_strategies, receiver_strategies)
+
+        # Check initial stats
+        evo.calculate_stats()
+
+        # Run for 10 iterations
+        evo.run(10, calculate_stats="end")
+
+        # Check other methods
+        evo.is_pooling()
+
+        # Check is instance
+        self.assertIsInstance(evo, evolve.MatchingSRInvention)
+
+    def test_MatchingSIR(self):
+        """
+        Test MatchingSIR class
+
+        Returns
+        -------
+        None.
+
+        """
+
+        # Set parameters
+        p1_random = np.round(np.random.random(), 4)
+        state_chances = np.array([p1_random, 1 - p1_random])
+        sender_payoff_matrix = np.eye(2)
+        intermediary_payoff_matrix = np.eye(2)
+        receiver_payoff_matrix = np.eye(2)
+        messages_sender = 2
+        messages_intermediary = 2
+
+        # Create game
+        game = asy.ChanceSIR(
+            state_chances=state_chances,
+            sender_payoff_matrix=sender_payoff_matrix,
+            intermediary_payoff_matrix=intermediary_payoff_matrix,
+            receiver_payoff_matrix=receiver_payoff_matrix,
+            messages_sender=messages_sender,
+            messages_intermediary=messages_intermediary,
+        )
+
+        # Define initial strategies
+        sender_strategies = np.ones((2, 2))
+        intermediary_strategies = np.ones((2, 2))
+        receiver_strategies = np.ones((2, 2))
+
+        # Create simulation
+        evo = evolve.MatchingSIR(
+            game, sender_strategies, intermediary_strategies, receiver_strategies
+        )
+
+        # Check initial stats
+        evo.calculate_stats()
+
+        # Run for 10 iterations
+        evo.run(10, calculate_stats="end")
+
+        # Check is instance
+        self.assertIsInstance(evo, evolve.MatchingSIR)
+
 
 if __name__ == "__main__":
     unittest.main()
