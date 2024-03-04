@@ -24,14 +24,14 @@ class TestFigure(unittest.TestCase):
         None.
 
         """
-        
+
         # Create figure in demo mode
         # Just use 10 games per c for quick testing
-        f = pgs.GodfreySmith2013_1(games_per_c=10,demo=True)
-        
+        f = pgs.GodfreySmith2013_1(games_per_c=10, demo=True)
+
         # Check figure is of the correct type
         self.assertIsInstance(f, pgs.GodfreySmith2013_1)
-        
+
     def test_GodfreySmith2013_2(self):
         """
         Test GodfreySmith2013_2 class
@@ -41,14 +41,14 @@ class TestFigure(unittest.TestCase):
         None.
 
         """
-        
+
         # Create figure in demo mode
         # Just use 10 games per c for quick testing
-        f = pgs.GodfreySmith2013_2(games_per_c=10,demo=True)
-        
+        f = pgs.GodfreySmith2013_2(games_per_c=10, demo=True)
+
         # Check figure is of the correct type
         self.assertIsInstance(f, pgs.GodfreySmith2013_2)
-        
+
 
 if __name__ == "__main__":
     unittest.main()
