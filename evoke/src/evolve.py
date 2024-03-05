@@ -122,8 +122,8 @@ class OnePop:
     def replicator_odeint(self, init, time_vector, **kwargs):
         """
         Calculate one run of the game following the replicator(-mutator)
-        dynamics, with starting points sinit and rinit, in times <times> (a
-        game.Times instance), using scipy.integrate.odeint
+        dynamics, with starting points sinit and rinit, in times <times> (an
+        evolve.Times instance), using scipy.integrate.odeint
         """
         return odeint(
             self.replicator_dX_dt_odeint,
@@ -353,8 +353,8 @@ class TwoPops:
     def replicator_odeint(self, sinit, rinit, times, **kwargs):
         """
         Calculate one run of the game following the replicator(-mutator)
-        dynamics, with starting points sinit and rinit, in times <times> (a
-        game.Times instance), using scipy.integrate.odeint
+        dynamics, with starting points sinit and rinit, in times <times> (an
+        evolve.Times instance), using scipy.integrate.odeint
         """
         return odeint(
             self.replicator_dX_dt_odeint,
@@ -368,7 +368,7 @@ class TwoPops:
     def replicator_ode(self, sinit, rinit, times, integrator="dopri5"):
         """
         Calculate one run of the game, following the replicator(-mutator)
-        dynamics in continuous time, in <times> (a game.Times instance) with
+        dynamics in continuous time, in <times> (an evolve.Times instance) with
         starting points sinit and rinit using scipy.integrate.ode
         """
         initialpop = np.concatenate((sinit, rinit))
@@ -387,7 +387,7 @@ class TwoPops:
     def replicator_discrete(self, sinit, rinit, times):
         """
         Calculate one run of the game, following the discrete
-        replicator(-mutator) dynamics, in <times> (a game.Times object) with
+        replicator(-mutator) dynamics, in <times> (an evolve.Times object) with
         starting population vector <popvector> using the discrete time
         replicator dynamics. Note that this solver will just calculate n points
         in the evolution of the population, and will not try to match them to
@@ -1281,7 +1281,7 @@ class Times:
         self.initial_time = initial_time
         self.final_time = final_time
         self.time_inc = time_inc
-        points = (final_time - initial_time) / time_inc
+        points = int((final_time - initial_time) / time_inc)
         self.time_vector = np.linspace(initial_time, final_time, points)
 
 
