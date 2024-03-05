@@ -134,10 +134,16 @@ class TestEvolve(unittest.TestCase):
         evo.sender_to_mixed_strat(random_sender)
         evo.vector_to_populations(random_population)
 
-        # There is no longer game.Times object, so we can't test these methods
-        # evo.replicator_discrete(sinit, rinit, times)
-        # evo.replicator_ode(sinit, rinit, times)
-        # evo.replicator_odeint(sinit, rinit, times)
+        # Create evolve.Times object to test replicator methods
+        initial_time = 0
+        final_time = np.random.randint(5, 20)
+        time_inc = 0.05
+        times = evolve.Times(initial_time, final_time, time_inc)
+
+        # Test replicator methods
+        evo.replicator_discrete(random_sender, random_receiver, times)
+        evo.replicator_ode(random_sender, random_receiver, times)
+        evo.replicator_odeint(random_sender, random_receiver, times)
 
         # Check is instance
         self.assertIsInstance(evo, evolve.TwoPops)
@@ -196,7 +202,7 @@ class TestEvolve(unittest.TestCase):
 
         """
 
-        # Copy parameters from Skyrms example
+        # Create random data for standard 2x2 game
         p1_random = np.round(np.random.random(), 4)
         state_chances = np.array([p1_random, 1 - p1_random])
         sender_payoff_matrix = np.eye(2)
@@ -277,6 +283,120 @@ class TestEvolve(unittest.TestCase):
 
         # Check is instance
         self.assertIsInstance(evo, evolve.MatchingSIR)
+
+    def test_BushMostellerSR(self):
+        """
+        Test BushMostellerSR class
+
+        Returns
+        -------
+        None.
+
+        """
+
+        # Create random data for standard 2x2 game
+        p1_random = np.round(np.random.random(), 4)
+        state_chances = np.array([p1_random, 1 - p1_random])
+        sender_payoff_matrix = np.eye(2)
+        receiver_payoff_matrix = np.eye(2)
+        messages = 2
+
+        # Create game
+        game = asy.Chance(
+            state_chances=state_chances,
+            sender_payoff_matrix=sender_payoff_matrix,
+            receiver_payoff_matrix=receiver_payoff_matrix,
+            messages=messages,
+        )
+
+        # Define strategies
+        # These are the initial weights for Bush-Mosteller reinforcement.
+        sender_strategies = (
+            np.ones((2, 2)) * 0.5
+        )  # Strategies are now conditional prob distributions on each row
+        receiver_strategies = (
+            np.ones((2, 2)) * 0.5
+        )  # Strategies are now conditional prob distributions on each row
+
+        # Create a random learning parameter
+        learning_param = np.random.randint(1, 50) * 0.01
+
+        # Create simulation object
+        evo = evolve.BushMostellerSR(
+            game, sender_strategies, receiver_strategies, learning_param
+        )
+
+        # Check initial stats
+        evo.calculate_stats()
+
+        # Run for 10 iterations
+        evo.run(10, calculate_stats="end")
+
+        # Check is instance
+        self.assertIsInstance(evo, evolve.BushMostellerSR)
+
+    def test_Agent(self):
+        """
+        Test Agent class
+
+        Returns
+        -------
+        None.
+
+        """
+
+        # Create deterministic strategies
+        strategies = np.eye(3)
+
+        # Create agent object
+        agent = evolve.Agent(strategies)
+
+        # We told the agent to ALWAYS perform act 0 in state 0,
+        # act 1 in state 1, and act 2 in state 2.
+        # So check it does that.
+        self.assertEqual(agent.choose_strategy(0), 0)
+        self.assertEqual(agent.choose_strategy(1), 1)
+        self.assertEqual(agent.choose_strategy(2), 2)
+
+        # Check the agent can update its strategies
+        randit = np.random.randint(0, 3)
+        agent.update_strategies(randit, randit, payoff=np.random.random())
+
+        # Check the agent can update its strategies according to the
+        # Bush-Mosteller rule
+        randit = np.random.randint(0, 3)
+        learning_parameter = np.random.randint(1, 50) * 0.01
+        agent.update_strategies_bush_mosteller(
+            randit,
+            randit,
+            payoff=np.random.random(),
+            learning_parameter=learning_parameter,
+        )
+
+        # Check adding signals works
+        agent.add_signal_sender()
+        agent.add_signal_receiver()
+
+        # Check is instance
+        self.assertIsInstance(agent, evolve.Agent)
+
+    def test_Times(self):
+        """
+        Test Times class
+
+        Returns
+        -------
+        None.
+
+        """
+
+        # Create evolve.Times object to test replicator methods
+        initial_time = 0
+        final_time = np.random.randint(5, 20)
+        time_inc = 0.05
+        times = evolve.Times(initial_time, final_time, time_inc)
+
+        self.assertIsInstance(times, evolve.Times)
 
 
 if __name__ == "__main__":
