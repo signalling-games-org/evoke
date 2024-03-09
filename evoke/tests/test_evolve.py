@@ -11,8 +11,7 @@ import unittest
 import numpy as np
 
 import evoke.src.evolve as evolve
-import evoke.src.asymmetric_games as asy
-import evoke.src.symmetric_games as sym
+from evoke.src import games
 
 
 class TestEvolve(unittest.TestCase):
@@ -52,7 +51,7 @@ class TestEvolve(unittest.TestCase):
         )
 
         # Create simple NoSignal game
-        game = sym.NoSignal(payoffs)
+        game = games.NoSignal(payoffs)
 
         # Create the playertypes
         playertypes = np.array(
@@ -102,7 +101,7 @@ class TestEvolve(unittest.TestCase):
         messages = 2
 
         ## Create the game
-        lewis22 = asy.Chance(
+        lewis22 = games.Chance(
             states,
             sender_payoff_matrix,
             receiver_payoff_matrix,
@@ -166,7 +165,7 @@ class TestEvolve(unittest.TestCase):
         messages = 2
 
         # Create game
-        game = asy.Chance(
+        game = games.Chance(
             state_chances=state_chances,
             sender_payoff_matrix=sender_payoff_matrix,
             receiver_payoff_matrix=receiver_payoff_matrix,
@@ -210,7 +209,7 @@ class TestEvolve(unittest.TestCase):
         messages = 1
 
         # Create game
-        game = asy.Chance(
+        game = games.Chance(
             state_chances=state_chances,
             sender_payoff_matrix=sender_payoff_matrix,
             receiver_payoff_matrix=receiver_payoff_matrix,
@@ -256,7 +255,7 @@ class TestEvolve(unittest.TestCase):
         messages_intermediary = 2
 
         # Create game
-        game = asy.ChanceSIR(
+        game = games.ChanceSIR(
             state_chances=state_chances,
             sender_payoff_matrix=sender_payoff_matrix,
             intermediary_payoff_matrix=intermediary_payoff_matrix,
@@ -302,7 +301,7 @@ class TestEvolve(unittest.TestCase):
         messages = 2
 
         # Create game
-        game = asy.Chance(
+        game = games.Chance(
             state_chances=state_chances,
             sender_payoff_matrix=sender_payoff_matrix,
             receiver_payoff_matrix=receiver_payoff_matrix,

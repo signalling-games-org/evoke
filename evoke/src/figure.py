@@ -653,16 +653,16 @@ class Quiver3D(Quiver):
 
         ## Tetrahedron lines
         ## TODO tidy this up.
-        if hasattr(self,"vertices"):
+        if hasattr(self, "vertices"):
             lines = combinations(self.vertices, 2)
             i = 0
             for x in lines:
                 i += 1
                 line = np.transpose(np.array(x))
-    
+
                 ## Make the back line a double dash
                 linestyle = "--" if i == 5 else "-"
-    
+
                 ## https://matplotlib.org/stable/api/_as_gen/mpl_toolkits.mplot3d.axes3d.Axes3D.html#mpl_toolkits.mplot3d.axes3d.Axes3D.plot3D
                 ax.plot3D(
                     line[0], line[1], line[2], c="0", linestyle=linestyle, linewidth=0.8

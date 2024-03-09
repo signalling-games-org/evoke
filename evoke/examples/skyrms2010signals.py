@@ -23,10 +23,8 @@ from tqdm import trange
 
 
 from evoke.src.figure import Scatter, Bar, Quiver2D, Quiver3D, Ternary
-from evoke.src import asymmetric_games as asy
-from evoke.src import symmetric_games as sym
+from evoke.src import games
 from evoke.src import evolve as ev
-from evoke.src.symmetric_games import NoSignal
 
 
 class Skyrms2010_1_1(Quiver2D):
@@ -79,7 +77,7 @@ class Skyrms2010_1_1(Quiver2D):
         """
 
         ## Create the game
-        lewis22 = asy.Chance(
+        lewis22 = games.Chance(
             self.states,
             self.sender_payoff_matrix,
             self.receiver_payoff_matrix,
@@ -211,7 +209,7 @@ class Skyrms2010_1_2(Quiver3D):
         """
 
         ## Create the game...
-        game = NoSignal(self.payoffs)
+        game = games.NoSignal(self.payoffs)
 
         ## ...and the simulation.
         self.evo = ev.OnePop(game, self.playertypes)
@@ -333,7 +331,7 @@ class Skyrms2010_3_3(Scatter):
         """
 
         ## Create game
-        game = asy.Chance(
+        game = games.Chance(
             state_chances=self.state_chances,
             sender_payoff_matrix=self.sender_payoff_matrix,
             receiver_payoff_matrix=self.receiver_payoff_matrix,
@@ -432,7 +430,7 @@ class Skyrms2010_3_4(Scatter):
         """
 
         ## Create game
-        game = asy.ChanceSIR(
+        game = games.ChanceSIR(
             state_chances=self.state_chances,
             sender_payoff_matrix=self.sender_payoff_matrix,
             intermediary_payoff_matrix=self.intermediary_payoff_matrix,
@@ -504,7 +502,7 @@ class Skyrms2010_4_1(Ternary):
         """
 
         # Create game
-        game = sym.NoSignal(self.rps_payoff_matrix)
+        game = games.NoSignal(self.rps_payoff_matrix)
 
         # Create evolve object
         evo = ev.OnePop(game, game.pure_strats())
@@ -644,7 +642,7 @@ class Skyrms2010_5_2(Scatter):
             )
 
             ## We pretend it's a straight encounter game, because we already calculated the payoffs.
-            game = NoSignal(payoffs)
+            game = games.NoSignal(payoffs)
 
             ## Playertypes are 50/50 types 3 and 4
             playertypes = np.array(
@@ -770,7 +768,7 @@ class Skyrms2010_8_1(Scatter):
 
         """
         ## Create game
-        game = asy.Chance(
+        game = games.Chance(
             state_chances=self.state_chances,
             sender_payoff_matrix=self.sender_payoff_matrix,
             receiver_payoff_matrix=self.receiver_payoff_matrix,
@@ -890,7 +888,7 @@ class Skyrms2010_8_2(Scatter):
             The default is int(1e3).
         """
         ## Create game
-        game = asy.Chance(
+        game = games.Chance(
             state_chances=self.state_chances,
             sender_payoff_matrix=self.sender_payoff_matrix,
             receiver_payoff_matrix=self.receiver_payoff_matrix,
@@ -1043,7 +1041,7 @@ class Skyrms2010_8_3(Scatter):
         self.prob_of_signalling = []
 
         ## Create game
-        game = asy.Chance(
+        game = games.Chance(
             state_chances=self.state_chances,
             sender_payoff_matrix=self.sender_payoff_matrix,
             receiver_payoff_matrix=self.receiver_payoff_matrix,
@@ -1161,7 +1159,7 @@ class Skyrms2010_10_5(Bar):
         self.signal_frequencies = {s: 0 for s in range(1, 30)}
 
         ## Create game
-        game = asy.Chance(
+        game = games.Chance(
             state_chances=self.state_chances,
             sender_payoff_matrix=self.sender_payoff_matrix,
             receiver_payoff_matrix=self.receiver_payoff_matrix,

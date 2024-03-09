@@ -1081,6 +1081,55 @@ class NonChance:
         return g
 
 
+class NoSignal:
+    """
+    Construct a payoff function for a game without chance player: and in which
+    no one signals. Both players have the same payoff matrix
+    """
+
+    def __init__(self, payoff_matrix):
+        """
+        Take a square numpy array with player payoffs
+        """
+
+        # Check data is consistent
+        if payoff_matrix.shape[0] != payoff_matrix.shape[1]:
+            raise ex.InconsistentDataException("Payoff matrix should be square")
+
+        self.chance_node = False  # flag to know where the game comes from
+        self.payoff_matrix = payoff_matrix
+        self.states = payoff_matrix.shape[0]
+
+    def pure_strats(self):
+        """
+        Return the set of pure strategies available to the players. For this
+        sort of games, a strategy is a probablity vector over the set of states
+        """
+        return np.eye(self.states)
+
+    def payoff(self, first_player, second_player):
+        """
+        Calculate the average payoff for first and second given concrete
+        strats
+        """
+        payoff = first_player @ self.payoff_matrix @ second_player
+        return payoff
+
+    def avg_payoffs(self, player_strats):
+        """
+        Return an array with the average payoff of strat i against
+        strat j in position <i, j>
+        """
+        payoff_ij = np.vectorize(
+            lambda i, j: self.payoff(player_strats[i], player_strats[j])
+        )
+        shape_result = [len(player_strats)] * 2
+        return np.fromfunction(payoff_ij, shape_result, dtype=int)
+
+    def calculate_mixed_strat(self, types, pop):
+        return types @ pop
+
+
 def lewis_square(n=2):
     """
     Factory method to produce a cooperative nxnxn signalling game

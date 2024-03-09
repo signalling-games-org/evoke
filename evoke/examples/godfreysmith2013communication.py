@@ -56,7 +56,7 @@ from itertools import combinations
 
 # Custom library
 from evoke.src.figure import Scatter, Surface
-from evoke.src import asymmetric_games as asy
+from evoke.src import games
 
 # from evoke.lib.common_interest import tau_per_rows as C_measure
 import evoke.src.exceptions as ex
@@ -252,7 +252,7 @@ class GodfreySmith2013_1(Scatter):
 
             # This value of C still needs games.
             # Create the game...
-            game = asy.Chance(
+            game = games.Chance(
                 state_chances, sender_payoff_matrix, receiver_payoff_matrix, messages
             )
 
@@ -481,7 +481,7 @@ class GodfreySmith2013_2(Scatter):
                 continue
 
             # This value of C still needs games.
-            game = asy.Chance(
+            game = games.Chance(
                 state_chances,
                 sender_payoff_matrix,
                 receiver_payoff_matrix,
@@ -509,7 +509,10 @@ class GodfreySmith2013_2(Scatter):
             games_added_to_count += 1
 
             # Report progress
-            if total_games_required>100 and games_added_to_count % (np.floor(total_games_required / 100)) == 0:
+            if (
+                total_games_required > 100
+                and games_added_to_count % (np.floor(total_games_required / 100)) == 0
+            ):
                 print(
                     f"Surveyed {total_games_surveyed} games; added {games_added_to_count} of {total_games_required}"
                 )
@@ -796,8 +799,8 @@ def calculate_D(payoff_matrix, state, act_1, act_2) -> float:
     Returns
     -------
     D : float
-        Godfrey-Smith and Martínez's measure D.   
-        
+        Godfrey-Smith and Martínez's measure D.
+
         + 0   if act 1 is preferred
         + 0.5 if the payoffs are equal
         + 1   if act 2 is preferred
@@ -1103,7 +1106,7 @@ def analyse_games_3x3(
         # Load each game into an object
         for game_dict in games_list_loaded:
             # Create the game
-            game = asy.Chance(
+            game = games.Chance(
                 state_chances=state_chances,
                 sender_payoff_matrix=np.array(game_dict["s"]),
                 receiver_payoff_matrix=np.array(game_dict["r"]),
@@ -1368,7 +1371,7 @@ def analyse_games_3x3_c_and_k(
         # Load each game into an object
         for game_dict in games_list_loaded:
             # Create the game
-            game = asy.Chance(
+            game = games.Chance(
                 state_chances=state_chances,
                 sender_payoff_matrix=np.array(game_dict["s"]),
                 receiver_payoff_matrix=np.array(game_dict["r"]),
