@@ -138,12 +138,12 @@ class Chance:
         shape_result = (sender_strats.shape[0], receiver_strats.shape[0])
         return np.fromfunction(payoff_ij, shape_result, dtype=int)
 
-    def one_pop_avg_payoffs(self, one_player_strats):
-        """
-        Return an array with the average payoff of one-pop strat i against
-        one-pop strat j in position <i, j>
-        """
-        return one_pop_avg_payoffs(self, one_player_strats)
+    # def one_pop_avg_payoffs(self, one_player_strats):
+    #     """
+    #     Return an array with the average payoff of one-pop strat i against
+    #     one-pop strat j in position <i, j>
+    #     """
+    #     return one_pop_avg_payoffs(self, one_player_strats)
 
     def calculate_sender_mixed_strat(self, sendertypes, senderpop):
         mixedstratsender = sendertypes * senderpop[:, np.newaxis, np.newaxis]
@@ -173,6 +173,10 @@ class Chance:
             raise ex.ModuleNotInstalledException(
                 "ERROR: This method requires pygambit 16.1.0 or higher, which is not installed on this system."
             )
+
+        # Lazy instantiation
+        if hasattr(self, "_g"):
+            return self._g
 
         ## Initialize.
         ## Game.new_tree() creates a new, trivial extensive game,
@@ -302,7 +306,8 @@ class Chance:
                     )
 
         ## Return the game object.
-        return g
+        self._g = g
+        return self._g
 
     @property
     def has_info_using_equilibrium(self) -> bool:
@@ -907,12 +912,12 @@ class NonChance:
         pure_strats = np.identity(self.acts)
         return np.array(list(it.product(pure_strats, repeat=self.messages)))
 
-    def one_pop_pure_strats(self):
-        """
-        Return the set of pure strategies available to players in a
-        one-population setup
-        """
-        return player_pure_strats(self)
+    # def one_pop_pure_strats(self):
+    #     """
+    #     Return the set of pure strategies available to players in a
+    #     one-population setup
+    #     """
+    #     return player_pure_strats(self)
 
     def payoff(self, sender_strat, receiver_strat):
         """
@@ -933,14 +938,14 @@ class NonChance:
             lambda i, j: self.payoff(sender_strats[i], receiver_strats[j])
         )
         shape_result = (len(sender_strats), len(receiver_strats))
-        return np.fromfunction(payoff_ij, shape_result)
+        return np.fromfunction(payoff_ij, shape_result, dtype=int)
 
-    def one_pop_avg_payoffs(self, one_player_strats):
-        """
-        Return an array with the average payoff of one-pop strat i against
-        one-pop strat j in position <i, j>
-        """
-        return one_pop_avg_payoffs(self, one_player_strats)
+    # def one_pop_avg_payoffs(self, one_player_strats):
+    #     """
+    #     Return an array with the average payoff of one-pop strat i against
+    #     one-pop strat j in position <i, j>
+    #     """
+    #     return one_pop_avg_payoffs(self, one_player_strats)
 
     def calculate_sender_mixed_strat(self, sendertypes, senderpop):
         mixedstratsender = sendertypes * senderpop[:, np.newaxis, np.newaxis]
@@ -971,6 +976,10 @@ class NonChance:
             raise ex.ModuleNotInstalledException(
                 "ERROR: This method requires pygambit 16.1.0 or higher, which is not installed on this system."
             )
+
+        # Lazy instantiation
+        if hasattr(self, "_g"):
+            return self._g
 
         ## Initialize.
         ## Game.new_tree() creates a new, trivial extensive game,
@@ -1078,7 +1087,8 @@ class NonChance:
                 # ].outcome = outcome
 
         ## Return the game object.
-        return g
+        self._g = g
+        return self._g
 
 
 class NoSignal:
