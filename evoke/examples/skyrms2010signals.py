@@ -4,7 +4,6 @@
 evoke library examples from:
     
     Skyrms, B. (2010). Signals: Evolution, Learning, and Information. Oxford University Press.
-
 """
 
 import numpy as np
