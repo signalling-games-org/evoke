@@ -21,7 +21,7 @@ affiliations:
     index: 1
   - name: Max Planck Institute for Evolutionary Anthropology, Leipzig, Germany
     index: 2
-date: 23 January 2024
+date: 11 March 2024
 bibliography: paper.bib
 ---
 

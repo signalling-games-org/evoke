@@ -3,7 +3,7 @@ name = "evoke-signals"
 packages = [
     { include="evoke", from="." },
 ]
-version = "0.1.2"
+version = "0.1.3"
 description = "Signalling games in python"
 authors = [
 		"Stephen Mann <stephenfmann@gmail.com>", 
