@@ -50,6 +50,6 @@ In a small way, this makes the book "interactive": in addition to the static fig
 
 # Acknowledgements
 
-This work was supported by Juan de la Cierva grant FJC2020-044240-I and María de Maeztu grant CEX2021-001169-M funded by MCIN/AEI/10.13039/501100011033.
+This work was supported by Juan de la Cierva grant FJC2020-044240-I and María de Maeztu grant CEX2021-001169-M funded by MICIU/AEI/10.13039/501100011033.
 
 # References
