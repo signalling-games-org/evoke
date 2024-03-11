@@ -13,16 +13,10 @@ Evolve objects ``evolve.py``
 .. automodule:: evolve
     :members:
 
-Asymmetric games ``asymmetric_games.py``
+Game objects ``games.py``
 ----------------------------------------
 
-.. automodule:: asymmetric_games
-    :members:
-
-Symmetric games ``symmetric_games.py``
---------------------------------------
-
-.. automodule:: symmetric_games
+.. automodule:: games
     :members:
 
 Calculations ``calculate.py``
