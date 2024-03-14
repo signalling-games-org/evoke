@@ -7,15 +7,15 @@ tags:
   - sender-receiver framework
   - evolutionary simulations
 authors:
+  - name: Stephen Francis Mann
+    orcid: 0000-0002-4136-8595
+    equal-contrib: true
+    affiliation: "1, 2"
   - name: Manolo Martínez
     corresponding: true
     orcid: 0000-0002-6194-7121
     equal-contrib: true
     affiliation: 1
-  - name: Stephen Francis Mann
-    orcid: 0000-0002-4136-8595
-    equal-contrib: true
-    affiliation: "1, 2"
 affiliations:
   - name: LOGOS Research Group, Universitat de Barcelona, Spain
     index: 1
