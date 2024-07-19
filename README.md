@@ -49,15 +49,16 @@ fig1_1 = Skyrms2010_1_1()
 
 ![Example of Skyrms 2010 Figure 1.1](https://github.com/signalling-games-org/evoke/blob/main/docs/tutorials/figures/skyrms2010_1_1.png?raw=true)
 
-If you check page 11 of _Signals_ you will see this plot closely matches Figure 1.1.
+If you check page 11 of _Signals_ you will see this plot closely matches Skyrms's Figure 1.1.
 
 ### Recreating figures from the literature with different parameters
 
 One of the useful features of evoke is that it allows you to re-run existing figures with different data.
 In this way you can see how the results of a simulation would change if the parameters were tweaked.
 
-Let's take figure 3.3 of Skyrms (2010:40) as an example.
+Let's take Figure 3.3 of Skyrms (2010:40) as an example.
 The figure depicts the mutual information between signal and state over successive trials of a two-player cooperative game in which agents learn via reinforcement.
+There are two states, two signals and two acts.
 Typically the mutual information will increase over time as the agents learn to use specific signals as indicators of specific states.
 
 Once again we can create the figure just by creating an instance of the object.
@@ -71,9 +72,9 @@ fig3_3 = Skyrms2010_3_3(iterations=1000)
 ![Example of Skyrms 2010 Figure 3.3](https://github.com/signalling-games-org/evoke/blob/main/docs/tutorials/figures/skyrms2010_3_3.png?raw=true)
 
 Running for 100 iterations would sometimes lead to high information transmission and sometimes not, due to the stochastic nature of the simulation.
-In contrast running for 1000 iterations almost always leads to appreciable information transmission, as in the figure shown here.
+In contrast, running for 1000 iterations almost always leads to appreciable information transmission, as in the figure shown here.
 
-See the `examples/` directory for a collection of available figures.
+Figures from the literature that are currently in the evoke library can be found in the `examples/` directory.
 
 ## References
 
