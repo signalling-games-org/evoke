@@ -1,3 +1,5 @@
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/evoke-signals)
+
 # Overview
 
 + [Tutorial](https://colab.research.google.com/drive/1AwUCP05lpITAP7_EZD7loGv3unhnwvhM#forceEdit=true&sandboxMode=true) | *Google Colab*
@@ -12,6 +14,11 @@ It comprises a library of methods from **evolutionary game theory** `evoke/src/`
 ## Online tutorial
 
 See the interactive tutorial on [Google Colab](https://colab.research.google.com/drive/1AwUCP05lpITAP7_EZD7loGv3unhnwvhM#forceEdit=true&sandboxMode=true).
+
+## Requirements
+
+evoke currently requires Python versions 3.9-3.11.
+Further requirements are listed in `pyproject.toml`.
 
 ## Installation
 
