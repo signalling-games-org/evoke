@@ -86,7 +86,7 @@ Figures from the literature that are currently in the evoke library can be found
 ## Contributions
 
 We welcome contributions, especially those that add to the stock of example figures.
-See [CONTRIBUTIONS.md](https://github.com/signalling-games-org/evoke/blob/main/CONTRIBUTING.md) for information about contributing to evoke.
+See [CONTRIBUTING.md](https://github.com/signalling-games-org/evoke/blob/main/CONTRIBUTING.md) for information about contributing to evoke.
 
 ## References
 
