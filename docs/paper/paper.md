@@ -21,7 +21,7 @@ affiliations:
     index: 1
   - name: Max Planck Institute for Evolutionary Anthropology, Leipzig, Germany
     index: 2
-date: 11 March 2024
+date: 22 July 2024
 bibliography: paper.bib
 ---
 
@@ -35,6 +35,9 @@ Examples provided with evoke include figures from @skyrms2010signals and @godfre
 More examples from well-known books and papers will be added to the built-in library, and users are also able to create both reconstructions of models from the literature and their own models and results.
 
 # Statement of need
+
+While there are Python packages devoted to game theory, such as Nashpy [@nashpyproject], and evolutionary game theory, such as EGTtools [@Fernandez2020], to our knowledge there has not yet been a Python package dedicated to the study of signalling games in the context of both evolution and reinforcement learning.
+That is the gap evoke is intended to fill.
 
 In the evolutionary game theory literature, models and results are often developed with proprietary code.
 Evaluating and re-running models can be difficult for readers, because custom-made software is often not developed with other users in mind.
