@@ -83,6 +83,11 @@ In contrast, running for 1000 iterations almost always leads to appreciable info
 
 Figures from the literature that are currently in the evoke library can be found in the `examples/` directory.
 
+## Contributions
+
+We welcome contributions, especially those that add to the stock of example figures.
+See [CONTRIBUTIONS.md](https://github.com/signalling-games-org/evoke/blob/main/CONTRIBUTING.md) for information about contributing to evoke.
+
 ## References
 
 Skyrms, B. (2010). *Signals: Evolution, Learning, and Information.* Oxford University Press. [https://doi.org/10.1093/acprof:oso/9780199580828.001.0001](https://doi.org/10.1093/acprof:oso/9780199580828.001.0001)

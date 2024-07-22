@@ -11,6 +11,10 @@
     * From the command line: `git checkout -b my-feature-branch-name`
 6. Make your changes.
     * Avoid making changes to more files than necessary for your feature (i.e. refrain from combining your "real" merge request with incidental bug fixes). This will simplify the merging process and make your changes clearer.
+    * If you are adding examples from the literature:
+        * place the file containing the example into `examples`, naming it `<first author><year><title's first letter>.py` in lower case without spaces, e.g. `skyrms2010signals.py`.
+        * each example object should inherit from an existing Figure object. If necessary create your own in `figure.py` first.
+        * name each example object <First author><year>_<figure number> in camel case with underscores replacing periods, e.g. Skyrms's Figure 3.4 becomes `Skyrms2010_3_4`. If the figure does not have a number in the original text, use a uniquely identifying and descriptive name.
 7. Commit your changes. From the command line:
     * `git add <FILE-NAMES>`
     * `git commit -m "A descriptive commit message"`
