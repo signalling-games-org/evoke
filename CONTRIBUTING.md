@@ -31,6 +31,7 @@
 Test scripts can be found in `evoke/tests/`.
 Each test script corresponds to a source script; for example `test_evolve.py` contains tests for the classes and methods in `evolve.py`.
 To run a test script simply call `python <script name>`; for example `python test_evolve.py` will run all the tests for `evolve.py`.
+To run all test scripts at once, navigate to the test directory and run `python -m unittest`.
 
 ## How to report issues or problems
 
