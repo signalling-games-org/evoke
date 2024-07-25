@@ -26,6 +26,12 @@
     * `git push origin my-feature-branch-name`
 11. Make a "merge request" from your branch here on GitHub.
 
+## How to run tests
+
+Test scripts can be found in `evoke/tests/`.
+Each test script corresponds to a source script; for example `test_evolve.py` contains tests for the classes and methods in `evolve.py`.
+To run a test script simply call `python <script name>`; for example `python test_evolve.py` will run all the tests for `evolve.py`.
+
 ## How to report issues or problems
 
 Please use the [issue tracker](https://github.com/signalling-games-org/evoke/issues) to report problems.
