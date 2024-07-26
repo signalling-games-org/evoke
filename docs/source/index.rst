@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Evoke: Evolutionary signalling games with Python
-================================================
+Evoke: A Python package for evolutionary signalling games
+=========================================================
 
 **Evoke** is a Python library for evolutionary simulations of signalling games.
 It is particularly oriented towards reproducing results and figures from the literature, and offers a simple and intuitive API.

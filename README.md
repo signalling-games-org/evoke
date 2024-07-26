@@ -1,6 +1,6 @@
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/evoke-signals)
 
-# Overview
+# Evoke: A Python package for evolutionary signalling games
 
 + [Tutorial](https://colab.research.google.com/drive/1AwUCP05lpITAP7_EZD7loGv3unhnwvhM#forceEdit=true&sandboxMode=true) | *Google Colab*
 + [Documentation](https://evoke.readthedocs.io/en/latest/) | *ReadTheDocs*
