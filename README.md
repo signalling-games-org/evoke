@@ -7,7 +7,7 @@
 + [Package](https://pypi.org/project/evoke-signals/) | *PyPI*
 + [Source code](https://github.com/signalling-games-org/evoke) | *GitHub*
 
-evoke enables users to recreate signalling game simulations from the academic literature.
+**Evoke** enables users to recreate signalling game simulations from the academic literature.
 
 It comprises a library of methods from **evolutionary game theory** `evoke/src/` and an ever-growing collection of **user-friendly examples** `evoke/examples/`.
 
@@ -17,7 +17,7 @@ See the interactive tutorial on [Google Colab](https://colab.research.google.com
 
 ## Requirements
 
-evoke currently requires Python versions 3.9-3.11.
+Evoke currently requires Python versions 3.9-3.11.
 Further requirements are listed in `pyproject.toml`.
 
 ## Installation
@@ -60,7 +60,7 @@ If you check page 11 of _Signals_ you will see this plot closely matches Skyrms'
 
 ### Recreating figures from the literature with different parameters
 
-One of the useful features of evoke is that it allows you to re-run existing figures with different data.
+One of the useful features of Evoke is that it allows you to re-run existing figures with different data.
 In this way you can see how the results of a simulation would change if the parameters were tweaked.
 
 Let's take Figure 3.3 of Skyrms (2010:40) as an example.
@@ -81,12 +81,12 @@ fig3_3 = Skyrms2010_3_3(iterations=1000)
 Running for 100 iterations would sometimes lead to high information transmission and sometimes not, due to the stochastic nature of the simulation.
 In contrast, running for 1000 iterations almost always leads to appreciable information transmission, as in the figure shown here.
 
-Figures from the literature that are currently in the evoke library can be found in the `examples/` directory.
+Figures from the literature that are currently in the Evoke library can be found in the `examples/` directory.
 
 ## Contributions
 
 We welcome contributions, especially those that add to the stock of example figures.
-See [CONTRIBUTING.md](https://github.com/signalling-games-org/evoke/blob/main/CONTRIBUTING.md) for information about contributing to evoke.
+See [CONTRIBUTING.md](https://github.com/signalling-games-org/evoke/blob/main/CONTRIBUTING.md) for information about contributing to Evoke.
 
 ## References
 

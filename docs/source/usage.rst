@@ -5,7 +5,7 @@ Usage
 Installation
 ------------
 
-To use evoke, first install it using pip:
+To use Evoke, first install it using pip:
 
 .. code-block:: console
 
@@ -15,14 +15,14 @@ To use evoke, first install it using pip:
 Tutorial
 --------
 
-The best way to discover evoke is `the interactive tutorial <https://colab.research.google.com/drive/1AwUCP05lpITAP7_EZD7loGv3unhnwvhM#forceEdit=true&sandboxMode=true>`_.
+The best way to discover Evoke is `the interactive tutorial <https://colab.research.google.com/drive/1AwUCP05lpITAP7_EZD7loGv3unhnwvhM#forceEdit=true&sandboxMode=true>`_.
 The rest of this document describes very simple use cases.
 
 
 The simplest case: reproducing a figure from the literature
 -----------------------------------------------------------
 
-The easiest thing to do with evoke is recreate a figure from the signalling game literature.
+The easiest thing to do with Evoke is recreate a figure from the signalling game literature.
 The parameters required to create some of these figures are included in the ``examples`` folder.
 
 For example, to create figure 5.2 from *Signals* (Skyrms 2010), you would run:
@@ -33,7 +33,7 @@ For example, to create figure 5.2 from *Signals* (Skyrms 2010), you would run:
 
 This creates an **object** which runs an evolutionary simulation with parameters as close as possible to those described by Bryan Skyrms for the figure in the book.
 
-In this case evoke creates a figure very close to the original.
+In this case Evoke creates a figure very close to the original.
 In other cases there might be a range of random properties that can cause deviation from the figures in the literature.
 It's often a good idea to create the same figure multiple times, to get a feel for the range of variation that can be produced by the reported parameters.
 

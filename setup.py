@@ -2,7 +2,7 @@
 from setuptools import setup
 
 setup(
-    name="evoke",
+    name="Evoke",
     version="0.1",
     install_requires=["numpy", "scipy"],
     description="Signalling games in python",

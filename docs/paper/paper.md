@@ -1,5 +1,5 @@
 ---
-title: 'evoke: A Python package for evolutionary signalling games'
+title: 'Evoke: A Python package for evolutionary signalling games'
 tags:
   - Python
   - evolutionary game theory
@@ -27,17 +27,17 @@ bibliography: paper.bib
 
 # Summary
 
-**evoke** is a Python library for evolutionary simulations of signalling games.
+**Evoke** is a Python library for evolutionary simulations of signalling games.
 It is particularly oriented towards reproducing results and figures from the literature, and offers a simple and intuitive API.
 
-The easiest thing to do with evoke is recreate a figure from the signalling game literature.
-Examples provided with evoke include figures from @skyrms2010signals and @godfrey-smith2013communication.
+The easiest thing to do with Evoke is recreate a figure from the signalling game literature.
+Examples provided with Evoke include figures from @skyrms2010signals and @godfrey-smith2013communication.
 More examples from well-known books and papers will be added to the built-in library, and users are also able to create both reconstructions of models from the literature and their own models and results.
 
 # Statement of need
 
 While there are Python packages devoted to game theory, such as Nashpy [@nashpyproject], and evolutionary game theory, such as EGTtools [@Fernandez2020], to our knowledge there has not yet been a Python package dedicated to the study of signalling games in the context of both evolution and reinforcement learning.
-That is the gap evoke is intended to fill.
+That is the gap Evoke is intended to fill.
 
 In the evolutionary game theory literature, models and results are often developed with proprietary code.
 Evaluating and re-running models can be difficult for readers, because custom-made software is often not developed with other users in mind.
@@ -47,7 +47,7 @@ It would be preferable to have a common framework that different users can share
 When new results are presented in a research article, readers of that article could run the model and check the results for themselves.
 Readers could also vary the parameters to obtain results that were not reported in the original article, lending an air of interactivity to published papers.
 
-Built-in examples already shipped with evoke include figures from @skyrms2010signals.
+Built-in examples already shipped with Evoke include figures from @skyrms2010signals.
 These examples allow the user to change some of the input parameters to Skyrms's figures to see how different parameter values yield different results.
 In a small way, this makes the book "interactive": in addition to the static figures on the page, the user can play with the models in order to get a sense of the range of outcomes each model can generate.
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 
-evoke library examples from:
+Evoke library examples from:
     
     Godfrey-Smith, P., & Martínez, M. (2013). Communication and Common Interest. 
     *PLOS Computational Biology*, 9(11), e1003282. https://doi.org/10.1371/journal.pcbi.1003282
