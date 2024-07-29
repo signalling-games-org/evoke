@@ -14,9 +14,14 @@ import numpy as np
 
 # Optional modules
 try:
+    # Check a specific version of pygambit exists
     import pygambit
 
-    PYGAMBIT_EXISTS = True
+    if pygambit.__version__ == "16.1.0" or pygambit.__version__ == "16.1.1":
+        PYGAMBIT_EXISTS = True
+    else:
+        PYGAMBIT_EXISTS = False
+        
 except ModuleNotFoundError:
     PYGAMBIT_EXISTS = False
 
@@ -171,7 +176,7 @@ class Chance:
         # pygambit must exist
         if not PYGAMBIT_EXISTS:
             raise ex.ModuleNotInstalledException(
-                "ERROR: This method requires pygambit 16.1.0 or higher, which is not installed on this system."
+                "ERROR: This method requires pygambit 16.1.0 or 16.1.1, which is not installed on this system."
             )
 
         # Lazy instantiation
@@ -974,7 +979,7 @@ class NonChance:
         # pygambit must exist
         if not PYGAMBIT_EXISTS:
             raise ex.ModuleNotInstalledException(
-                "ERROR: This method requires pygambit 16.1.0 or higher, which is not installed on this system."
+                "ERROR: This method requires pygambit 16.1.0 or 16.1.1, which is not installed on this system."
             )
 
         # Lazy instantiation
