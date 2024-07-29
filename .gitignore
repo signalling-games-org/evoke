@@ -12,3 +12,4 @@ docs/tutorials/evoke Tutorial.ipynb
 docs/tutorials/.ipynb_checkpoints/
 
 .spyproject
+*.code-workspace
