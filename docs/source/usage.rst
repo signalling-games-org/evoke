@@ -1,6 +1,11 @@
 Usage
 =====
 
+Requirements
+------------
+
+Evoke currently requires Python versions 3.9-3.12.
+Further requirements are listed in the source repository's `pyproject.toml <https://github.com/signalling-games-org/evoke/blob/main/pyproject.toml>`_.
 
 Installation
 ------------

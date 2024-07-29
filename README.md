@@ -17,7 +17,7 @@ See the interactive tutorial on [Google Colab](https://colab.research.google.com
 
 ## Requirements
 
-Evoke currently requires Python versions 3.9-3.11.
+Evoke currently requires Python versions 3.9-3.12.
 Further requirements are listed in `pyproject.toml`.
 
 ## Installation

@@ -13,7 +13,7 @@ readme = "README.md"
 license = "GPL-3.0-or-later"
 
 [tool.poetry.dependencies]
-python = ">3.8,<3.12"
+python = ">3.8,<3.13"
 numpy = ">1.20"
 scipy = "^1.10.1"
 tqdm = ">4.50.1"
