@@ -920,10 +920,17 @@ class MatchingSIR(Matching):
 
         ## 3. Calculate and store any required variables e.g. probability of success.
         if calculate_stats:
-            self.record_probability_of_success()
+            self.calculate_stats()
 
         ## 4. Update iteration.
         self.iteration += 1
+
+    def calculate_stats(self):
+        """
+        Just call the record_probability_of_success method.
+        """
+
+        self.record_probability_of_success()
 
     def record_probability_of_success(self):
         """
@@ -1282,7 +1289,7 @@ class Times:
         self.final_time = final_time
         self.time_inc = time_inc
         points = int((final_time - initial_time) / time_inc)
-        self.time_vector = np.linspace(initial_time, final_time, points)
+        self.time_vector = np.linspace(initial_time, final_time, points+1)
 
 
 def mutationmatrix(mutation, dimension):
