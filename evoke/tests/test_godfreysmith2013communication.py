@@ -10,11 +10,19 @@ NB there is not yet a demo mode for GodfreySmith2013_3 so we cannot test it here
 """
 
 import unittest
+import matplotlib
 
 import evoke.examples.godfreysmith2013communication as pgs
 
 
 class TestFigure(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(self):
+
+        # Suppress figure window pop-ups
+        matplotlib.use("Agg")
+
     def test_GodfreySmith2013_1(self):
         """
         Test GodfreySmith2013_1 class

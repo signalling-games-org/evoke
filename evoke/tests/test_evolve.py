@@ -71,15 +71,20 @@ class TestEvolve(unittest.TestCase):
 
         # Just check these don't crash
         evo.avg_payoff_vector(np.array([1, 0, 0, 0]))
-        evo.discrete_replicator_delta_X(np.array([1 / 4, 1 / 4, 1 / 4, 1 / 4]))
         evo.pop_to_mixed_strat(np.array([1 / 4, 1 / 4, 1 / 4, 1 / 4]))
         evo.random_player()
-        evo.replicator_dX_dt_odeint(np.array([0, 1 / 3, 1 / 3, 1 / 3]), 0)
-        evo.replicator_discrete(np.array([1 / 8, 1 / 4, 1 / 4, 1 / 8]), 4)
         evo.replicator_jacobian_odeint(np.array([0, 1 / 3, 1 / 3, 1 / 3]))
-        evo.replicator_odeint(
+
+        # Check the replicator equations yield vectors that sum to 1
+        self.assertEqual(1,evo.discrete_replicator_delta_X(np.array([1 / 4, 1 / 4, 1 / 4, 1 / 4])).sum()) # 1 step
+        self.assertEqual(1,evo.replicator_discrete(np.array([1 / 8, 1 / 4, 1 / 4, 1 / 8]), 4)[-1].sum()) # 4 steps
+        self.assertEqual(1,evo.replicator_odeint(
             np.array([6 / 16, 1 / 16, 4 / 16, 5 / 16]), range(10)
-        )  # 10 time steps
+        )[-1].sum()) # 10 steps
+
+        # Check the continuous replicator dX/dt vector sums to 0 (or nearly so)
+        self.assertAlmostEqual(0,evo.replicator_dX_dt_odeint(np.array([0, 1 / 3, 1 / 3, 1 / 3]), 0).sum(),5)
+        
 
         # Check is instance
         self.assertIsInstance(evo, evolve.OnePop)
@@ -122,16 +127,23 @@ class TestEvolve(unittest.TestCase):
         # This method expects a 1D array that just concatenates the sender pop
         # and the receiver pop.
 
-        evo.discrete_replicator_delta_X(random_population)
+        # Just check these don't crash
         evo.receiver_avg_payoff(random_sender, random_receiver)
         evo.receiver_to_mixed_strat(random_receiver)
-        evo.replicator_dX_dt_ode(t=0, X=random_population)
-        evo.replicator_dX_dt_odeint(X=random_population, t=0)
-        evo.replicator_jacobian_ode(t=0, X=random_population)
-        evo.replicator_jacobian_odeint(random_population)
         evo.sender_avg_payoff(random_sender, random_receiver)
         evo.sender_to_mixed_strat(random_sender)
-        evo.vector_to_populations(random_population)
+        evo.replicator_jacobian_ode(t=0, X=random_population)
+        evo.replicator_jacobian_odeint(random_population)
+
+        # Check vector_to_populations yields an array of length 2
+        self.assertEqual(2,len(evo.vector_to_populations(random_population)))
+
+        # Check the replicator equations yield vectors that sum to 2 (that's 1 per population)
+        self.assertAlmostEqual(2,evo.discrete_replicator_delta_X(random_population).sum(),5) # 1 step
+
+        # Check the continuous replicator dX/dt vector sums to 0 (or nearly so)
+        self.assertAlmostEqual(0,evo.replicator_dX_dt_ode(t=0, X=random_population).sum(),5)
+        self.assertAlmostEqual(0,evo.replicator_dX_dt_odeint(X=random_population, t=0).sum(),5)
 
         # Create evolve.Times object to test replicator methods
         initial_time = 0
@@ -139,10 +151,10 @@ class TestEvolve(unittest.TestCase):
         time_inc = 0.05
         times = evolve.Times(initial_time, final_time, time_inc)
 
-        # Test replicator methods
-        evo.replicator_discrete(random_sender, random_receiver, times)
-        evo.replicator_ode(random_sender, random_receiver, times)
-        evo.replicator_odeint(random_sender, random_receiver, times)
+        # Check replicator methods yield vectors that sum to 2 (that's 1 per population)
+        self.assertAlmostEqual(2,evo.replicator_discrete(random_sender, random_receiver, times)[-1].sum(),5)
+        self.assertAlmostEqual(2,evo.replicator_ode(random_sender, random_receiver, times)[-1].sum(),5)
+        self.assertAlmostEqual(2,evo.replicator_odeint(random_sender, random_receiver, times)[-1].sum(),5)
 
         # Check is instance
         self.assertIsInstance(evo, evolve.TwoPops)
@@ -182,11 +194,16 @@ class TestEvolve(unittest.TestCase):
         # Check initial stats
         evo.calculate_stats()
 
+        # The initial statistics should be zero mutual info and 1/2 chance of success
+        self.assertEqual(evo.statistics["mut_info_states_signals"], 0)
+        self.assertEqual(evo.statistics["avg_prob_success"], 0.5)
+
         # Run for 10 iterations
         evo.run(10, calculate_stats="end")
 
         # Check other methods
-        evo.is_pooling()
+        # Will still be pooling after only 10 steps
+        self.assertTrue(evo.is_pooling())
 
         # Check is instance
         self.assertIsInstance(evo, evolve.MatchingSR)
@@ -226,11 +243,15 @@ class TestEvolve(unittest.TestCase):
         # Check initial stats
         evo.calculate_stats()
 
+        # Should be zero signals to start with
+        self.assertEqual(evo.statistics["number_of_signals"], 0)
+
         # Run for 10 iterations
         evo.run(10, calculate_stats="end")
 
         # Check other methods
-        evo.is_pooling()
+        # Should still be pooling after only 10 steps
+        self.assertTrue(evo.is_pooling())
 
         # Check is instance
         self.assertIsInstance(evo, evolve.MatchingSRInvention)
@@ -277,8 +298,14 @@ class TestEvolve(unittest.TestCase):
         # Check initial stats
         evo.calculate_stats()
 
+        # Should be 0.5
+        self.assertEqual(evo.statistics["prob_success"], 0.5)
+
         # Run for 10 iterations
         evo.run(10, calculate_stats="end")
+
+        # Since the method should have calculated the stats at the end, check evo.statistics["prob_success"] has length 2
+        self.assertEqual(2, len(evo.statistics["prob_success"]))
 
         # Check is instance
         self.assertIsInstance(evo, evolve.MatchingSIR)
@@ -328,8 +355,16 @@ class TestEvolve(unittest.TestCase):
         # Check initial stats
         evo.calculate_stats()
 
+        # Should be zero mutual info and 0.5 probability of success
+        self.assertEqual(evo.statistics["mut_info_states_signals"], 0)
+        self.assertEqual(evo.statistics["avg_prob_success"], 0.5)
+
         # Run for 10 iterations
         evo.run(10, calculate_stats="end")
+
+        # Each statistic should have length 2
+        self.assertEqual(2, len(evo.statistics["mut_info_states_signals"]))
+        self.assertEqual(2, len(evo.statistics["avg_prob_success"]))
 
         # Check is instance
         self.assertIsInstance(evo, evolve.BushMostellerSR)
@@ -395,6 +430,14 @@ class TestEvolve(unittest.TestCase):
         time_inc = 0.05
         times = evolve.Times(initial_time, final_time, time_inc)
 
+        # Check the values of the time vector are as expected
+        self.assertEqual(times.time_vector[0], initial_time)
+        self.assertEqual(times.time_vector[-1], final_time)
+
+        # Check the time vector is the expected length
+        self.assertEqual(len(times.time_vector), int((final_time - initial_time) / time_inc) + 1)
+
+        # Check is instance
         self.assertIsInstance(times, evolve.Times)
 
 

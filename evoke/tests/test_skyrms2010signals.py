@@ -9,11 +9,19 @@ Unit tests for evoke/examples/skyrms2010signals.py
 
 
 import unittest
+import matplotlib
 
 import evoke.examples.skyrms2010signals as skyrms
 
 
 class TestFigure(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(self):
+
+        # Suppress figure window pop-ups
+        matplotlib.use("Agg")
+
     def test_Skyrms2010_1_1(self):
         """
         Test Skyrms2010_1_1 class

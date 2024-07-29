@@ -9,11 +9,19 @@ Unit tests for evoke/src/figure.py
 
 import unittest
 import numpy as np
+import matplotlib
 
 import evoke.src.figure as figure
 
 
 class TestFigure(unittest.TestCase):
+    
+    @classmethod
+    def setUpClass(self):
+
+        # Suppress figure window pop-ups
+        matplotlib.use("Agg")
+    
     def test_scatter(self):
         """
         Test figure.Scatter class
@@ -27,10 +35,14 @@ class TestFigure(unittest.TestCase):
         # Create figure object
         f = figure.Scatter()
 
+        # Create random data
+        x_data = range(10)
+        y_data = np.random.random((10,))
+
         # Load figure with random data
         f.reset(
-            x=range(10),
-            y=np.random.random((10,)),
+            x=x_data,
+            y=y_data,
             xlabel="this is the x-axis",
             ylabel="this is the y-axis",
         )

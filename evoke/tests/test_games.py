@@ -12,9 +12,14 @@ import numpy as np
 
 # Optional modules
 try:
+    # Check a specific version of pygambit exists
     import pygambit
 
-    PYGAMBIT_EXISTS = True
+    if pygambit.__version__ == "16.1.0" or pygambit.__version__ == "16.1.1":
+        PYGAMBIT_EXISTS = True
+    else:
+        PYGAMBIT_EXISTS = False
+        
 except ModuleNotFoundError:
     PYGAMBIT_EXISTS = False
 
