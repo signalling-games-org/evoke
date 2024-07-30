@@ -28,9 +28,17 @@ bibliography: paper.bib
 # Summary
 
 **Evoke** is a Python library for evolutionary simulations of signalling games.
-It is particularly oriented towards reproducing results and figures from the literature, and offers a simple and intuitive API.
+It offers a simple and intuitive API that can be used to analyze arbitrary game-theoretic models, and to easily reproduce and customize well-known results and figures from the literature.
 
-The easiest thing to do with Evoke is recreate a figure from the signalling game literature.
+A signalling game is a special kind of mathematical game, a formal representation of interactions between agents
+In a signalling game, the actions available to the players include sending and responding to signals.
+The agents in games traditionally studied in game theory develop strategies via such dynamics as reinforcement learning.
+In contrast, evolutionary game theory investigates how strategies change over time in populations undergoing evolutionary change such as natural selection.
+Signalling games can be studied in the traditional reinforcement-learning paradigm or in the evolutionary paradigm.
+Evoke offers methods for both kinds of game dynamic.
+Users are able to create signalling games and simulate the evolution of agents' strategies over time, using a range of game types and evolutionary or learning dynamics.
+
+Evoke also allows the user to recreate and customize figures from the signalling game literature.
 Examples provided with Evoke include figures from @skyrms2010signals and @godfrey-smith2013communication.
 More examples from well-known books and papers will be added to the built-in library, and users are also able to create both reconstructions of models from the literature and their own models and results.
 
