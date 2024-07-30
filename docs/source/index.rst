@@ -41,7 +41,7 @@ A simple signalling game
 ------------------------
 
 We will describe one of the simplest possible signalling games, along with code snippets illustrating how Evoke represents each game element.
-A fuller demonstration can be found in the section :ref:`Creating signalling games`.
+A fuller demonstration can be found on the :doc:`usage` page.
 
 Consider two agents, a sender and a receiver, who need to cooperate in order to achieve a common goal.
 In each round of the game, one out of two possible states of the world obtains with 50/50 probability.
@@ -142,7 +142,7 @@ What *is* important (from the perspective of agents wanting to maximise their pa
 Any combination of signals that allows them to do this reliably is advantageous.
 
 Beginning with sender and receiver populations playing random combinations of pure strategies, we would expect one of these two beneficial strategy combinations to become dominant.
-The :ref:`Usage` page provides a more detailed explanation of how to create and run evolutionary simulations using game objects.
+The :doc:`usage` page provides a more detailed explanation of how to create and run evolutionary simulations using game objects.
 
 
 .. toctree::
