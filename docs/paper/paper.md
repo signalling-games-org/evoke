@@ -21,7 +21,7 @@ affiliations:
     index: 1
   - name: Max Planck Institute for Evolutionary Anthropology, Leipzig, Germany
     index: 2
-date: 22 July 2024
+date: 12 August 2024
 bibliography: paper.bib
 ---
 
@@ -40,7 +40,9 @@ Users are able to create signalling games and simulate the evolution of agents' 
 
 Evoke also allows the user to recreate and customize figures from the signalling game literature.
 Examples provided with Evoke include figures from @skyrms2010signals and @godfrey-smith2013communication.
-More examples from well-known books and papers will be added to the built-in library, and users are also able to create both reconstructions of models from the literature and their own models and results.
+Users can contribute to the library by adding further examples from the literature.
+This can be a useful way to become familiar with Evoke, while at the same time increasing the benefit to other users.
+Evoke can therefore serve as an educational tool (encouraging understanding of existing literature) and a research resource (promoting good practice and effective modelling techniques).
 
 # Statement of need
 
@@ -61,6 +63,7 @@ In a small way, this makes the book "interactive": in addition to the static fig
 
 # Acknowledgements
 
+Many thanks to the reviewers and editors for their comments.
 This work was supported by Juan de la Cierva grant FJC2020-044240-I and María de Maeztu grant CEX2021-001169-M funded by MICIU/AEI/10.13039/501100011033.
 
 # References
