@@ -2,7 +2,7 @@
 
 # Evoke: A Python package for evolutionary signalling games
 
-+ [Tutorial](https://colab.research.google.com/drive/1AwUCP05lpITAP7_EZD7loGv3unhnwvhM#forceEdit=true&sandboxMode=true) | *Google Colab*
++ [Tutorial](https://colab.research.google.com/drive/1zFRb20KoQi0Tdg5UR1_zReHCZicnQLZd#forceEdit=true&sandboxMode=true) | *Google Colab*
 + [Documentation](https://evoke.readthedocs.io/en/latest/) | *ReadTheDocs*
 + [Package](https://pypi.org/project/evoke-signals/) | *PyPI*
 + [Source code](https://github.com/signalling-games-org/evoke) | *GitHub*
@@ -14,7 +14,7 @@ Evoke comprises a library of methods from **evolutionary game theory** `evoke/sr
 
 ## Online tutorial
 
-See the interactive tutorial on [Google Colab](https://colab.research.google.com/drive/1AwUCP05lpITAP7_EZD7loGv3unhnwvhM#forceEdit=true&sandboxMode=true).
+See the interactive tutorial on [Google Colab](https://colab.research.google.com/drive/1zFRb20KoQi0Tdg5UR1_zReHCZicnQLZd#forceEdit=true&sandboxMode=true).
 
 ## Requirements
 
@@ -30,7 +30,7 @@ Install with pip: `pip install evoke_signals`.
 ### Creating your own signalling games
 
 Creating and running your own simulations requires you to specify payoff matrices, player strategies, and learning or evolutionary dynamics.
-See the [tutorial](https://colab.research.google.com/drive/1AwUCP05lpITAP7_EZD7loGv3unhnwvhM#forceEdit=true&sandboxMode=true) or the [documentation](https://evoke.readthedocs.io/en/latest/) for details and examples.
+See the [tutorial](https://colab.research.google.com/drive/1zFRb20KoQi0Tdg5UR1_zReHCZicnQLZd#forceEdit=true&sandboxMode=true) or the [documentation](https://evoke.readthedocs.io/en/latest/) for details and examples.
 
 ### Recreating figures from the literature
 

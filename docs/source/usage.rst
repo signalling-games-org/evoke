@@ -20,7 +20,7 @@ To use Evoke, first install it using pip:
 Tutorial
 --------
 
-The best way to discover Evoke is `the interactive tutorial <https://colab.research.google.com/drive/1AwUCP05lpITAP7_EZD7loGv3unhnwvhM#forceEdit=true&sandboxMode=true>`_.
+The best way to discover Evoke is `the interactive tutorial <https://colab.research.google.com/drive/1zFRb20KoQi0Tdg5UR1_zReHCZicnQLZd#forceEdit=true&sandboxMode=true>`_.
 The rest of this document describes very simple use cases.
 
 Creating signalling games
@@ -34,7 +34,7 @@ Creating signalling game simulations requires two kinds of object:
 Games and evolve objects can be mixed and matched.
 This allows you to see differences between evolution and reinforcement learning, by taking the same game and plugging it into different evolve objects.
 
-Take the simple example of a cooperative game with three states, three signals and three acts (the following code examples can also be found in the `tutorial <https://colab.research.google.com/drive/1AwUCP05lpITAP7_EZD7loGv3unhnwvhM#forceEdit=true&sandboxMode=true&scrollTo=304dd76f>`_).
+Take the simple example of a cooperative game with three states, three signals and three acts (the following code examples can also be found in the `tutorial <https://colab.research.google.com/drive/1zFRb20KoQi0Tdg5UR1_zReHCZicnQLZd#forceEdit=true&sandboxMode=true>`_).
 First, in order to create the **game** object, we need to supply Evoke with four pieces of information:
 
 - `state_chances`: The number of states the sender can observe, and their probabilities. For this example there will be three equiprobable states.

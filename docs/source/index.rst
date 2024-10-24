@@ -9,7 +9,7 @@ Evoke: A Python package for evolutionary signalling games
 **Evoke** is a Python library for evolutionary simulations of signalling games.
 It offers a simple and intuitive API that can be used to analyze arbitrary game-theoretic models, and to easily reproduce and customize well-known results and figures from the literature.
 
-* `Tutorial <https://colab.research.google.com/drive/1AwUCP05lpITAP7_EZD7loGv3unhnwvhM#forceEdit=true&sandboxMode=true>`_ | *Google Colab*
+* `Tutorial <https://colab.research.google.com/drive/1zFRb20KoQi0Tdg5UR1_zReHCZicnQLZd#forceEdit=true&sandboxMode=true>`_ | *Google Colab*
 * `Documentation <https://evoke.readthedocs.io/en/latest/>`_ **You are here!** | *ReadTheDocs*
 * `Package <https://pypi.org/project/evoke-signals/>`_ | *PyPI*
 * `Source code <https://github.com/signalling-games-org/evoke>`_ | *GitHub*
