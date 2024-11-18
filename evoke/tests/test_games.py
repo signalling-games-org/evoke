@@ -71,7 +71,6 @@ class TestGames(unittest.TestCase):
         game.receiver_payoff(rand_state, rand_act)
         sender_strats = game.sender_pure_strats()
         receiver_strats = game.receiver_pure_strats()
-        game.one_pop_pure_strats()
 
         # Pick a random sender strat and receiver strat for the next method.
         # Numpy doesn't allow picking from a 2D array directly, so pick random

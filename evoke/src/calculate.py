@@ -13,7 +13,15 @@ import numpy as np
 def one_basin_discrete(game, trials, times):
     """
     Calculate evolutions for <trials> starting points of <game> (which is an
-    instance of game.Evolve), in <times> (an instance of game.Times)
+    instance of game.Evolve), in <times> (an instance of game.Times).
+
+    Parameters
+    ----------
+    game : One of the Evoke game classes
+        Game to be solved
+    trials : int
+        Number of starting points to be used
+    times : evolve.Times object
     """
     pool = multiprocessing.Pool(None)
     remain = trials
@@ -29,7 +37,17 @@ def one_basin_discrete(game, trials, times):
 
 def one_basin_discrete_aux(triple):
     """
-    Calculate the one_basin loop using replicator_discrete
+    Calculate the one_basin loop using replicator_discrete.
+
+    Parameters
+    ----------
+    triple : tuple
+        A tuple with the following elements:
+        0 : int
+            The index of the trial
+        1 : One of the Evoke game classes
+            The game to be solved
+        2 : evolve.Times object
     """
     np.random.seed()
     print("trial {}".format(triple[0]))
@@ -43,6 +61,14 @@ def one_basin_mixed(game, trials, times):
     """
     Calculate evolutions for <trials> starting points of <game> (which is an
     instance of game.Evolve), in <times> (an instance of game.Times)
+
+    Parameters
+    ----------
+    game : One of the Evoke game classes
+        Game to be solved
+    trials : int
+        Number of starting points to be used
+    times : evolve.Times object
     """
     pool = multiprocessing.Pool(None)
     remain = trials
@@ -59,6 +85,18 @@ def one_basin_mixed(game, trials, times):
 def one_basin_aux_mixed(triple, print_trials=True):
     """
     Calculate the one_basin loop. First lsoda, then dopri5 if error
+
+    Parameters
+    ----------
+    triple : tuple
+        A tuple with the following elements:
+        0 : int
+            The index of the trial
+        1 : One of the Evoke game classes
+            The game to be solved
+        2 : evolve.Times object
+    print_trials : bool, optional
+        If True, print the trial number
     """
     if print_trials:
         print("trial {} -- lsoda".format(triple[0]))
@@ -79,6 +117,16 @@ def one_basin_aux_mixed(triple, print_trials=True):
 def one_basin_aux(triple):
     """
     Calculate the one_basin loop using replicator_odeint
+
+    Parameters
+    ----------
+    triple : tuple
+        A tuple with the following elements:
+        0 : int
+            The index of the trial
+        1 : One of the Evoke game classes
+            The game to be solved
+        2 : evolve.Times object
     """
     np.random.seed()
     print("trial {}".format(triple[0]))
@@ -91,6 +139,16 @@ def one_basin_aux(triple):
 def one_basin_ode_aux(triple):
     """
     Calculate the one_basin loop using one_run_ode
+
+    Parameters
+    ----------
+    triple : tuple
+        A tuple with the following elements:
+        0 : int
+            The index of the trial
+        1 : One of the Evoke game classes
+            The game to be solved
+        2 : evolve.Times object
     """
     np.random.seed()
     # print("trial {}".format(triple[0]))
@@ -105,6 +163,15 @@ def one_batch(fileinput, directory, alreadydone=""):
     """
     Take all games in <fileinput> and calculate one_basin on each. Save in
     <directory>
+
+    Parameters
+    ----------
+    fileinput : str
+        File with the games to be solved
+    directory : str
+        Directory to save the results
+    alreadydone : str, optional
+        File with the games already solved
     """
     strat = s.Strategies(3, 3, 3)
     with open(fileinput, "r") as inputgames:
@@ -134,6 +201,11 @@ def pop_vector(vector):
     """
     Test if <vector> is a population vector: sums a total of 2, and every value
     is larger or equal than zero
+
+    Parameters
+    ----------
+    vector : numpy.array
+        The vector to be tested
     """
     return (
         abs(np.sum(vector) - 2) < 1e-05
@@ -157,6 +229,11 @@ vtest_failure = np.vectorize(test_failure)
 def test_endstate(array):
     """
     Test if <array> is composed by two concatenated probability vectors
+
+    Parameters
+    ----------
+    array : numpy.array
+        The array to be tested
     """
     vectors = np.split(np.around(array, decimals=10), 2)
     return prob_vector(vectors[0]) and prob_vector(vectors[1])

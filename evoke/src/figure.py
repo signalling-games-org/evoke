@@ -24,7 +24,19 @@ class Figure(ABC):
     Abstract superclass for all figures.
     """
 
-    def __init__(self, evo=None, game=None, **kwargs):  # Evolve object
+    def __init__(self, evo=None, game=None, **kwargs):
+        """
+        Initialise the figure object.
+
+        Parameters
+        ----------
+        evo : object, optional
+            One of the Evoke Evolve objects (see evolve.py). The default is None.
+        game : object, optional
+            On of the Evoke Game objects (see games.py). The default is None.
+        **kwargs : dict
+            Arbitrary keyword arguments.
+        """
         # If there's an evolve object, set it as a class attribute
         if evo is not None:
             self.evo = evo
@@ -143,6 +155,14 @@ class Scatter(Figure):
     """
 
     def __init__(self, **kwargs):
+        """
+        Create the Scatter figure object
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Arbitrary keyword arguments
+        """
         super().__init__(**kwargs)
 
     def reset(
@@ -213,12 +233,6 @@ class Scatter(Figure):
     def show(self):
         """
         Show figure with the current parameters.
-
-        Parameters
-        ----------
-        line : bool, optional
-            Whether to show a line connecting the datapoints.
-            The default is False.
 
         Returns
         -------
@@ -342,6 +356,15 @@ class Quiver(Figure):
     """
 
     def __init__(self, **kwargs):
+        """
+        Initialise the Quiver object.
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Arbitrary keyword arguments.
+        """
+
         super().__init__(**kwargs)
 
     """ Property: marker color """
@@ -439,11 +462,37 @@ class Quiver2D(Quiver):
     """
 
     def __init__(self, scale=20, **kwargs):
+        """
+        Initialise the 2D quiver plot.
+
+        Parameters
+        ----------
+        scale : int, optional
+            Scale of the arrows. The default is 20.
+        **kwargs : dict
+            Arbitrary keyword arguments.
+        """
         self.scale = scale
 
         super().__init__(**kwargs)
 
     def reset(self, color=None, xlabel=None, ylabel=None):
+        """
+        Set global attributes for the 2D quiver plot.
+
+        Parameters
+        ----------
+        color : str, optional
+            Color of the arrows. The default is None.
+        xlabel : str, optional
+            x-axis label. The default is None.
+        ylabel : str, optional
+            y-axis label. The default is None.
+
+        Returns
+        -------
+        None.
+        """
         # Set global attributes based on what was supplied
         if color:
             self.color = color
@@ -557,6 +606,24 @@ class Quiver3D(Quiver):
         pivot="middle",
         **kwargs,
     ):
+        """
+        Initialise the 3D quiver plot.
+
+        Parameters
+        ----------
+        color : str, optional
+            Color of the arrows. The default is "k" (black).
+        normalize : bool, optional
+            Normalize the arrows. The default is True.
+        length : float, optional
+            Length of the arrows. The default is 0.5.
+        arrow_length_ratio : float, optional
+            Ratio of the arrow length to the length of the arrowhead(?). The default is 0.5.
+        pivot : str, optional
+            Pivot point of the arrows. The default is "middle".
+        **kwargs : dict
+            Arbitrary keyword arguments.
+        """
         self.color = color
         self.normalize = normalize
         self.length = length
@@ -677,13 +744,13 @@ class Quiver3D(Quiver):
 
         Parameters
         ----------
-        vector : TYPE
-            DESCRIPTION.
+        vector : array-like
+            4-D vector to be converted to a barycentric location.
 
         Returns
         -------
-        barycentric_location : TYPE
-            DESCRIPTION.
+        barycentric_location : array-like
+            3-D barycentric coordinates on a tetrahedron.
 
         """
 
@@ -726,6 +793,14 @@ class Bar(Figure):
     """
 
     def __init__(self, **kwargs):
+        """
+        Initialise the Bar chart object.
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Arbitrary keyword arguments
+        """
         super().__init__(**kwargs)
 
     def reset(
@@ -740,6 +815,18 @@ class Bar(Figure):
             x-axis coordinates.
         y : array-like
             y-axis coordinates.
+        xlabel : str
+            x-axis label.
+        ylabel : str
+            y-axis label.
+        bar_color : str, optional
+            Color of the bars. The default is "w".
+        xlim : array-like, optional
+            Minimum and maximum values of x-axis. The default is None.
+        ylim : array-like, optional
+            Minimum and maximum values of y-axis. The default is None.
+        yscale : str, optional
+            y-axis scaling i.e. linear or logarithmic. The default is None.
 
         Returns
         -------
@@ -848,9 +935,37 @@ class Ternary(Figure):
     """
 
     def __init__(self, **kwargs):
+        """
+        Initialise the Ternary plot object.
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Arbitrary keyword arguments
+        """
         super().__init__(**kwargs)
 
     def reset(self, right_corner_label, top_corner_label, left_corner_label, fontsize):
+        """
+        Update figure parameters, which can then be plotted with self.show().
+
+        Parameters
+        ----------
+        right_corner_label : str
+            Label for the right corner of the ternary plot.
+        top_corner_label : str
+            Label for the top corner of the ternary plot.
+        left_corner_label : str
+            Label for the left corner of the ternary plot.
+        fontsize : int
+            Font size of the corner labels.
+
+        Returns
+        -------
+        None.
+
+        """
+
         ## Update global attributes, which can then be plotted in self.show()
 
         self.fontsize = fontsize
@@ -909,6 +1024,14 @@ class Surface(Figure):
     """
 
     def __init__(self, **kwargs):
+        """
+        Initialise the Surface plot object.
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Arbitrary keyword arguments
+        """
         super().__init__(**kwargs)
 
         # Data parameters
@@ -945,6 +1068,12 @@ class Surface(Figure):
             y-axis values.
         z : array-like
             z-axis values.
+        xlabel : str, optional
+            x-axis label. The default is None.
+        ylabel : str, optional
+            y-axis label. The default is None.
+        zlabel : str, optional
+            z-axis label. The default is None.
         xlim : array-like, optional
             Minimum and maximum values of x-axis. The default is None.
         ylim : array-like, optional

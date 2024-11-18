@@ -27,6 +27,16 @@ class OnePop:
     """
 
     def __init__(self, game, playertypes):
+        """
+        Initialise the class with a game and a matrix of payoffs.
+
+        Parameters
+        ----------
+        game : one of the evoke game objects
+            The game that this evolve class will provide the dynamics for.
+        playertypes : array-like
+            Array of available player types.
+        """
         self.game = game
         self.avgpayoffs = self.game.avg_payoffs(playertypes)
         self.playertypes = playertypes
@@ -44,6 +54,11 @@ class OnePop:
     def random_player(self):
         """
         Return frequencies of a random sender population
+
+        Returns
+        -------
+        array-like
+            Array of frequencies of a random sender population
         """
         return np.random.dirichlet([1 for i in np.arange(self.lps)])
 
@@ -51,6 +66,16 @@ class OnePop:
         """
         Return the average payoff that players get when the population vector
         is <player>
+
+        Parameters
+        ----------
+        player : array-like
+            Population vector describing a mixed population.
+
+        Returns
+        -------
+        float
+            Average payoff of the population.
         """
         return player.dot(self.avgpayoffs.dot(player))
 
@@ -65,13 +90,13 @@ class OnePop:
 
         Parameters
         ----------
-        player : TYPE
-            DESCRIPTION.
+        player : array-like
+            Population vector describing a mixed population.
 
         Returns
         -------
-        None.
-
+        array-like
+            Array of average payoffs of the population.
         """
 
         ## Use the simple version if there is no assortment.
@@ -92,6 +117,18 @@ class OnePop:
     def replicator_dX_dt_odeint(self, X, t):
         """
         Calculate the rhs of the system of odes for scipy.integrate.odeint
+
+        Parameters
+        ----------
+        X : array-like
+            Population vector at time t.
+        t : float
+            Time.
+
+        Returns
+        -------
+        array-like
+            Right-hand side of the system of ODEs.
         """
         avgpayoff = self.avg_payoff(X)
         result = X * (self.avgpayoffs @ X - avgpayoff)
@@ -102,6 +139,18 @@ class OnePop:
     def replicator_jacobian_odeint(self, X, t=0):
         """
         Calculate the Jacobian of the system of odes for scipy.integrate.odeint
+
+        Parameters
+        ----------
+        X : array-like
+            Population vector at time t.
+        t : float
+            Time.
+
+        Returns
+        -------
+        array-like
+            Jacobian of the system of ODEs.
         """
         avgpayoff = self.avg_payoff(X)
         diagonal = np.eye(self.lps) * X
@@ -112,6 +161,16 @@ class OnePop:
         """
         Calculate a population vector for t' given the vector for t, using the
         discrete time replicator dynamics (Huttegger 2007)
+
+        Parameters
+        ----------
+        X : array-like
+            Population vector at time t.
+
+        Returns
+        -------
+        array-like
+            Population vector at time t+1.
         """
         avgfitness = self.avg_payoff(X)
         delta = X * (self.avgpayoffs @ X) / avgfitness
@@ -124,6 +183,20 @@ class OnePop:
         Calculate one run of the game following the replicator(-mutator)
         dynamics, with starting points sinit and rinit, in times <times> (an
         evolve.Times instance), using scipy.integrate.odeint
+
+        Parameters
+        ----------
+        init : array-like
+            Initial population vector.
+        time_vector : array-like
+            Time vector.
+        kwargs : dict
+            Additional keyword arguments for odeint.
+
+        Returns
+        -------
+        array-like
+            Population vectors at each time point.
         """
         return odeint(
             self.replicator_dX_dt_odeint,
@@ -140,6 +213,18 @@ class OnePop:
         replicator(-mutator) dynamics, for <steps> steps with
         starting population vector <initpop> using the discrete time
         replicator dynamics.
+
+        Parameters
+        ----------
+        initpop : array-like
+            Initial population vector.
+        steps : int
+            Number of steps to take.
+
+        Returns
+        -------
+        array-like
+            Population vectors at each time point.
         """
         data = np.empty([steps, len(initpop)])
         data[0, :] = initpop
@@ -151,6 +236,16 @@ class OnePop:
         """
         Take a population vector and output the average strat implemented by
         the whole population
+
+        Parameters
+        ----------
+        pop : array-like
+            Population vector.
+
+        Returns
+        -------
+        array-like
+            Average strategy implemented by the whole population.
         """
         return self.game.calculate_mixed_strat(self.playertypes, pop)
 
@@ -160,8 +255,8 @@ class OnePop:
 
         Parameters
         ----------
-        e : TYPE
-            DESCRIPTION.
+        e : float
+            Amount of assortment as a proportion of the population.
 
         Returns
         -------
@@ -183,6 +278,19 @@ class TwoPops:
     """
 
     def __init__(self, game, sendertypes, receivertypes):
+        """
+        Initialise the class with a game and two matrices of payoffs.
+
+        Parameters
+        ----------
+        game : one of the evoke game objects
+            The game that this evolve class will provide the dynamics for.
+        sendertypes : array-like
+            Array of available sender types.
+        receivertypes : array-like
+            Array of available receiver types.
+
+        """
         self.game = game
         avgpayoffs = self.game.avg_payoffs(sendertypes, receivertypes)
         self.senderpayoffs = avgpayoffs[0]
@@ -201,12 +309,22 @@ class TwoPops:
     def random_sender(self):
         """
         Return frequencies of a random sender population
+
+        Returns
+        -------
+        array-like
+            Array of frequencies of a random sender population
         """
         return np.random.dirichlet([1 for i in np.arange(self.lss)])
 
     def random_receiver(self):
         """
         Return frequencies of a random receiver population
+
+        Returns
+        -------
+        array-like
+            Array of frequencies of a random receiver population
         """
         return np.random.dirichlet([1 for i in np.arange(self.lrs)])
 
@@ -214,6 +332,18 @@ class TwoPops:
         """
         Return the average payoff that senders get when the population vectors
         are <sender> and <receiver>
+
+        Parameters
+        ----------
+        sender : array-like
+            Population vector describing a mixed sender population.
+        receiver : array-like
+            Population vector describing a mixed receiver population.
+
+        Returns
+        -------
+        float
+            Average payoff of the sender population.
         """
         return sender.dot(self.senderpayoffs.dot(receiver))
 
@@ -221,12 +351,36 @@ class TwoPops:
         """
         Return the average payoff that receivers get when the population
         vectors are <sender> and <receiver>
+
+        Parameters
+        ----------
+        sender : array-like
+            Population vector describing a mixed sender population.
+        receiver : array-like
+            Population vector describing a mixed receiver population.
+
+        Returns
+        -------
+        float
+            Average payoff of the receiver population.
         """
         return receiver.dot(self.receiverpayoffs.dot(sender))
 
     def replicator_dX_dt_odeint(self, X, t):
         """
         Calculate the rhs of the system of odes for scipy.integrate.odeint
+
+        Parameters
+        ----------
+        X : array-like
+            Population vector at time t.
+        t : float
+            Time.
+
+        Returns
+        -------
+        array-like
+            Right-hand side of the system of ODEs.
         """
         # X's first part is the sender vector
         # its second part the receiver vector
@@ -250,6 +404,18 @@ class TwoPops:
     def replicator_dX_dt_ode(self, t, X):
         """
         Calculate the rhs of the system of odes for scipy.integrate.ode
+
+        Parameters
+        ----------
+        t : float
+            Time.
+        X : array-like
+            Population vector at time t.
+
+        Returns
+        -------
+        array-like
+            Right-hand side of the system of ODEs.
         """
         # X's first half is the sender vector
         # its second half the receiver vector
@@ -273,6 +439,18 @@ class TwoPops:
     def replicator_jacobian_odeint(self, X, t=0):
         """
         Calculate the Jacobian of the system for scipy.integrate.odeint
+
+        Parameters
+        ----------
+        X : array-like
+            Population vector at time t.
+        t : float
+            Time.
+
+        Returns
+        -------
+        array-like
+            Jacobian of the system of ODEs.
         """
         # X's first half is the sender vector
         # its second half the receiver vector
@@ -305,6 +483,18 @@ class TwoPops:
     def replicator_jacobian_ode(self, t, X):
         """
         Calculate the Jacobian of the system for scipy.integrate.ode
+
+        Parameters
+        ----------
+        t : float
+            Time.
+        X : array-like
+            Population vector at time t.
+
+        Returns
+        -------
+        array-like
+            Jacobian of the system of ODEs.
         """
         senderpops, receiverpops = self.vector_to_populations(X)
         avgfitsender = self.sender_avg_payoff(senderpops, receiverpops)
@@ -333,6 +523,16 @@ class TwoPops:
         """
         Calculate a population vector for t' given the vector for t, using the
         discrete time replicator dynamics (Huttegger 2007)
+
+        Parameters
+        ----------
+        X : array-like
+            Population vector at time t.
+
+        Returns
+        -------
+        array-like
+            Population vector at time t+1.
         """
         # X's first part is the sender vector
         # its second part the receiver vector
@@ -355,6 +555,21 @@ class TwoPops:
         Calculate one run of the game following the replicator(-mutator)
         dynamics, with starting points sinit and rinit, in times <times> (an
         evolve.Times instance), using scipy.integrate.odeint
+
+        Parameters
+        ----------
+        sinit : array-like
+            Initial sender population vector.
+        rinit : array-like
+            Initial receiver population vector.
+        times : evolve.Times object
+        kwargs : dict
+            Additional keyword arguments for odeint.
+
+        Returns
+        -------
+        array-like
+            Population vectors at each time point.
         """
         return odeint(
             self.replicator_dX_dt_odeint,
@@ -370,6 +585,21 @@ class TwoPops:
         Calculate one run of the game, following the replicator(-mutator)
         dynamics in continuous time, in <times> (an evolve.Times instance) with
         starting points sinit and rinit using scipy.integrate.ode
+
+        Parameters
+        ----------
+        sinit : array-like
+            Initial sender population vector.
+        rinit : array-like
+            Initial receiver population vector.
+        times : evolve.Times object
+        integrator : str
+            Name of the integrator to use.
+
+        Returns
+        -------
+        array-like
+            Population vectors at each time point.
         """
         initialpop = np.concatenate((sinit, rinit))
         equations = ode(
@@ -392,6 +622,19 @@ class TwoPops:
         replicator dynamics. Note that this solver will just calculate n points
         in the evolution of the population, and will not try to match them to
         the times as provided.
+
+        Parameters
+        ----------
+        sinit : array-like
+            Initial sender population vector.
+        rinit : array-like
+            Initial receiver population vector.
+        times : evolve.Times object
+
+        Returns
+        -------
+        array-like
+            Population vectors at each time point.
         """
         popvector = np.concatenate((sinit, rinit))
         data = np.empty([len(times.time_vector), len(popvector)])
@@ -404,6 +647,17 @@ class TwoPops:
         """
         Take one of the population vectors returned by the solvers, and output
         two vectors, for the sender and receiver populations respectively.
+
+        Parameters
+        ----------
+        vector : array-like
+            Population vector.
+
+        Returns
+        -------
+        tuple
+            Tuple of two arrays, one for the sender and one for the receiver
+            populations.
         """
         return np.hsplit(vector, [self.lss])
 
@@ -411,6 +665,16 @@ class TwoPops:
         """
         Take a sender population vector and output the average
         sender strat implemented by the whole population
+
+        Parameters
+        ----------
+        senderpop : array-like
+            Sender population vector.
+
+        Returns
+        -------
+        array-like
+            Average sender strategy implemented by the whole population.
         """
         return self.game.calculate_sender_mixed_strat(self.sendertypes, senderpop)
 
@@ -418,6 +682,16 @@ class TwoPops:
         """
         Take a receiver population vector and output the average
         receiver strat implemented by the whole population
+
+        Parameters
+        ----------
+        receiverpop : array-like
+            Receiver population vector.
+
+        Returns
+        -------
+        array-like
+            Average receiver strategy implemented by the whole population
         """
         return self.game.calculate_receiver_mixed_strat(self.receivertypes, receiverpop)
 
@@ -434,7 +708,7 @@ class Reinforcement:
         Parameters
         ----------
         game : one of the evoke game objects
-            DESCRIPTION.
+            The game that this evolve class will provide the dynamics for.
         agents: array-like
             list of evoke agent objects
 
@@ -584,6 +858,16 @@ class Matching(Reinforcement):
     """
 
     def __init__(self, game, agents):
+        """
+        Initialise the class with a game and a list of agents.
+
+        Parameters
+        ----------
+        game : one of the evoke game objects
+            The game that this evolve class will provide the dynamics for.
+        agents: array-like
+            list of evoke agent objects
+        """
         super().__init__(game=game, agents=agents)
 
 
@@ -594,16 +878,16 @@ class MatchingSR(Matching):
 
     def __init__(self, game, sender_strategies, receiver_strategies):
         """
-
+        Initialise an instance of the MatchingSR class.
 
         Parameters
         ----------
-        game : TYPE
-            DESCRIPTION.
-        sender_strategies : TYPE
-            DESCRIPTION.
-        receiver_strategies : TYPE
-            DESCRIPTION.
+        game : one of the Evoke game objects.
+            The game that this evolve class will provide the dynamics for.
+        sender_strategies : array-like
+            Array of available sender strategies (each of which is itself an array).
+        receiver_strategies : array-like
+            Array of available receiver strategies (each of which is itself an array).
 
         Returns
         -------
@@ -631,6 +915,11 @@ class MatchingSR(Matching):
             2. Update the agents' strategies based on the payoffs they received.
             3. Calculate and store any required variables e.g. information.
             4. Update iteration.
+
+        Parameters
+        ----------
+        calculate_stats : bool
+            Whether to calculate statistics at the end of the step.
 
         Returns
         -------
@@ -726,16 +1015,16 @@ class MatchingSRInvention(Matching):
 
     def __init__(self, game, sender_strategies, receiver_strategies):
         """
-
+        Initialise an instance of the MatchingSRInvention class.
 
         Parameters
         ----------
-        game : TYPE
-            DESCRIPTION.
-        sender_strategies : TYPE
-            DESCRIPTION.
-        receiver_strategies : TYPE
-            DESCRIPTION.
+        game : one of the Evoke game objects.
+            The game that this evolve class will provide the dynamics for.
+        sender_strategies : array-like
+            Array of available sender strategies (each of which is itself an array).
+        receiver_strategies : array-like
+            Array of available receiver strategies (each of which is itself an array).
 
         Returns
         -------
@@ -763,6 +1052,11 @@ class MatchingSRInvention(Matching):
             2. Update the agents' strategies based on the payoffs they received.
             3. Calculate and store any required variables e.g. information.
             4. Update iteration.
+
+        Parameters
+        ----------
+        calculate_stats : bool
+            Whether to calculate statistics at the end of the step.
 
         Returns
         -------
@@ -841,18 +1135,16 @@ class MatchingSIR(Matching):
         self, game, sender_strategies, intermediary_strategies, receiver_strategies
     ):
         """
-
+        Initialise an instance of the MatchingSIR class.
 
         Parameters
         ----------
-        game : TYPE
-            DESCRIPTION.
-        sender_strategies : TYPE
-            DESCRIPTION.
-        intermediary_strategies : TYPE
-            DESCRIPTION.
-        receiver_strategies : TYPE
-            DESCRIPTION.
+        game : one of the Evoke game objects.
+            The game that this evolve class will provide the dynamics for.
+        sender_strategies : array-like
+            Array of available sender strategies (each of which is itself an array).
+        receiver_strategies : array-like
+            Array of available receiver strategies (each of which is itself an array).
 
         Returns
         -------
@@ -885,6 +1177,11 @@ class MatchingSIR(Matching):
             2. Update the agents' strategies based on the payoffs they received.
             3. Calculate and store any required variables e.g. probability of success.
             4. Update iteration.
+
+        Parameters
+        ----------
+        calculate_stats : bool
+            Whether to calculate statistics at the end of the step.
 
         Returns
         -------
@@ -989,16 +1286,18 @@ class BushMostellerSR(Reinforcement):
         self, game, sender_strategies, receiver_strategies, learning_parameter
     ):
         """
-
+        Initialise an instance of the BushMostellerSR class.
 
         Parameters
         ----------
-        game : TYPE
-            DESCRIPTION.
-        sender_strategies : TYPE
-            DESCRIPTION.
-        receiver_strategies : TYPE
-            DESCRIPTION.
+        game : one of the Evoke game objects.
+            The game that this evolve class will provide the dynamics for.
+        sender_strategies : array-like
+            Array of available sender strategies (each of which is itself an array).
+        receiver_strategies : array-like
+            Array of available receiver strategies (each of which is itself an array).
+        learning_parameter : float
+            The learning parameter for the Bush-Mosteller reinforcement algorithm.
 
         Returns
         -------
@@ -1029,6 +1328,11 @@ class BushMostellerSR(Reinforcement):
             2. Update the agents' strategies based on the payoffs they received.
             3. Calculate and store any required variables e.g. information.
             4. Update iteration.
+
+        Parameters
+        ----------
+        calculate_stats : bool
+            Whether to calculate statistics at the end of the step.
 
         Returns
         -------
@@ -1126,6 +1430,15 @@ class Agent:
     """
 
     def __init__(self, strategies):
+        """
+        Initialise an agent with a set of strategies.
+
+        Parameters
+        ----------
+        strategies : array-like
+            Array of strategies, where each strategy is itself an array.
+        """
+
         ## Probability distribution over deterministic strategies.
         self.strategies = strategies
 
@@ -1144,6 +1457,11 @@ class Agent:
          and the possible responses are the possible signals.
         If this is a receiver, <input_data> is the index of the signal sent,
          and the possible responses are the possible acts.
+
+        Parameters
+        ----------
+        input_data : int
+            The state (if sender) or signal (if receiver) the agent just observed.
 
         Returns
         -------
@@ -1171,12 +1489,12 @@ class Agent:
 
         Parameters
         ----------
-        input_data : TYPE
-            DESCRIPTION.
-        response : TYPE
-            DESCRIPTION.
-        payoff : TYPE
-            DESCRIPTION.
+        input_data : int
+            The state (if sender) or signal (if receiver) the agent just observed.
+        response : int
+            The signal (if sender) or act (if receiver) the agent just performed.
+        payoff : int
+            The payoff the agent just received.
 
         Returns
         -------
@@ -1197,6 +1515,7 @@ class Agent:
         self, input_data, response, payoff, learning_parameter
     ):
         """
+        Update strategies according to the Bush-Mosteller reinforcement rule.
 
         From Skyrms 2010 page 86:
 
@@ -1209,14 +1528,14 @@ class Agent:
 
         Parameters
         ----------
-        input_data : TYPE
-            DESCRIPTION.
-        response : TYPE
-            DESCRIPTION.
-        payoff : TYPE
-            DESCRIPTION.
-        learning_parameter : TYPE
-            DESCRIPTION.
+        input_data : int
+            The state (if sender) or signal (if receiver) the agent just observed.
+        response : int
+            The signal (if sender) or act (if receiver) the agent just performed.
+        payoff : int
+            The payoff the agent just received.
+        learning_parameter : float
+            Learning parameter for Bush-Mosteller reinforcement.
 
         Returns
         -------
@@ -1243,7 +1562,7 @@ class Agent:
 
     def add_signal_sender(self):
         """
-        Add a signal to the sender's repertoire.
+        Add a new signal to the sender's repertoire.
 
         Returns
         -------
@@ -1257,7 +1576,7 @@ class Agent:
 
     def add_signal_receiver(self):
         """
-        Add a signal to the receiver's repertoire.
+        Add a new signal to the receiver's repertoire.
 
         Returns
         -------
@@ -1281,6 +1600,15 @@ class Times:
         <final_time> and the time increment <time_inc>, and creates an object
         with these values as attributes, and also a vector that can be fed into
         odeint.
+
+        Parameters
+        ----------
+        initial_time : float
+            Initial time for simulations.
+        final_time : float
+            Final time for simulations.
+        time_inc : float
+            Time increment for simulations.
         """
         self.initial_time = initial_time
         self.final_time = final_time
@@ -1293,6 +1621,18 @@ def mutationmatrix(mutation, dimension):
     """
     Calculate a (square) mutation matrix with mutation rate
     given by <mutation> and dimension given by <dimension>
+
+    Parameters
+    ----------
+    mutation : float
+        Mutation rate.
+    dimension : int
+        Dimension of the matrix.
+
+    Returns
+    -------
+    array-like
+        Mutation matrix.
     """
     return np.array(
         [

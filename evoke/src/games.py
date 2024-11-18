@@ -47,6 +47,17 @@ class Chance:
         Take a mx1 numpy array with the unconditional probabilities of states,
         a mxo numpy array with the sender payoffs, a mxo numpy array with
         receiver payoffs, and the number of available messages
+
+        Parameters
+        ----------
+        state_chances : numpy array
+            Probabilities of each world state
+        sender_payoff_matrix : numpy array
+            Payoff matrix for the sender
+        receiver_payoff_matrix : numpy array
+            Payoff matrix for the receiver
+        messages : int
+            Number of messages available to the sender
         """
 
         # Check data is consistent
@@ -80,24 +91,58 @@ class Chance:
     def choose_state(self):
         """
         Return a random state, relying on the probabilities given by self.state_chances
+
+        Returns
+        -------
+        int
+            Index of the chosen state
         """
         return np.random.choice(range(self.states), p=self.state_chances)
 
     def sender_payoff(self, state, act):
         """
         Return the sender payoff for a combination of <state> and <act>
+
+        Parameters
+        ----------
+        state : int
+            Index of the state
+        act : int
+            Index of the act
+
+        Returns
+        -------
+        float
+            Payoff for the sender
         """
         return self.sender_payoff_matrix[state][act]
 
     def receiver_payoff(self, state, act):
         """
         Return the receiver payoff for a combination of <state> and <act>
+
+        Parameters
+        ----------
+        state : int
+            Index of the state
+        act : int
+            Index of the act
+
+        Returns
+        -------
+        float
+            Payoff for the receiver
         """
         return self.receiver_payoff_matrix[state][act]
 
     def sender_pure_strats(self):
         """
         Return the set of pure strategies available to the sender
+
+        Returns
+        -------
+        numpy array
+            Array with all pure sender strategies
         """
         pure_strats = np.identity(self.messages)
         return np.array(list(it.product(pure_strats, repeat=self.states)))
@@ -105,6 +150,11 @@ class Chance:
     def receiver_pure_strats(self):
         """
         Return the set of pure strategies available to the receiver
+
+        Returns
+        -------
+        numpy array
+            Array with all pure receiver strategies
         """
         pure_strats = np.identity(self.acts)
         return np.array(list(it.product(pure_strats, repeat=self.messages)))
@@ -113,6 +163,18 @@ class Chance:
         """
         Calculate the average payoff for sender and receiver given concrete
         sender and receiver strats
+
+        Parameters
+        ----------
+        sender_strat : numpy array
+            Sender strategy
+        receiver_strat : numpy array
+            Receiver strategy
+
+        Returns
+        -------
+        tuple
+            Tuple with the average payoff for the sender and the receiver
         """
         state_act = sender_strat.dot(receiver_strat)
         sender_payoff = self.state_chances.dot(
@@ -127,6 +189,18 @@ class Chance:
         """
         Return an array with the average payoff of sender strat i against
         receiver strat j in position <i, j>
+
+        Parameters
+        ----------
+        sender_strats : numpy array
+            Array with multiple sender strategies
+        receiver_strats : numpy array
+            Array with multiple receiver strategies
+
+        Returns
+        -------
+        numpy array
+            Array with the average payoff for each combination of sender and receiver strategies
         """
         payoff_ij = np.vectorize(
             lambda i, j: self.payoff(sender_strats[i], receiver_strats[j])
@@ -142,6 +216,21 @@ class Chance:
     #     return one_pop_avg_payoffs(self, one_player_strats)
 
     def calculate_sender_mixed_strat(self, sendertypes, senderpop):
+        """
+        Calculate the mixed strategy of the sender given the types and the population
+
+        Parameters
+        ----------
+        sendertypes : numpy array
+            Array with the sender types
+        senderpop : numpy array
+            Population proportion of each of the strategy types in sendertype
+
+        Returns
+        -------
+        numpy array
+            Effective mixed strategy of this sender population
+        """
         mixedstratsender = sendertypes * senderpop[:, np.newaxis, np.newaxis]
         return sum(mixedstratsender)
 
@@ -308,18 +397,9 @@ class Chance:
     @property
     def has_info_using_equilibrium(self) -> bool:
         """
-
         Does this game have an information-using equilibrium?
-
-
-        Parameters
-        ----------
-        sigfig : int, optional
-            The number of significant figures to report values in.
-            Since gambit sometimes has problems rounding, it generates values like 0.9999999999996.
-            We want to report these as 1.0000, especially if we're dumping to a file.
-            The default is 5.
-
+        This is a lazy property: it only calculates the answer once,
+        and then stores it for later use.
 
         Returns
         -------
@@ -399,14 +479,6 @@ class Chance:
         the value of mutual information will be 0.
         The strategies returned will then be an arbitrary equilibrium.
 
-        Parameters
-        ----------
-        sigfig : int, optional
-            The number of significant figures to report values in.
-            Since gambit sometimes has problems rounding, it generates values like 0.9999999999996.
-            We want to report these as 1.0000, especially if we're dumping to a file.
-            The default is 5.
-
         Returns
         -------
         tuple
@@ -480,14 +552,14 @@ class Chance:
         Useful when you are loading the game from a file and don't want to have to
         run all the gambit processing again.
 
-
         Parameters
         ----------
-        best_strategies : array-like
-            First element is sender strat, second element is receiver strat.
-        max_mutual_info : float
-            The amount of mutual information between states and acts
-            at the highest info-using equilibrium.
+        equilibrium_data : tuple with the following entries:
+            0: best_strategies : array-like
+                First element is sender strat, second element is receiver strat.
+            1: max_mutual_info : float
+                The amount of mutual information between states and acts
+                at the highest info-using equilibrium.
 
         Returns
         -------
@@ -655,17 +727,17 @@ class ChanceSIR:
         Parameters
         ----------
         state_chances : TYPE, optional
-            DESCRIPTION. The default is np.array([1/2,1/2]).
-        sender_payoff_matrix : TYPE, optional
-            DESCRIPTION. The default is np.eye(2).
-        intermediary_payoff_matrix : TYPE, optional
-            DESCRIPTION. The default is np.eye(2).
-        receiver_payoff_matrix : TYPE, optional
-            DESCRIPTION. The default is np.eye(2).
-        messages_sender : TYPE, optional
-            DESCRIPTION. The default is 2.
-        messages_intermediary : TYPE, optional
-            DESCRIPTION. The default is 2.
+            Probabilities of each state of the world. The default is np.array([1/2,1/2]).
+        sender_payoff_matrix : array-like, optional
+            Sender's payoff matrix. The default is np.eye(2).
+        intermediary_payoff_matrix : array-like, optional
+            Intermediary player's payoff matrix. The default is np.eye(2).
+        receiver_payoff_matrix : array-like, optional
+            Receiver's payoff matrix. The default is np.eye(2).
+        messages_sender : int, optional
+            Number of messages available to the sender. The default is 2.
+        messages_intermediary : int, optional
+            Number of messages available to the intermediary player. The default is 2.
 
         Returns
         -------
@@ -743,15 +815,15 @@ class ChanceSIR:
 
         Parameters
         ----------
-        state : TYPE
-            DESCRIPTION.
-        act : TYPE
-            DESCRIPTION.
+        state : int
+            The state that occurred.
+        act : int
+            The act the receiver performed.
 
         Returns
         -------
-        payoff : TYPE
-            DESCRIPTION.
+        payoff : float or int
+            The sender's payoff given this state and act.
 
         """
 
@@ -763,15 +835,15 @@ class ChanceSIR:
 
         Parameters
         ----------
-        state : TYPE
-            DESCRIPTION.
-        act : TYPE
-            DESCRIPTION.
+        state : int
+            The state that occurred.
+        act : int
+            The act the receiver performed.
 
         Returns
         -------
-        payoff : TYPE
-            DESCRIPTION.
+        payoff : float or int
+            The intermediary's payoff given this state and act.
 
         """
 
@@ -783,15 +855,15 @@ class ChanceSIR:
 
         Parameters
         ----------
-        state : TYPE
-            DESCRIPTION.
-        act : TYPE
-            DESCRIPTION.
+        state : int
+            The state that occurred.
+        act : int
+            The act the receiver performed.
 
         Returns
         -------
-        payoff : TYPE
-            DESCRIPTION.
+        payoff : float or int
+            The receiver's payoff given this state and act.
 
         """
 
@@ -859,6 +931,16 @@ class NonChance:
         """
         Take a mxo numpy array with the sender payoffs, a mxo numpy array
         with receiver payoffs, and the number of available messages
+
+        Parameters
+        ----------
+        sender_payoff_matrix : numpy array
+            Payoff matrix for the sender
+        receiver_payoff_matrix : numpy array
+            Payoff matrix for the receiver
+        messages : int
+            Number of messages available to the sender
+
         """
 
         # Check data is consistent
@@ -885,6 +967,11 @@ class NonChance:
         sort of games, a strategy is a tuple of vector with probability 1 for
         the sender's state, and an mxn matrix in which the only nonzero row
         is the one that correspond's to the sender's type.
+
+        Returns
+        -------
+        numpy array
+            Array with all pure sender strategies
         """
 
         def build_strat(state, row):
@@ -904,6 +991,11 @@ class NonChance:
     def receiver_pure_strats(self):
         """
         Return the set of pure strategies available to the receiver
+
+        Returns
+        -------
+        numpy array
+            Array with all pure receiver strategies
         """
         pure_strats = np.identity(self.acts)
         return np.array(list(it.product(pure_strats, repeat=self.messages)))
@@ -919,6 +1011,18 @@ class NonChance:
         """
         Calculate the average payoff for sender and receiver given concrete
         sender and receiver strats
+
+        Parameters
+        ----------
+        sender_strat : numpy array
+            Sender strategy
+        receiver_strat : numpy array
+            Receiver strategy
+
+        Returns
+        -------
+        tuple
+            Tuple with the average payoff for the sender and the receiver
         """
         state_act = sender_strat.dot(receiver_strat)
         sender_payoff = np.sum(state_act * self.sender_payoff_matrix)
@@ -929,6 +1033,18 @@ class NonChance:
         """
         Return an array with the average payoff of sender strat i against
         receiver strat j in position <i, j>
+
+        Parameters
+        ----------
+        sender_strats : numpy array
+            Array with multiple sender strategies
+        receiver_strats : numpy array
+            Array with multiple receiver strategies
+
+        Returns
+        -------
+        numpy array
+            Array with the average payoff for each combination of sender and receiver strategies
         """
         payoff_ij = np.vectorize(
             lambda i, j: self.payoff(sender_strats[i], receiver_strats[j])
@@ -944,10 +1060,40 @@ class NonChance:
     #     return one_pop_avg_payoffs(self, one_player_strats)
 
     def calculate_sender_mixed_strat(self, sendertypes, senderpop):
+        """
+        Calculate the mixed strategy of the sender given the types and the population
+
+        Parameters
+        ----------
+        sendertypes : numpy array
+            Array with the sender types
+        senderpop : numpy array
+            Population proportion of each of the strategy types in sendertypes
+
+        Returns
+        -------
+        numpy array
+            Effective mixed strategy of this sender population
+        """
         mixedstratsender = sendertypes * senderpop[:, np.newaxis, np.newaxis]
         return sum(mixedstratsender)
 
     def calculate_receiver_mixed_strat(self, receivertypes, receiverpop):
+        """
+        Calculate the mixed strategy of the receiver given the types and the population
+
+        Parameters
+        ----------
+        receivertypes : numpy array
+            Array with the receiver types
+        receiverpop : numpy array
+            Population proportion of each of the strategy types in receivertypes
+
+        Returns
+        -------
+        numpy array
+            Effective mixed strategy of this receiver population
+        """
         mixedstratreceiver = receivertypes * receiverpop[:, np.newaxis, np.newaxis]
         return sum(mixedstratreceiver)
 
@@ -1095,7 +1241,12 @@ class NoSignal:
 
     def __init__(self, payoff_matrix):
         """
-        Take a square numpy array with player payoffs
+        Initialize the game with a payoff matrix
+
+        Parameters
+        ----------
+        payoff_matrix : numpy array
+            Payoff matrix for both players
         """
 
         # Check data is consistent
@@ -1110,6 +1261,11 @@ class NoSignal:
         """
         Return the set of pure strategies available to the players. For this
         sort of games, a strategy is a probablity vector over the set of states
+
+        Returns
+        -------
+        numpy array
+            Array with all pure strategies
         """
         return np.eye(self.states)
 
@@ -1117,6 +1273,19 @@ class NoSignal:
         """
         Calculate the average payoff for first and second given concrete
         strats
+
+        Parameters
+        ----------
+        first_player : numpy array
+            First player strategy
+        second_player : numpy array
+            Second player strategy
+
+        Returns
+        -------
+        float
+            The average payoff for both players given these strategies.
+            In this class both players have the same payoff matrix.
         """
         payoff = first_player @ self.payoff_matrix @ second_player
         return payoff
@@ -1125,6 +1294,16 @@ class NoSignal:
         """
         Return an array with the average payoff of strat i against
         strat j in position <i, j>
+
+        Parameters
+        ----------
+        player_strats : numpy array
+            Array with multiple strategies
+
+        Returns
+        -------
+        numpy array
+            Array with the average payoff for each combination of strategies
         """
         payoff_ij = np.vectorize(
             lambda i, j: self.payoff(player_strats[i], player_strats[j])
@@ -1133,6 +1312,21 @@ class NoSignal:
         return np.fromfunction(payoff_ij, shape_result, dtype=int)
 
     def calculate_mixed_strat(self, types, pop):
+        """
+        Calculate the mixed strategy of the population given the types and the population
+
+        Parameters
+        ----------
+        types : numpy array
+            Array with the types
+        pop : numpy array
+            Population proportion of each of the strategy types in types
+
+        Returns
+        -------
+        numpy array
+            Effective mixed strategy of this population
+        """
         return types @ pop
 
 
