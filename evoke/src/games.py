@@ -19,7 +19,7 @@ try:
         PYGAMBIT_EXISTS = True
     else:
         PYGAMBIT_EXISTS = False
-        
+
 except ModuleNotFoundError:
     PYGAMBIT_EXISTS = False
 

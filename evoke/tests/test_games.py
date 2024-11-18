@@ -19,7 +19,7 @@ try:
         PYGAMBIT_EXISTS = True
     else:
         PYGAMBIT_EXISTS = False
-        
+
 except ModuleNotFoundError:
     PYGAMBIT_EXISTS = False
 
@@ -130,9 +130,9 @@ class TestGames(unittest.TestCase):
         # Create sender_payoff_matrix and receiver_payoff_matrix,
         # which define the payoffs for sender and receiver.
         # In a fully cooperative game they are identical.
-        sender_payoff_matrix = (
-            intermediary_payoff_matrix
-        ) = receiver_payoff_matrix = np.eye(n)
+        sender_payoff_matrix = intermediary_payoff_matrix = receiver_payoff_matrix = (
+            np.eye(n)
+        )
 
         # Define the number of messages.
         messages_sender = n

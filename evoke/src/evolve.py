@@ -1614,7 +1614,7 @@ class Times:
         self.final_time = final_time
         self.time_inc = time_inc
         points = int((final_time - initial_time) / time_inc)
-        self.time_vector = np.linspace(initial_time, final_time, points+1)
+        self.time_vector = np.linspace(initial_time, final_time, points + 1)
 
 
 def mutationmatrix(mutation, dimension):

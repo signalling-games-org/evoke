@@ -76,15 +76,31 @@ class TestEvolve(unittest.TestCase):
         evo.replicator_jacobian_odeint(np.array([0, 1 / 3, 1 / 3, 1 / 3]))
 
         # Check the replicator equations yield vectors that sum to 1
-        self.assertEqual(1,evo.discrete_replicator_delta_X(np.array([1 / 4, 1 / 4, 1 / 4, 1 / 4])).sum()) # 1 step
-        self.assertEqual(1,evo.replicator_discrete(np.array([1 / 8, 1 / 4, 1 / 4, 1 / 8]), 4)[-1].sum()) # 4 steps
-        self.assertEqual(1,evo.replicator_odeint(
-            np.array([6 / 16, 1 / 16, 4 / 16, 5 / 16]), range(10)
-        )[-1].sum()) # 10 steps
+        self.assertEqual(
+            1,
+            evo.discrete_replicator_delta_X(
+                np.array([1 / 4, 1 / 4, 1 / 4, 1 / 4])
+            ).sum(),
+        )  # 1 step
+        self.assertEqual(
+            1,
+            evo.replicator_discrete(np.array([1 / 8, 1 / 4, 1 / 4, 1 / 8]), 4)[
+                -1
+            ].sum(),
+        )  # 4 steps
+        self.assertEqual(
+            1,
+            evo.replicator_odeint(
+                np.array([6 / 16, 1 / 16, 4 / 16, 5 / 16]), range(10)
+            )[-1].sum(),
+        )  # 10 steps
 
         # Check the continuous replicator dX/dt vector sums to 0 (or nearly so)
-        self.assertAlmostEqual(0,evo.replicator_dX_dt_odeint(np.array([0, 1 / 3, 1 / 3, 1 / 3]), 0).sum(),5)
-        
+        self.assertAlmostEqual(
+            0,
+            evo.replicator_dX_dt_odeint(np.array([0, 1 / 3, 1 / 3, 1 / 3]), 0).sum(),
+            5,
+        )
 
         # Check is instance
         self.assertIsInstance(evo, evolve.OnePop)
@@ -136,14 +152,20 @@ class TestEvolve(unittest.TestCase):
         evo.replicator_jacobian_odeint(random_population)
 
         # Check vector_to_populations yields an array of length 2
-        self.assertEqual(2,len(evo.vector_to_populations(random_population)))
+        self.assertEqual(2, len(evo.vector_to_populations(random_population)))
 
         # Check the replicator equations yield vectors that sum to 2 (that's 1 per population)
-        self.assertAlmostEqual(2,evo.discrete_replicator_delta_X(random_population).sum(),5) # 1 step
+        self.assertAlmostEqual(
+            2, evo.discrete_replicator_delta_X(random_population).sum(), 5
+        )  # 1 step
 
         # Check the continuous replicator dX/dt vector sums to 0 (or nearly so)
-        self.assertAlmostEqual(0,evo.replicator_dX_dt_ode(t=0, X=random_population).sum(),5)
-        self.assertAlmostEqual(0,evo.replicator_dX_dt_odeint(X=random_population, t=0).sum(),5)
+        self.assertAlmostEqual(
+            0, evo.replicator_dX_dt_ode(t=0, X=random_population).sum(), 5
+        )
+        self.assertAlmostEqual(
+            0, evo.replicator_dX_dt_odeint(X=random_population, t=0).sum(), 5
+        )
 
         # Create evolve.Times object to test replicator methods
         initial_time = 0
@@ -152,9 +174,17 @@ class TestEvolve(unittest.TestCase):
         times = evolve.Times(initial_time, final_time, time_inc)
 
         # Check replicator methods yield vectors that sum to 2 (that's 1 per population)
-        self.assertAlmostEqual(2,evo.replicator_discrete(random_sender, random_receiver, times)[-1].sum(),5)
-        self.assertAlmostEqual(2,evo.replicator_ode(random_sender, random_receiver, times)[-1].sum(),5)
-        self.assertAlmostEqual(2,evo.replicator_odeint(random_sender, random_receiver, times)[-1].sum(),5)
+        self.assertAlmostEqual(
+            2,
+            evo.replicator_discrete(random_sender, random_receiver, times)[-1].sum(),
+            5,
+        )
+        self.assertAlmostEqual(
+            2, evo.replicator_ode(random_sender, random_receiver, times)[-1].sum(), 5
+        )
+        self.assertAlmostEqual(
+            2, evo.replicator_odeint(random_sender, random_receiver, times)[-1].sum(), 5
+        )
 
         # Check is instance
         self.assertIsInstance(evo, evolve.TwoPops)
@@ -435,7 +465,9 @@ class TestEvolve(unittest.TestCase):
         self.assertEqual(times.time_vector[-1], final_time)
 
         # Check the time vector is the expected length
-        self.assertEqual(len(times.time_vector), int((final_time - initial_time) / time_inc) + 1)
+        self.assertEqual(
+            len(times.time_vector), int((final_time - initial_time) / time_inc) + 1
+        )
 
         # Check is instance
         self.assertIsInstance(times, evolve.Times)

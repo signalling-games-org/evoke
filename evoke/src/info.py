@@ -26,7 +26,6 @@ class Information:
         receiver: a numpy array with the receiver strategy
         """
 
-
         self.sender = sender
         self.receiver = receiver
         self.game = game

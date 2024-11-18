@@ -1,6 +1,7 @@
 """
 Analyses of common interest
 """
+
 import itertools as it
 import numpy as np
 from scipy.stats import kendalltau
@@ -18,7 +19,7 @@ class CommonInterest_1_pop:
     def __init__(self, game):
         """
         Initialize the class with the payoff matrix of the game
-        
+
         Parameters
         ----------
         game : One of the Evoke one-population games.

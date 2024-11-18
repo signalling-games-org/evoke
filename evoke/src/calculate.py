@@ -2,6 +2,7 @@
 Solve large batches of games. There are a bunch of idyosincratic functions
 here. This module is mostly for illustration of use cases.
 """
+
 import json
 import os.path
 import pickle
