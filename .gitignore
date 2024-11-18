@@ -9,7 +9,6 @@ evoke/data/
 docs/build/
 docs/paper/paper.pdf
 
-docs/tutorials/evoke Tutorial.ipynb
 docs/tutorials/.ipynb_checkpoints/
 
 .spyproject
