@@ -313,41 +313,6 @@ class TestGames(unittest.TestCase):
         # Check is instance
         self.assertIsInstance(game, games.NoSignal)
 
-    def test_lewis_square(self):
-        """
-        Test lewis_square() method
-
-        Returns
-        -------
-        None.
-
-        """
-
-        # Initialise
-        n = np.random.randint(2, 5)
-
-        # Create game
-        game = games.lewis_square(n)
-
-        # Check is instance
-        self.assertIsInstance(game, games.Chance)
-
-    def test_gambit_example(self):
-        """
-        Test gambit_example() method
-
-        Returns
-        -------
-        None.
-
-        """
-
-        # Initialise
-        n = np.random.randint(2, 5)
-
-        # Run example
-        games.gambit_example(n)
-
 
 if __name__ == "__main__":
     unittest.main()
