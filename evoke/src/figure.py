@@ -13,19 +13,9 @@ from abc import ABC, abstractmethod
 from matplotlib import pyplot as plt
 from matplotlib import cm
 
-## 3D plotting
-# from mpl_toolkits.mplot3d import Axes3D
-
-## ternary plots
+# ternary plots
 from ternary import figure  # from https://github.com/marcharper/python-ternary
 
-# from tqdm import tqdm, trange
-
-
-# from evoke.lib import asymmetric_games as asy
-# from evoke.lib import symmetric_games as sym
-# from evoke.lib import evolve as ev
-# from evoke.lib.symmetric_games import NoSignal
 import evoke.src.exceptions as ex
 
 

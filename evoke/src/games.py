@@ -10,8 +10,6 @@ import itertools as it
 
 import numpy as np
 
-# import pygambit
-
 # Optional modules
 try:
     # Check a specific version of pygambit exists
