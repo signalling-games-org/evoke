@@ -8,18 +8,7 @@ Evoke library examples from:
 
 import numpy as np
 
-# from itertools import combinations
-# from abc import ABC, abstractmethod
-# from matplotlib import pyplot as plt
-
-## 3D plotting
-# from mpl_toolkits.mplot3d import Axes3D
-
-## ternary plots
-# from ternary import figure  # from https://github.com/marcharper/python-ternary
-
 from tqdm import trange
-
 
 from evoke.src.figure import Scatter, Bar, Quiver2D, Quiver3D, Ternary
 from evoke.src import games
@@ -1074,7 +1063,8 @@ class Skyrms2010_8_3(Scatter):
                 ## Tell it to only calculate at end
                 evo.run(iterations, calculate_stats="end")
 
-                ## TODO: this attribute is overcounting pooling and undercounting signalling.
+                # Because we don't know Skyrms's pooling threshold cutoff,
+                # this attribute is currently overcounting pooling and undercounting signalling.
                 if not evo.is_pooling():
                     count_signalling += 1
 

@@ -822,6 +822,15 @@ def calculate_C(state_chances, sender_payoff_matrix, receiver_payoff_matrix) -> 
     See page 2 of the supporting information at
     https://doi.org/10.1371/journal.pcbi.1003282.s001
 
+    Parameters
+    ----------
+    state_chances : array-like
+        The chances of each state of the world.
+    sender_payoff_matrix : array-like
+        The sender's payoff matrix.
+    receiver_payoff_matrix : array-like
+        The receiver's payoff matrix.
+
     Returns
     -------
     c : float
@@ -879,12 +888,15 @@ def calculate_Ks_and_Kr(sender_payoff_matrix, receiver_payoff_matrix):
 
     Parameters
     ----------
-    payoff_matrix : array-like
-        The agent's payoff matrix.
+    sender_payoff_matrix : array-like
+        The sender's payoff matrix.
+    receiver_payoff_matrix : array-like
+        The receiver's payoff matrix.
 
     Returns
     -------
     K : float
+        Godfrey-Smith and Martínez's measure K.
 
     """
 
@@ -969,13 +981,13 @@ def find_games_3x3(
 
     Parameters
     ----------
-    dir_games : str
-        Directory to place JSON files
     games_per_c : int, optional
         Number of games to find per value of c. The default is 1500.
     c_values : array-like
         List of C values to find games for.
         The default is the global variable c_3x3_equiprobable.
+    dir_games : str
+        Directory to place JSON files
 
     Returns
     -------
@@ -1071,13 +1083,13 @@ def analyse_games_3x3(
 
     Parameters
     ----------
-    dir_games : str
-        Directory to find and store JSON files
     games_per_c : int, optional
         Number of games to find per value of c. The default is 1500.
     c_values : array-like
         List of C values to find games for.
         The default is the global variable c_3x3_equiprobable.
+    dir_games : str
+        Directory to find and store JSON files
     sigfig : int, optional.
         The number of significant figures to report values in.
         Since gambit sometimes has problems rounding, it generates values like 0.9999999999996.
