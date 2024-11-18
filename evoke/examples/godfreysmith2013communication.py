@@ -58,7 +58,6 @@ from itertools import combinations
 from evoke.src.figure import Scatter, Surface
 from evoke.src import games
 
-# from evoke.lib.common_interest import tau_per_rows as C_measure
 import evoke.src.exceptions as ex
 
 # Global variables
