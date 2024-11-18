@@ -541,9 +541,8 @@ class Quiver2D(Quiver):
         velocity of SECOND receiver strategy.
         """
 
-        ## TODO we're currently accepting the proportion of the first strategy
-        ##  and returning the velocities of the second.
-        ## Rewrite both this and the calling method to supply, accept and return the SECOND strategy only.
+        ##  This method accepts the proportion of the first strategy
+        ##  and returns the velocities of the second.
         senders = np.array([x, 1 - x])
         receivers = np.array([y, 1 - y])
 
@@ -575,9 +574,6 @@ class Quiver3D(Quiver):
         self.pivot = pivot
 
         super().__init__(**kwargs)
-
-    def reset(self):
-        pass  # TODO -- here is where plot parameters can be changed.
 
     def show(self):
         """
@@ -627,15 +623,15 @@ class Quiver3D(Quiver):
             pivot=self.pivot,
         )
 
-        ax.set_xlim([-0.05, 2.1])  # TODO: determine from self.vertices
-        ax.set_ylim([-0.05, 3.05])  # TODO: determine from self.vertices
-        ax.set_zlim([-0.05, 3.05])  # TODO: determine from self.vertices
+        ax.set_xlim([-0.05, 2.1])
+        ax.set_ylim([-0.05, 3.05])
+        ax.set_zlim([-0.05, 3.05])
 
         # Display axis?
         if hasattr(self, "noaxis") and self.noaxis:
             ax.set_axis_off()
 
-            # Camera distance. TODO make this a property of the Quiver3D object.
+            # Camera distance.
             ax.dist = 10
 
         else:
@@ -648,11 +644,10 @@ class Quiver3D(Quiver):
             if hasattr(self, "zlabel"):
                 ax.set_zlabel(self.zlabel)
 
-            # Camera distance. TODO make this a property of the Quiver3D object.
+            # Camera distance.
             ax.dist = 13
 
         ## Tetrahedron lines
-        ## TODO tidy this up.
         if hasattr(self, "vertices"):
             lines = combinations(self.vertices, 2)
             i = 0
@@ -668,12 +663,12 @@ class Quiver3D(Quiver):
                     line[0], line[1], line[2], c="0", linestyle=linestyle, linewidth=0.8
                 )
 
-        # # TODO make these editable properties!
+        # Camera properties
         # self.elev=25.
         # self.azim=245
         # self.dist=12
 
-        # # Camera angle. TODO make these properties of the Quiver3D object.
+        # # Camera angle.
         # if self.elev and self.azim: ax.view_init(elev=self.elev, azim=self.azim)
 
         plt.show()
@@ -896,9 +891,6 @@ class Ternary(Figure):
         # self.xyzs is a list of arrays of dimensions nx3, such that each row is a
         # 3-dimensional stochastic vector.  That is to say, for now, a collection
         # of orbits
-
-        # TODO: There should be a params list to go with each member of xyzs,
-        # for colors, markers, etc.
 
         _, tax = figure()
 

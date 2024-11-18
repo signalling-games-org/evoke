@@ -1110,7 +1110,6 @@ class BushMostellerSR(Reinforcement):
             self.statistics["avg_prob_success"][:] = np.nan
 
         ## Get the current average probability of success
-        # TODO check this!
         avg_prob_success = np.average(
             self.game.payoff(sender_strat=snorm, receiver_strat=rnorm)
         )
@@ -1244,7 +1243,7 @@ class Agent:
 
     def add_signal_sender(self):
         """
-        TODO: consolidate with add_signal_receiver(), and tell the agent who it is
+        Add a signal to the sender's repertoire.
 
         Returns
         -------
@@ -1258,7 +1257,7 @@ class Agent:
 
     def add_signal_receiver(self):
         """
-        TODO: consolidate with add_signal_sender(), and tell the agent who it is
+        Add a signal to the receiver's repertoire.
 
         Returns
         -------
