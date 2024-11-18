@@ -520,7 +520,6 @@ class Reinforcement:
 
         """
 
-        ## TODO: add a custom exception here.
         ## Check that the game is of the appropriate type for this method.
         ## i.e. In order to determine whether a simulation is currently pooling,
         ## there must minimally be states, signals and acts.
@@ -528,7 +527,7 @@ class Reinforcement:
             hasattr(self.game, "states")
             and hasattr(self.game, "messages")
             and hasattr(self.game, "acts")
-        )
+        ), "Game must have states, messages and acts to determine pooling."
 
         ##########################################################
         ## NB: This is not true because the state_chances might be uneven enough
@@ -709,7 +708,6 @@ class MatchingSR(Matching):
             self.statistics["avg_prob_success"][:] = np.nan
 
         ## Get the current average probability of success
-        # TODO check this!
         avg_prob_success = np.average(
             self.game.payoff(sender_strat=snorm, receiver_strat=rnorm)
         )

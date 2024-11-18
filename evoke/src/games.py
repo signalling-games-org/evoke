@@ -111,13 +111,6 @@ class Chance:
         pure_strats = np.identity(self.acts)
         return np.array(list(it.product(pure_strats, repeat=self.messages)))
 
-    def one_pop_pure_strats(self):
-        """
-        Return the set of pure strategies available to players in a
-        one-population setup
-        """
-        # TODO
-
     def payoff(self, sender_strat, receiver_strat):
         """
         Calculate the average payoff for sender and receiver given concrete

@@ -701,7 +701,6 @@ class GodfreySmith2013_3(Surface):
         """
 
         # 1. Initialize
-        # TODO: get this from the keys of self.games.
         results = {
             f"{c_value:.3f}_{k_value:.3f}": []
             for c_value in self.c_values
