@@ -1,4 +1,5 @@
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/evoke-signals)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.06703/status.svg)](https://doi.org/10.21105/joss.06703)
 
 # Evoke: A Python package for evolutionary signalling games
 
