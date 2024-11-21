@@ -1,0 +1,36 @@
+cff-version: "1.2.0"
+authors:
+- family-names: Mann
+  given-names: Stephen Francis
+  orcid: "https://orcid.org/0000-0002-4136-8595"
+- family-names: Martínez
+  given-names: Manolo
+  orcid: "https://orcid.org/0000-0002-6194-7121"
+contact:
+- family-names: Martínez
+  given-names: Manolo
+  orcid: "https://orcid.org/0000-0002-6194-7121"
+doi: 10.5281/zenodo.14185732
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+  - family-names: Mann
+    given-names: Stephen Francis
+    orcid: "https://orcid.org/0000-0002-4136-8595"
+  - family-names: Martínez
+    given-names: Manolo
+    orcid: "https://orcid.org/0000-0002-6194-7121"
+  date-published: 2024-11-20
+  doi: 10.21105/joss.06703
+  issn: 2475-9066
+  issue: 103
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 6703
+  title: "Evoke: A Python package for evolutionary signalling games"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.06703"
+  volume: 9
+title: "Evoke: A Python package for evolutionary signalling games"
