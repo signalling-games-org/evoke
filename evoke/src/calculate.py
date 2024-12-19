@@ -18,12 +18,13 @@ def one_basin_discrete(game, trials, times):
 
     Parameters
     ----------
-    game : One of the Evoke game classes
-        Game to be solved
+    game : One of the Evoke game classes.
+        Game to be solved.
     trials : int
-        Number of starting points to be used
-    times : evolve.Times object
+        Number of starting points to be used.
+    times : evolve.Times object.
     """
+
     pool = multiprocessing.Pool(None)
     remain = trials
     # nash = s.Nash(game)
@@ -44,12 +45,12 @@ def one_basin_discrete_aux(triple):
     ----------
     triple : tuple
         A tuple with the following elements:
-        0 : int
-            The index of the trial
-        1 : One of the Evoke game classes
-            The game to be solved
-        2 : evolve.Times object
+        int -- The index of the trial
+        One of the Evoke game classes -- The game to be solved
+        evolve.Times object
+    
     """
+
     np.random.seed()
     print("trial {}".format(triple[0]))
     game = triple[1]
@@ -91,11 +92,9 @@ def one_basin_aux_mixed(triple, print_trials=True):
     ----------
     triple : tuple
         A tuple with the following elements:
-        0 : int
-            The index of the trial
-        1 : One of the Evoke game classes
-            The game to be solved
-        2 : evolve.Times object
+        int -- The index of the trial
+        One of the Evoke game classes -- The game to be solved
+        evolve.Times object
     print_trials : bool, optional
         If True, print the trial number
     """
@@ -123,11 +122,9 @@ def one_basin_aux(triple):
     ----------
     triple : tuple
         A tuple with the following elements:
-        0 : int
-            The index of the trial
-        1 : One of the Evoke game classes
-            The game to be solved
-        2 : evolve.Times object
+        int -- The index of the trial
+        One of the Evoke game classes -- The game to be solved
+        evolve.Times object
     """
     np.random.seed()
     print("trial {}".format(triple[0]))
@@ -145,11 +142,9 @@ def one_basin_ode_aux(triple):
     ----------
     triple : tuple
         A tuple with the following elements:
-        0 : int
-            The index of the trial
-        1 : One of the Evoke game classes
-            The game to be solved
-        2 : evolve.Times object
+        int -- The index of the trial
+        One of the Evoke game classes -- The game to be solved
+        evolve.Times object
     """
     np.random.seed()
     # print("trial {}".format(triple[0]))

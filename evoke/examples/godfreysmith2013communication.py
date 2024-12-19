@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 """
-
 Evoke library examples from:
     
     Godfrey-Smith, P., & Martínez, M. (2013). Communication and Common Interest. 

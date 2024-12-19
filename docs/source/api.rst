@@ -14,7 +14,7 @@ Evolve objects ``evolve.py``
     :members:
 
 Game objects ``games.py``
-----------------------------------------
+-------------------------
 
 .. automodule:: games
     :members:
