@@ -1,5 +1,7 @@
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/evoke-signals)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/evoke-signals)](https://pypi.org/project/evoke-signals/)
 [![DOI](https://joss.theoj.org/papers/10.21105/joss.06703/status.svg)](https://doi.org/10.21105/joss.06703)
+[![Tests](https://github.com/signalling-games-org/evoke/workflows/tests/badge.svg)](https://github.com/signalling-games-org/evoke/actions/workflows/tests.yml)
+
 
 # Evoke: A Python package for evolutionary signalling games
 
