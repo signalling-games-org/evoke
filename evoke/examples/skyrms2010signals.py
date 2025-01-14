@@ -447,10 +447,16 @@ class Skyrms2010_4_1(Ternary):
     The figure depicts cycles in the replicator dynamics of a rock-paper-scissors game.
     """
 
-    def __init__(self):
+    def __init__(self,colors=None):
         """
         This class creates a fixed figure.
-        It does not allow input parameters.
+        It only allows the colors of the orbits to be changed.
+
+        Parameters
+        ----------
+        colors : list, optional
+            List of colors for the orbits. If None, all orbits are black.
+            The default is None.
         """
 
         self.initialize_simulation()
@@ -459,7 +465,13 @@ class Skyrms2010_4_1(Ternary):
 
         super().__init__(evo=evo)
 
-        self.reset("y", "z", "x", 10)
+        self.reset(
+            right_corner_label  = "y", 
+            top_corner_label    = "z",
+            left_corner_label   = "x",
+            fontsize            = 10,
+            colors              = colors,
+        )
 
         self.show()
 

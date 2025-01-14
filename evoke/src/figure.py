@@ -945,7 +945,7 @@ class Ternary(Figure):
         """
         super().__init__(**kwargs)
 
-    def reset(self, right_corner_label, top_corner_label, left_corner_label, fontsize):
+    def reset(self, right_corner_label, top_corner_label, left_corner_label, fontsize=10, colors=None):
         """
         Update figure parameters, which can then be plotted with self.show().
 
@@ -959,6 +959,9 @@ class Ternary(Figure):
             Label for the left corner of the ternary plot.
         fontsize : int
             Font size of the corner labels.
+        colors : list
+            List of colors for the ternary plot.
+            Each color corresponds to an orbit, i.e. an element of self.xyzs.
 
         Returns
         -------
@@ -966,12 +969,12 @@ class Ternary(Figure):
 
         """
 
-        ## Update global attributes, which can then be plotted in self.show()
-
-        self.fontsize = fontsize
+        # Update global attributes, which can then be plotted in self.show()
         self.right_corner_label = right_corner_label
         self.top_corner_label = top_corner_label
         self.left_corner_label = left_corner_label
+        self.fontsize = fontsize
+        self.colors = colors
 
     def show(self):
         """
@@ -1000,8 +1003,15 @@ class Ternary(Figure):
         _, tax = figure()
 
         ## Data
-        for xyz in self.xyzs:
-            tax.plot(xyz, color="black")
+        for i in range(len(self.xyzs)):
+            
+            ## Get color
+            if self.colors and len(self.colors) > i:
+                color = self.colors[i]
+            else:
+                color = "black"
+
+            tax.plot(self.xyzs[i], color=color)
 
         ## Titles, etc
         tax.right_corner_label(self.right_corner_label, fontsize=self.fontsize)
