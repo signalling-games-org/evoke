@@ -899,10 +899,10 @@ class MatchingSR(Matching):
 
         ## Create the agents.
         ## Sender
-        self.sender = Agent(sender_strategies)
+        self.sender = Sender(sender_strategies)
 
         ## Receiver
-        self.receiver = Agent(receiver_strategies)
+        self.receiver = Receiver(receiver_strategies)
 
         super().__init__(game=game, agents=[self.sender, self.receiver])
 
@@ -1036,10 +1036,10 @@ class MatchingSRInvention(Matching):
 
         ## Create the agents.
         ## Sender
-        self.sender = Agent(sender_strategies)
+        self.sender = Sender(sender_strategies)
 
         ## Receiver
-        self.receiver = Agent(receiver_strategies)
+        self.receiver = Receiver(receiver_strategies)
 
         super().__init__(game=game, agents=[self.sender, self.receiver])
 
@@ -1086,8 +1086,8 @@ class MatchingSRInvention(Matching):
         ##      need to add the new signal to both agents' repertoires.
         if signal == len(self.receiver.strategies) - 1 and receiver_payoff == 1:
             ## It was a new signal
-            self.sender.add_signal_sender()
-            self.receiver.add_signal_receiver()
+            self.sender.add_signal()
+            self.receiver.add_signal()
 
         ## 3. Calculate and store any required variables e.g. information.
         if calculate_stats:
@@ -1156,13 +1156,13 @@ class MatchingSIR(Matching):
 
         ## Create the agents.
         ## Sender
-        self.sender = Agent(sender_strategies)
+        self.sender = Sender(sender_strategies)
 
-        ## Intermediary
+        ## Intermediary. There is no dedicated intermediary class.
         self.intermediary = Agent(intermediary_strategies)
 
         ## Receiver
-        self.receiver = Agent(receiver_strategies)
+        self.receiver = Receiver(receiver_strategies)
 
         super().__init__(
             game=game, agents=[self.sender, self.intermediary, self.receiver]
@@ -1309,10 +1309,10 @@ class BushMostellerSR(Reinforcement):
 
         ## Create the agents.
         ## Sender
-        self.sender = Agent(sender_strategies)
+        self.sender = Sender(sender_strategies)
 
         ## Receiver
-        self.receiver = Agent(receiver_strategies)
+        self.receiver = Receiver(receiver_strategies)
 
         ## Learning parameter
         self.learning_parameter = learning_parameter
@@ -1560,32 +1560,52 @@ class Agent:
         ## Now update the strategies
         self.strategies[input_data] += ar_delta
 
-    def add_signal_sender(self):
+    @abstractmethod
+    def add_signal(self):
         """
-        Add a new signal to the sender's repertoire.
+        Add a new signal to the player's repertoire.
+        """
+
+        raise NotImplementedError("This method must be implemented in a subclass.")
+
+class Sender(Agent):
+    """
+    Agent type that observes a state of the world and sends a signal.
+    """
+
+    def add_signal(self)->None:
+        """
+        Add a signal to the sender's repertoire.
 
         Returns
         -------
         None.
-
         """
 
+        # Define the new signal array as a column of ones
         new_signal_array = np.ones((len(self.strategies), 1))
 
+        # Add the new signal to the sender's strategies
         self.strategies = np.append(self.strategies, new_signal_array, axis=1)
 
-    def add_signal_receiver(self):
+class Receiver(Agent):
+    """
+    Agent that receives a signal and performs an action.
+    """
+
+    def add_signal(self)->None:
         """
         Add a new signal to the receiver's repertoire.
 
         Returns
         -------
         None.
-
         """
 
+        # Define the new signal array as a row of ones.
         new_signal_array = np.ones((1, len(self.strategies[0])))
 
+        # Add the new signal to the receiver's strategies.
         self.strategies = np.append(self.strategies, new_signal_array, axis=0)
 
 

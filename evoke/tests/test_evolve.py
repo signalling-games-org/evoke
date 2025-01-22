@@ -412,8 +412,10 @@ class TestEvolve(unittest.TestCase):
         # Create deterministic strategies
         strategies = np.eye(3)
 
-        # Create agent object
+        # Create agent objects
         agent = evolve.Agent(strategies)
+        sender = evolve.Sender(strategies)
+        receiver = evolve.Receiver(strategies)
 
         # We told the agent to ALWAYS perform act 0 in state 0,
         # act 1 in state 1, and act 2 in state 2.
@@ -437,9 +439,10 @@ class TestEvolve(unittest.TestCase):
             learning_parameter=learning_parameter,
         )
 
-        # Check adding signals works
-        agent.add_signal_sender()
-        agent.add_signal_receiver()
+        # # Check adding signals works
+        # agent.add_signal() # Not implemented
+        sender.add_signal()
+        receiver.add_signal()
 
         # Check is instance
         self.assertIsInstance(agent, evolve.Agent)
