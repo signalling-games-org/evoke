@@ -604,6 +604,8 @@ class Quiver3D(Quiver):
         length=0.5,
         arrow_length_ratio=0.5,
         pivot="middle",
+        camera_dist = 13,
+        camera_dist_noaxis = 10,
         **kwargs,
     ):
         """
@@ -629,6 +631,8 @@ class Quiver3D(Quiver):
         self.length = length
         self.arrow_length_ratio = arrow_length_ratio
         self.pivot = pivot
+        self.camera_dist = camera_dist # default camera distance
+        self.camera_dist_noaxis = camera_dist_noaxis # camera distance when axes are off
 
         super().__init__(**kwargs)
 
@@ -689,7 +693,7 @@ class Quiver3D(Quiver):
             ax.set_axis_off()
 
             # Camera distance.
-            ax.dist = 10
+            ax.dist = self.camera_dist_noaxis
 
         else:
             # There are axes. Are there axis labels?
@@ -702,7 +706,7 @@ class Quiver3D(Quiver):
                 ax.set_zlabel(self.zlabel)
 
             # Camera distance.
-            ax.dist = 13
+            ax.dist = self.camera_dist
 
         ## Tetrahedron lines
         if hasattr(self, "vertices"):
