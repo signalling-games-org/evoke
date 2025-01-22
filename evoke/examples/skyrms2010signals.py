@@ -789,7 +789,7 @@ class Skyrms2010_8_2(Scatter):
     You are warned!
     """
 
-    def __init__(self, trials=100, iterations=int(1e3)):
+    def __init__(self, trials=100, iterations=int(1e3), pooling_epsilon=1e-3):
         """
         Create object.
 
@@ -801,8 +801,17 @@ class Skyrms2010_8_2(Scatter):
         iterations : int, optional
             Number of timesteps in each simulation.
             The default is int(1e3).
+        pooling_epsilon : float, optional
+            How close to the maximum possible mutual information must
+            the current mutual information be in order to count
+            as a signalling system?
+            See evolve.Reinforcement.is_pooling() for more information.
+            The default is 1e-3.
 
         """
+
+        # Set object properties
+        self.pooling_epsilon = pooling_epsilon
 
         # Set parameters for simulations
         self.initialize_simulation()
@@ -895,7 +904,7 @@ class Skyrms2010_8_2(Scatter):
                 ## So if your figure doesn't look sufficiently similar to the original,
                 ##  the relative values of <epsilon> and <iterations> might be
                 ##  a good place to start.
-                if evo.is_pooling():
+                if evo.is_pooling(epsilon=self.pooling_epsilon):
                     count_pooling += 1
 
             ## For each initial weight, get the proportion of evo games (out of 1000)
@@ -923,6 +932,7 @@ class Skyrms2010_8_3(Scatter):
         trials=100,
         iterations=300,
         learning_params=[0.01, 0.03, 0.05, 0.07, 0.1, 0.15, 0.2],
+        pooling_epsilon=1e-3,
     ):
         """
         Create object.
@@ -941,6 +951,12 @@ class Skyrms2010_8_3(Scatter):
         learning_params : array-like, optional
             Learning parameters to run simulations for.
             The default is [0.01,0.03,0.05,0.07,0.1,0.15,0.2].
+        pooling_epsilon : float, optional
+            How close to the maximum possible mutual information must
+            the current mutual information be in order to count
+            as a signalling system?
+            See evolve.Reinforcement.is_pooling() for more information.
+            The default is 1e-3.
 
         Returns
         -------
@@ -948,8 +964,13 @@ class Skyrms2010_8_3(Scatter):
 
         """
 
+        # Set object properties
+        self.pooling_epsilon = pooling_epsilon
+
+        # Set simulation parameters
         self.initialize_simulation(learning_params)
 
+        # Run the simulations
         self.run_simulation(trials, iterations)
 
         ## Set graph data and display parameters
@@ -962,10 +983,13 @@ class Skyrms2010_8_3(Scatter):
             marker_size=5,
         )
 
+        # Create superclass
         super().__init__()
 
+        # Ensure the line is shown
         self.show_line = True
 
+        # Show the figure
         self.show()
 
     def initialize_simulation(self, learning_params) -> None:
@@ -1043,8 +1067,8 @@ class Skyrms2010_8_3(Scatter):
                 evo.run(iterations, calculate_stats="end")
 
                 # Because we don't know Skyrms's pooling threshold cutoff,
-                # this attribute is currently overcounting pooling and undercounting signalling.
-                if not evo.is_pooling():
+                # this attribute can miscount (e.g. overcount pooling and undercount signalling).
+                if not evo.is_pooling(epsilon=self.pooling_epsilon):
                     count_signalling += 1
 
             ## For each initial weight, get the proportion of evo games (out of 1000)
