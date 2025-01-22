@@ -564,22 +564,11 @@ class Skyrms2010_5_2(Scatter):
             ylim=[0, 1],
         )
 
-        self.show()
-
-    def show(self):
-        """
-        Show the figure.
-
-        We call the superclass method and tell it to show the line
-        along with the datapoints.
-
-        """
-
         # Show the line along with the datapoints
         self.show_line = True
 
-        # Tell superclass method to show plot
-        super().show()
+        # Show the figure
+        self.show()
 
     def initialize_simulations(self) -> None:
         """
@@ -713,6 +702,7 @@ class Skyrms2010_8_1(Scatter):
 
         super().__init__(evo=evo)
 
+        # Set figure parameters
         self.reset(
             x=range(iterations),
             y=y,
@@ -722,23 +712,11 @@ class Skyrms2010_8_1(Scatter):
             marker_size=5,
         )
 
-        self.show()
-
-    def show(self):
-        """
-        Show the figure.
-
-        We call the superclass method and tell it to show the line
-        along with the datapoints.
-
-        Returns
-        -------
-        None.
-        """
-
+        # Show the line along with the datapoints
         self.show_line = True
 
-        super().show()
+        # Show the figure
+        self.show()
 
     def initialize_simulation(self) -> None:
         """
@@ -845,21 +823,12 @@ class Skyrms2010_8_2(Scatter):
             marker_size=5,
             xscale="log",
         )
+        
+        # Show the line along with the datapoints
+        self.show_line = True
 
         # Show the figure
         self.show()
-
-    def show(self) -> None:
-        """
-        Show the figure.
-
-        We call the superclass method and tell it to show the line
-        along with the datapoints.
-        """
-
-        self.show_line = True
-
-        super().show()
 
     def initialize_simulation(self) -> None:
         """
