@@ -623,6 +623,10 @@ class Quiver3D(Quiver):
             Ratio of the arrow length to the length of the arrowhead(?). The default is 0.5.
         pivot : str, optional
             Pivot point of the arrows. The default is "middle".
+        camera_dist : int, optional
+            Camera distance. The default is 13.
+        camera_dist_noaxis : int, optional
+            Camera distance when axes are off. The default is 10.
         **kwargs : dict
             Arbitrary keyword arguments.
         """
@@ -635,6 +639,45 @@ class Quiver3D(Quiver):
         self.camera_dist_noaxis = camera_dist_noaxis # camera distance when axes are off
 
         super().__init__(**kwargs)
+
+    def reset(  self,
+                color="k",
+                normalize=True,
+                length=0.5,
+                arrow_length_ratio=0.5,
+                pivot="middle",
+                camera_dist = 13,
+                camera_dist_noaxis = 10,
+        ):
+        """
+        Update figure parameters.
+
+        Parameters
+        ----------
+        color : str, optional
+            Color of the arrows. The default is "k" (black).
+        normalize : bool, optional
+            Normalize the arrows. The default is True.
+        length : float, optional
+            Length of the arrows. The default is 0.5.
+        arrow_length_ratio : float, optional
+            Ratio of the arrow length to the length of the arrowhead(?). The default is 0.5.
+        pivot : str, optional
+            Pivot point of the arrows. The default is "middle".
+        camera_dist : int, optional
+            Camera distance. The default is 13.
+        camera_dist_noaxis : int, optional
+            Camera distance when axes are off. The default is 10.
+        """
+        
+        self.color = color
+        self.normalize = normalize
+        self.length = length
+        self.arrow_length_ratio = arrow_length_ratio
+        self.pivot = pivot
+        self.camera_dist = camera_dist # default camera distance
+        self.camera_dist_noaxis = camera_dist_noaxis # camera distance when axes are off
+              
 
     def show(self):
         """
@@ -684,9 +727,13 @@ class Quiver3D(Quiver):
             pivot=self.pivot,
         )
 
-        ax.set_xlim([-0.05, 2.1])
-        ax.set_ylim([-0.05, 3.05])
-        ax.set_zlim([-0.05, 3.05])
+        # Set axis limits.
+        # The x-axis more readily cuts off the plot than do the y- and z-axes.
+        # So make the x-axis a little longer than the maximum value in the data,
+        # and the y- and z-axes a little shorter.
+        ax.set_xlim([-0.05, max(self.X)*1.25])
+        ax.set_ylim([-0.05, max(self.Y)*0.9])
+        ax.set_zlim([-0.05, max(self.Z)*0.9])
 
         # Display axis?
         if hasattr(self, "noaxis") and self.noaxis:
