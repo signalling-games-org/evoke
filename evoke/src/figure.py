@@ -568,6 +568,9 @@ class Quiver2D(Quiver):
 
     def uv_from_xy(self, x, y):
         """
+        Take proportions of first sender strategy (x) and first receiver strategy (y),
+        and using the self.evo object, return velocities of both strategies.
+
         Parameters
         ----------
         x : float
@@ -576,20 +579,40 @@ class Quiver2D(Quiver):
             Current proportion of the first receiver strategy.
 
         Returns
-        velocity of SECOND sender strategy.
-        velocity of SECOND receiver strategy.
+        -------
+        change_in_senders_1 : float
+            Change in the proportion of the first sender strategy.
+        change_in_receivers_1 : float
+            Change in the proportion of the first receiver strategy.
+        change_in_senders_2 : float
+            Change in the proportion of the second sender strategy.
+        change_in_receivers_2 : float
+            Change in the proportion of the second receiver strategy.
         """
 
-        ##  This method accepts the proportion of the first strategy
-        ##  and returns the velocities of the second.
+        # Construct proportions of senders and receivers for the whole population (i.e. both strategies)
         senders = np.array([x, 1 - x])
         receivers = np.array([y, 1 - y])
 
+        # Get the vector describing the change in proportion of senders and receivers for the whole population
         new_pop_vector = self.evo.discrete_replicator_delta_X(
             np.concatenate((senders, receivers))
         )
+
+        # Get the new proportions of senders and receivers for the whole population
         new_senders, new_receivers = self.evo.vector_to_populations(new_pop_vector)
-        return (1 - x) - new_senders[1], (1 - y) - new_receivers[1]
+
+        # Return four things: the change in the proportion of the first sender strategy,
+        # the change in the proportion of the first receiver strategy,
+        # the change in the proportion of the second sender strategy,
+        # and the change in the proportion of the second receiver strategy.
+        change_in_senders_1 = x - new_senders[0]
+        change_in_receivers_1 = y - new_receivers[0]
+        change_in_senders_2 = (1 - x) - new_senders[1]
+        change_in_receivers_2 = (1 - y) - new_receivers[1]
+
+        # Return the changes in proportions of the second sender and receiver strategies
+        return change_in_senders_1, change_in_receivers_1, change_in_senders_2, change_in_receivers_2
 
 
 class Quiver3D(Quiver):

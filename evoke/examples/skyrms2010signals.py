@@ -98,7 +98,12 @@ class Skyrms2010_1_1(Quiver2D):
         ## But uv_from_xy() actually only accepts two SCALAR input!
         ## So vectorize is just iterating over rows and columns.
         ## It takes EVERY CELL-BY-CELL PAIR and feeds them into uv_from_xy().
-        self.U, self.V = np.vectorize(self.uv_from_xy)(self.X, self.Y)
+        # Also, uv_from_xy() returns four things: change in proportion of senders of strategy 1,
+        # change in proportion of receivers of strategy 1,
+        # change in proportion of senders of strategy 2,
+        # change in proportion of receivers of strategy 2.
+        # We only want the last two, so we ignore the first two.
+        _, _, self.U, self.V = np.vectorize(self.uv_from_xy)(self.X, self.Y)
 
         return self.evo
 
