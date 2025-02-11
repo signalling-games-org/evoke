@@ -13,3 +13,4 @@ docs/tutorials/.ipynb_checkpoints/
 
 .spyproject
 *.code-workspace
+.vscode
