@@ -44,7 +44,7 @@ class Skyrms2010_1_1(Quiver2D):
         Sets the figure parameters as class attributes.
         """
 
-        self.states = np.array([0.5, 0.5])
+        self.state_chances = np.array([0.5, 0.5])
         self.sender_payoff_matrix = np.eye(2)
         self.receiver_payoff_matrix = np.eye(2)
         self.messages = 2
@@ -64,7 +64,7 @@ class Skyrms2010_1_1(Quiver2D):
 
         ## Create the game
         lewis22 = games.Chance(
-            self.states,
+            self.state_chances,
             self.sender_payoff_matrix,
             self.receiver_payoff_matrix,
             self.messages,
