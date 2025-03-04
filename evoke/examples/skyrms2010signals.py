@@ -11,6 +11,7 @@ from tqdm import trange
 from evoke.src.figure import Scatter, Bar, Quiver2D, Quiver3D, Ternary
 from evoke.src import games
 from evoke.src import evolve as ev
+from evoke.src.logger import logger, Colors
 
 
 class Skyrms2010_1_1(Quiver2D):
@@ -880,7 +881,7 @@ class Skyrms2010_8_2(Scatter):
 
         for initial_weight in self.initial_weights:
             ## This could really take a long time, so print a report and tqdm progress bar.
-            print(
+            logger.info(
                 f"Initial weight {initial_weight}. Simulating {trials} games with {iterations} iterations each..."
             )
 
@@ -1046,7 +1047,7 @@ class Skyrms2010_8_3(Scatter):
 
         for learning_param in self.learning_params:
             ## This could really take a long time, so print a report and tqdm progress bar.
-            print(
+            logger.info(
                 f"Learning parameter: {learning_param}. Simulating {trials} games with {iterations} iterations each..."
             )
 

@@ -55,6 +55,7 @@ from itertools import combinations
 # Custom library
 from evoke.src.figure import Scatter, Surface
 from evoke.src import games
+from evoke.src.logger import logger, Colors
 
 import evoke.src.exceptions as ex
 
@@ -133,7 +134,7 @@ class GodfreySmith2013_1(Scatter):
             try:
                 self.create_games_demo(games_per_c)
             except ex.ModuleNotInstalledException as e:
-                print(e)
+                logger.error(str(e))
                 return
 
         else:
@@ -198,7 +199,7 @@ class GodfreySmith2013_1(Scatter):
 
             except FileNotFoundError:
                 raise ex.NoDataException(
-                    f"File {fpath_json} was not found. Have you run find_games_3x3() and analyse_games_3x3() for games_per_c={games_per_c} yet?"
+                    f"{Colors.FAIL}File {fpath_json} was not found. Have you run find_games_3x3() and analyse_games_3x3() for games_per_c={games_per_c} yet?{Colors.ENDC}"
                 )
 
             # Append these game to the figure object's game list.
@@ -278,7 +279,7 @@ class GodfreySmith2013_1(Scatter):
                 total_games_required > 100
                 and games_added_to_count % (np.floor(total_games_required / 100)) == 0
             ):
-                print(
+                logger.info(
                     f"Surveyed {total_games_surveyed} games; added {games_added_to_count} of {total_games_required}"
                 )
 
@@ -363,7 +364,7 @@ class GodfreySmith2013_2(Scatter):
             try:
                 self.create_games_demo(games_per_c)
             except ex.ModuleNotInstalledException as e:
-                print(e)
+                logger.error(str(e))
                 return
 
         else:
@@ -428,7 +429,7 @@ class GodfreySmith2013_2(Scatter):
 
             except FileNotFoundError:
                 raise ex.NoDataException(
-                    f"File {fpath_json} was not found. Have you run find_games_3x3() and analyse_games_3x3() for games_per_c={games_per_c} yet?"
+                    f"{Colors.FAIL}File {fpath_json} was not found. Have you run find_games_3x3() and analyse_games_3x3() for games_per_c={games_per_c} yet?{Colors.ENDC}"
                 )
 
             # Append these game to the figure object's game list.
@@ -510,7 +511,7 @@ class GodfreySmith2013_2(Scatter):
                 total_games_required > 100
                 and games_added_to_count % (np.floor(total_games_required / 100)) == 0
             ):
-                print(
+                logger.info(
                     f"Surveyed {total_games_surveyed} games; added {games_added_to_count} of {total_games_required}"
                 )
 
@@ -628,11 +629,11 @@ class GodfreySmith2013_3(Surface):
         self.show()
 
         # Warn user about impossible combinations
-        print(
+        logger.warning(
             "Note that the following combinations of C and K are impossible and have been artificially set to zero:"
         )
         for k_value in k_3x3_excluded_at_c_0:
-            print(f"C={0:.3f}, K={k_value:.3f}")
+            logger.warning(f"C={0:.3f}, K={k_value:.3f}")
 
     def load_saved_games(self, dir_games) -> None:
         """
@@ -678,7 +679,7 @@ class GodfreySmith2013_3(Surface):
 
             except FileNotFoundError:
                 raise ex.NoDataException(
-                    f"File {fpath_json} was not found. Have you run find_games_3x3() and analyse_games_3x3() for games_per_c_and_k={self.games_per_c_and_k} yet?"
+                    f"{Colors.FAIL}File {fpath_json} was not found. Have you run find_games_3x3() and analyse_games_3x3() for games_per_c_and_k={self.games_per_c_and_k} yet?{Colors.ENDC}"
                 )
 
             # Load each game into an object
@@ -1053,7 +1054,7 @@ def find_games_3x3(
                     break
 
                 # Otherwise, print remaining values
-                print(f"C values remaining: {c_outstanding}")
+                logger.info(f"C values remaining: {c_outstanding}")
 
 
 def analyse_games_3x3(
@@ -1125,7 +1126,7 @@ def analyse_games_3x3(
             try:
                 game_dict["e"], game_dict["i"] = game.highest_info_using_equilibrium
             except ex.ModuleNotInstalledException as e:
-                print(e)
+                logger.error(str(e))
                 return
 
         # Dump this updated game file
@@ -1284,16 +1285,16 @@ def find_games_3x3_c_and_k(
                             break
 
                     # Otherwise, print remaining values
-                    print(
+                    logger.info(
                         f"C values found (out of {games_per_c_and_k * len(k_values)}): {c_outstanding}"
                     )
 
     # Warn the user of impossible combinations
-    print(
+    logger.warning(
         "Note that the following combinations of C and K are impossible and have been excluded:"
     )
     for k_value in k_3x3_excluded_at_c_0:
-        print(f"C={0:.3f}, K={k_value:.3f}")
+        logger.warning(f"C={0:.3f}, K={k_value:.3f}")
 
 
 def analyse_games_3x3_c_and_k(
@@ -1390,7 +1391,7 @@ def analyse_games_3x3_c_and_k(
             try:
                 game_dict["e"], game_dict["i"] = game.highest_info_using_equilibrium
             except ex.ModuleNotInstalledException as e:
-                print(e)
+                logger.error(str(e))
                 return
 
         # Dump this updated game file

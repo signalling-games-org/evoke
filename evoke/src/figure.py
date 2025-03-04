@@ -17,6 +17,7 @@ from matplotlib import cm
 from ternary import figure  # from https://github.com/marcharper/python-ternary
 
 import evoke.src.exceptions as ex
+from evoke.src.logger import logger
 
 
 class Figure(ABC):
@@ -88,7 +89,7 @@ class Figure(ABC):
 
         """
 
-        print(
+        logger.warning(
             f"Note: figure will be created in demo mode. To create the full figure use {cls.__name__}(demo=False)."
         )
 
