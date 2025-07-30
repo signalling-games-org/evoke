@@ -6,7 +6,7 @@
 
 # Evoke: A Python package for evolutionary signalling games
 
-+ [Tutorial](https://colab.research.google.com/drive/1zFRb20KoQi0Tdg5UR1_zReHCZicnQLZd#forceEdit=true&sandboxMode=true) | *Google Colab*
++ [Tutorial](https://colab.research.google.com/github/signalling-games-org/evoke/blob/main/docs/tutorials/Evoke%20Tutorial.ipynb) | *Google Colab*
 + [Documentation](https://evoke.readthedocs.io/en/latest/) | *ReadTheDocs*
 + [Package](https://pypi.org/project/evoke-signals/) | *PyPI*
 + [Source code](https://github.com/signalling-games-org/evoke) | *GitHub*
