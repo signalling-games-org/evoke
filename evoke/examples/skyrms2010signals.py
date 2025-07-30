@@ -86,25 +86,38 @@ class Skyrms2010_1_1(Quiver2D):
         ## Y is a matrix that's just 15 columns of <freqs>
         self.X, self.Y = np.meshgrid(freqs, freqs)
 
-        ## This line is doing A LOT in a short space.
-        ## From the manual:
-        ##  "Define a vectorized function which takes a nested sequence of objects or
-        ##   numpy arrays as inputs and returns a single numpy array or a tuple of numpy arrays.
-        ##   The vectorized function evaluates pyfunc over successive tuples of the input arrays
-        ##   like the python map function, except it uses the broadcasting rules of numpy."
-        ## So the resultant function is something that takes a nested sequence of arrays as inputs,
-        ##  and returns a tuple of arrays.
-        ## X and Y are the "nested sequence of arrays" as input
-        ## U and V are the "tuple of arrays" as output.
-        ## But uv_from_xy() actually only accepts two SCALAR input!
-        ## So vectorize is just iterating over rows and columns.
-        ## It takes EVERY CELL-BY-CELL PAIR and feeds them into uv_from_xy().
+        # This line is doing A LOT in a short space.
+        # From the manual:
+        #  "Define a vectorized function which takes a nested sequence of objects or
+        #   numpy arrays as inputs and returns a single numpy array or a tuple of numpy arrays.
+        #   The vectorized function evaluates pyfunc over successive tuples of the input arrays
+        #   like the python map function, except it uses the broadcasting rules of numpy."
+        # So the resultant function is something that takes a nested sequence of arrays as inputs,
+        #  and returns a tuple of arrays.
+        # X and Y are the "nested sequence of arrays" as input
+        # U and V are the "tuple of arrays" as output.
+        # But uv_from_xy() actually only accepts two SCALAR inputs!
+        # So vectorize is just iterating over rows and columns.
+        # It takes EVERY CELL-BY-CELL PAIR and feeds them into uv_from_xy().
+
         # Also, uv_from_xy() returns four things: change in proportion of senders of strategy 1,
         # change in proportion of receivers of strategy 1,
         # change in proportion of senders of strategy 2,
         # change in proportion of receivers of strategy 2.
         # We only want the last two, so we ignore the first two.
-        _, _, self.U, self.V = np.vectorize(self.uv_from_xy)(self.X, self.Y)
+
+        # Furthermore, Skyrms plots the senders on the Y axis and the receivers on the X axis,
+        # so we need to feed these into uv_from_xy() in the opposite order.
+        # And U and V correspond to the X and Y axis, respectively.
+        # So we need to map senders to V and receivers to U.
+        _, _, self.V, self.U = np.vectorize(self.uv_from_xy)(self.Y, self.X)
+
+        # Finally, we're telling uv_from_xy() what the proportions of the FIRST sender and receiver strategies are,
+        # and reading off it what the change in proportions of the SECOND sender and receiver strategies are.
+        # So we need to flip the X axis (to get the second receiver strategy)
+        # and flip the Y axis (to get the second sender strategy).
+        self.X = 1 - self.X
+        self.Y = 1 - self.Y
 
         return self.evo
 

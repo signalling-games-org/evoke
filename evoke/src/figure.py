@@ -567,16 +567,16 @@ class Quiver2D(Quiver):
         if not hasattr(self, "show_immediately"):
             self.show_immediately = True
 
-    def uv_from_xy(self, x, y):
+    def uv_from_xy(self, p_sender_1, p_receiver_1):
         """
-        Take proportions of first sender strategy (x) and first receiver strategy (y),
+        Take proportions of first sender strategy (p_sender_1) and first receiver strategy (p_receiver_1),
         and using the self.evo object, return velocities of both strategies.
 
         Parameters
         ----------
-        x : float
+        p_sender_1 : float
             Current proportion of the first sender strategy.
-        y : float
+        p_receiver_1 : float
             Current proportion of the first receiver strategy.
 
         Returns
@@ -592,8 +592,8 @@ class Quiver2D(Quiver):
         """
 
         # Construct proportions of senders and receivers for the whole population (i.e. both strategies)
-        senders = np.array([x, 1 - x])
-        receivers = np.array([y, 1 - y])
+        senders = np.array([p_sender_1, 1 - p_sender_1])
+        receivers = np.array([p_receiver_1, 1 - p_receiver_1])
 
         # Get the vector describing the change in proportion of senders and receivers for the whole population
         new_pop_vector = self.evo.discrete_replicator_delta_X(
@@ -607,10 +607,10 @@ class Quiver2D(Quiver):
         # the change in the proportion of the first receiver strategy,
         # the change in the proportion of the second sender strategy,
         # and the change in the proportion of the second receiver strategy.
-        change_in_senders_1 = x - new_senders[0]
-        change_in_receivers_1 = y - new_receivers[0]
-        change_in_senders_2 = (1 - x) - new_senders[1]
-        change_in_receivers_2 = (1 - y) - new_receivers[1]
+        change_in_senders_1     = new_senders[0]    - p_sender_1
+        change_in_receivers_1   = new_receivers[0]  - p_receiver_1
+        change_in_senders_2     = new_senders[1]    - (1 - p_sender_1)
+        change_in_receivers_2   = new_receivers[1]  - (1 - p_receiver_1)
 
         # Return the changes in proportions of the second sender and receiver strategies
         return change_in_senders_1, change_in_receivers_1, change_in_senders_2, change_in_receivers_2
