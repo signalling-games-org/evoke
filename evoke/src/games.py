@@ -1330,6 +1330,258 @@ class NoSignal:
         return types @ pop
 
 
+class ActAct:
+    """
+    Construct a payoff function for a game without a chance player: a sender that
+    chooses an act among m possible ones; and a receiver that chooses an act
+    among o possible ones.
+    There are no messages, though "sender" and "receiver" terminology
+    is retained for easy comparison to other classes.
+    Payoffs are determined by both acts, and are not necessarily the same for both players.
+    """
+
+    def __init__(self, sender_payoff_matrix, receiver_payoff_matrix):
+        """
+        Initialize the ActAct game with sender and receiver payoff matrices.
+        Payoff matrices are mxo numpy arrays.
+        The sender's available acts correspond to the m rows,
+        while the receiver's available acts correspond to the o columns.
+
+        Parameters
+        ----------
+        sender_payoff_matrix : numpy array
+            mxo payoff matrix for the sender
+        receiver_payoff_matrix : numpy array
+            mxo payoff matrix for the receiver
+        """
+
+        # Check data is consistent
+        if sender_payoff_matrix.shape != receiver_payoff_matrix.shape:
+            raise ValueError(
+                "Sender and receiver payoff arrays should have the same shape"
+            )
+
+        # Set the class attributes
+        # Backwards compatibility: chance_node is set to False
+        # because there is no state (i.e. no chance player, no "Nature") in this game.
+        self.chance_node = False  # flag to know where the game comes from
+
+        # Set the sender and receiver payoff matrices
+        self.sender_payoff_matrix = sender_payoff_matrix
+        self.receiver_payoff_matrix = receiver_payoff_matrix
+
+        # Set the number of acts for sender and receiver
+        # This is the number of rows and columns in the payoff matrices.
+        # We already know the matrices are the same shape because we checked it above.
+        self.acts_sender = sender_payoff_matrix.shape[0]
+        self.acts_receiver = receiver_payoff_matrix.shape[1]
+
+    def sender_pure_strats(self):
+        """
+        Return the set of pure strategies available to the sender.
+        It's an mxm matrix where each row specifies the probabilities of
+        playing each of the m acts.
+        Because pure strategies are deterministic, each row is a unit vector
+        with a single 1 and the rest 0s.
+        Therefore, the result is an identity matrix of size m.
+
+        Returns
+        -------
+        numpy array
+            Array with all pure sender strategies
+        """
+
+        # Create the pure strategy matrix.
+        # Each row specifies a distinct pure strategy.
+        pure_strats = np.identity(self.acts_sender)
+        
+        return pure_strats
+
+    def receiver_pure_strats(self):
+        """
+        Return the set of pure strategies available to the sender.
+        It's an oxo matrix where each row specifies the probabilities of
+        playing each of the o acts.
+        Because pure strategies are deterministic, each row is a unit vector
+        with a single 1 and the rest 0s.
+        Therefore, the result is an identity matrix of size o.
+
+        Returns
+        -------
+        numpy array
+            Array with all pure receiver strategies
+        """
+
+        # Create the pure strategy matrix.
+        # Each row specifies a distinct pure strategy.
+        pure_strats = np.identity(self.acts_receiver)
+
+        return pure_strats
+
+    def payoff(self, sender_strat, receiver_strat):
+        """
+        Calculate the expected payoff for sender and receiver given concrete
+        sender and receiver strats.
+
+        Parameters
+        ----------
+        sender_strat : numpy array
+            Sender strategy. A list of probabilities of length self.acts_sender
+        receiver_strat : numpy array
+            Receiver strategy. A list of probabilities of length self.acts_receiver
+
+        Returns
+        -------
+        tuple
+            Tuple with the expected payoff for the sender and the receiver
+        """
+
+        # Check that the sender strategy is valid
+        if not (len(sender_strat) == self.acts_sender):
+            raise ValueError(f"Sender strategy out of bounds: should be of length {self.acts_sender}, got {len(sender_strat)}")
+        
+        # Check that the receiver strategy is valid
+        if not (len(receiver_strat) == self.acts_receiver):
+            raise ValueError(f"Receiver strategy out of bounds: should be of length {self.acts_receiver}, got {len(receiver_strat)}")
+
+        # Calculate the joint probability distribution of outcomes.
+        # This creates an mxo matrix where each cell is the product of the
+        # probabilities of the sender and receiver strategies.
+        joint_probabilities = np.outer(sender_strat, receiver_strat)
+
+        # Calculate the expected payoff for sender and receiver.
+        # The expected payoff for the sender is the joint probability distribution of outcomes
+        # multiplied cellwise by the sender payoff matrix, all summed.
+        sender_payoff = np.sum(joint_probabilities * self.sender_payoff_matrix)
+        receiver_payoff = np.sum(joint_probabilities * self.receiver_payoff_matrix)
+
+        # Return the expected payoffs as a tuple
+        return (sender_payoff, receiver_payoff)
+
+    def avg_payoffs(self, sender_strats, receiver_strats):
+        """
+        Kind of a souped-up version of payoff().
+        Basically we run payoff() once for each combination of sender and receiver strategies
+        and return the results in a matrix.
+
+        Return an array with the average payoff of sender strategy i against
+        receiver strategy j in position <i, j>.
+
+        Parameters
+        ----------
+        sender_strats : numpy array
+            Array with multiple sender strategies. Must have m columns.
+        receiver_strats : numpy array
+            Array with multiple receiver strategies. Must have o columns.
+
+        Returns
+        -------
+        numpy array
+            Array with the average payoff for each combination of sender and receiver strategies
+        """
+
+        # Check that the sender strategies are valid
+        if not (sender_strats.shape[1] == self.acts_sender):
+            raise ValueError(f"Sender strategies out of bounds: should have {self.acts_sender} columns, got {sender_strats.shape[1]}")
+        
+        # Check that the receiver strategies are valid
+        if not (receiver_strats.shape[1] == self.acts_receiver):
+            raise ValueError(f"Receiver strategies out of bounds: should have {self.acts_receiver} columns, got {receiver_strats.shape[1]}")
+        
+        # Create a vectorized function to compute the payoff for each combination of sender and receiver strategies.
+        # np.vectorize is actually a class that takes a function and returns a new function
+        # that applies the original function to each element of the input arrays.
+        # The inputs to the function are coordinates (i and j), and what the function does is
+        # call self.payoff() with the sender and receiver strategies at those coordinates.
+        fn_payoff_ij = np.vectorize(
+            lambda i, j: self.payoff(sender_strats[i], receiver_strats[j])
+        )
+
+        # We need to specify the shape of the result.
+        # The result will be a matrix with shape (len(sender_strats), len(receiver_strats)).
+        shape_result = (len(sender_strats), len(receiver_strats))
+
+        # Create a matrix to hold the payoffs.
+        # This runs payoff() for each combination of sender and receiver strategies.
+        # The result is a matrix with shape (len(sender_strats), len(receiver_strats)).
+        # Thus the number of columns in the input matrices is now ignored.
+        ar_payoffs = np.fromfunction(fn_payoff_ij, shape_result, dtype=int)
+
+        return ar_payoffs
+
+    def calculate_sender_mixed_strat(self, sendertypes, senderpop):
+        """
+        Calculate the mixed strategy of the sender given the types and the population.
+
+        Parameters
+        ----------
+        sendertypes : numpy array
+            Array such that each element is a sender type (itself a 1D numpy array with probabilities of playing each act).
+        senderpop : vector (numpy array)
+            1D array where each entry is the population proportion playing the corresponding strategy in sendertypes.
+
+        Returns
+        -------
+        vector (numpy array)
+            Effective mixed strategy of this sender population
+        """
+
+        # Check that the sender types and population are compatible
+        if sendertypes.shape[0] != senderpop.shape[0]:
+            raise ValueError("Sender types and population proportions must have the same length")
+
+        # Check that the sender types are valid
+        if not all(len(type_) == self.acts_sender for type_ in sendertypes):
+            raise ValueError(f"Each sender type should have {self.acts_sender} elements, got types with different lengths")
+        
+        # Calculate the mixed strategy of the sender population.
+        # This is done by multiplying each sender type by its corresponding population proportion.
+        # We need to broadcast senderpop so it repeats the same proportion for each act in a particular strategy.
+        ar_mixedstratsender_full = sendertypes * senderpop[:, np.newaxis]
+
+        # Now we sum the mixed strategies across all sender types.
+        # This gives us the effective mixed strategy of the sender population.
+        mixedstratsender = ar_mixedstratsender_full.sum(axis=0)
+
+        return mixedstratsender
+
+    def calculate_receiver_mixed_strat(self, receivertypes, receiverpop):
+        """
+        Calculate the mixed strategy of the receiver given the types and the population
+
+        Parameters
+        ----------
+        receivertypes : numpy array
+            Array such that each element is a receiver type (itself a 1D numpy array with probabilities of playing each act).
+        receiverpop : vector (numpy array)
+            1D array where each entry is the population proportion playing the corresponding strategy in receivertypes.
+
+        Returns
+        -------
+        vector (numpy array)
+            Effective mixed strategy of this receiver population
+        """
+
+        # Check that the receiver types and population are compatible
+        if receivertypes.shape[0] != receiverpop.shape[0]:
+            raise ValueError("Receiver types and population proportions must have the same length")
+        
+        # Check that the receiver types are valid
+        if not all(len(type_) == self.acts_receiver for type_ in receivertypes):
+            raise ValueError(f"Each receiver type should have {self.acts_receiver} elements, got types with different lengths")
+        
+        # Calculate the mixed strategy of the receiver population.
+        # This is done by multiplying each receiver type by its corresponding population proportion.
+        # We need to broadcast receiverpop so it repeats the same proportion for each act in a particular strategy.
+        ar_mixedstratreceiver_full = receivertypes * receiverpop[:, np.newaxis]
+
+        # Now we sum the mixed strategies across all receiver types.
+        # This gives us the effective mixed strategy of the receiver population.
+        mixedstratreceiver = ar_mixedstratreceiver_full.sum(axis=0)
+
+        return mixedstratreceiver
+    
+
 def lewis_square(n=2):
     """
     Factory method to produce a cooperative nxnxn signalling game

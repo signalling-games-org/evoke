@@ -312,6 +312,54 @@ class TestGames(unittest.TestCase):
         # Check is instance
         self.assertIsInstance(game, games.NoSignal)
 
+    def test_ActAct(self):
+        """
+        Test games.ActAct class
+
+        Returns
+        -------
+        None.
+
+        """
+
+        # Initialise
+        n = np.random.randint(2, 5)
+
+        # Create sender_payoff_matrix and receiver_payoff_matrix,
+        # which define the payoffs for sender and receiver.
+        # In a fully cooperative game they are identical.
+        sender_payoff_matrix = receiver_payoff_matrix = np.eye(n)
+
+        # Create the game
+        game = games.ActAct(
+            sender_payoff_matrix=sender_payoff_matrix,
+            receiver_payoff_matrix=receiver_payoff_matrix,
+        )
+
+        # Check methods
+        sender_strats = game.sender_pure_strats()
+        receiver_strats = game.receiver_pure_strats()
+
+        # Pick a random sender strat and receiver strat for the next method.
+        i = np.random.randint(len(sender_strats))
+        rand_sender_strat = sender_strats[i]
+        i = np.random.randint(len(receiver_strats))
+        rand_receiver_strat = receiver_strats[i]
+        game.payoff(rand_sender_strat, rand_receiver_strat)
+
+        # Average payoffs
+        game.avg_payoffs(sender_strats, receiver_strats)
+
+        # Generate random population vectors for the next method.
+        rand_sender_pop = np.random.random((len(sender_strats),))
+        rand_sender_pop /= sum(rand_sender_pop)
+
+        rand_receiver_pop = np.random.random((len(receiver_strats),))
+        rand_receiver_pop /= sum(rand_receiver_pop)
+
+        # Calculating mixed strategies
+        game.calculate_sender_mixed_strat(sender_strats, rand_sender_pop)
+        game.calculate_receiver_mixed_strat(receiver_strats, rand_receiver_pop)
 
 if __name__ == "__main__":
     unittest.main()
