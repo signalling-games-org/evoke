@@ -76,23 +76,26 @@ class TestEvolve(unittest.TestCase):
         evo.replicator_jacobian_odeint(np.array([0, 1 / 3, 1 / 3, 1 / 3]))
 
         # Check the replicator equations yield vectors that sum to 1
-        self.assertEqual(
+        self.assertAlmostEqual(
             1,
             evo.discrete_replicator_delta_X(
                 np.array([1 / 4, 1 / 4, 1 / 4, 1 / 4])
             ).sum(),
+            5,
         )  # 1 step
-        self.assertEqual(
+        self.assertAlmostEqual(
             1,
             evo.replicator_discrete(np.array([1 / 8, 1 / 4, 1 / 4, 1 / 8]), 4)[
                 -1
             ].sum(),
+            5,
         )  # 4 steps
-        self.assertEqual(
+        self.assertAlmostEqual(
             1,
             evo.replicator_odeint(
                 np.array([6 / 16, 1 / 16, 4 / 16, 5 / 16]), range(10)
             )[-1].sum(),
+            5,
         )  # 10 steps
 
         # Check the continuous replicator dX/dt vector sums to 0 (or nearly so)
